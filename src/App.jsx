@@ -5,45 +5,13 @@ import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
 import useCrafting from './hooks/useCrafting';
 import useCustomers from './hooks/useCustomers';
+import useGameState from './hooks/useGameState';
 import CraftingPanel from './features/CraftingPanel';
 import ShopInterface from './features/ShopInterface';
 import EndOfDaySummary from './features/EndOfDaySummary';
 
 const MerchantsMorning = () => {
-  const [gameState, setGameState] = useState({
-    phase: PHASES.MORNING,
-    day: 1,
-    gold: 120,
-    materials: {
-      iron: 3,
-      wood: 3,
-      fur: 2,
-      cloth: 2,
-      stone: 2,
-      bone: 1
-    },
-    inventory: {},
-    customers: [],
-    totalEarnings: 0,
-    shopLevel: 1
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const savedState = window.localStorage.getItem('gameState');
-    if (savedState) {
-      try {
-        setGameState(JSON.parse(savedState));
-      } catch (e) {
-        console.error('Failed to load game state', e);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem('gameState', JSON.stringify(gameState));
-  }, [gameState]);
+  const [gameState, setGameState, resetGame] = useGameState();
 
   const [eventLog, setEventLog] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -54,8 +22,13 @@ const MerchantsMorning = () => {
   const [sellingTab, setSellingTab] = useState('weapon');
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window === 'undefined') return false;
-    const stored = window.localStorage.getItem('darkMode');
-    return stored ? stored === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    try {
+      const stored = window.localStorage.getItem('darkMode');
+      return stored ? stored === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch (e) {
+      console.error('Failed to load dark mode preference', e);
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
   });
   const notificationTimers = useRef([]);
 
@@ -68,7 +41,11 @@ const MerchantsMorning = () => {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem('darkMode', darkMode);
+      try {
+        window.localStorage.setItem('darkMode', darkMode);
+      } catch (e) {
+        console.error('Failed to save dark mode preference', e);
+      }
     }
   }, [darkMode]);
 
@@ -152,6 +129,18 @@ const MerchantsMorning = () => {
             >
               <AlertCircle className="w-3 h-3" />
               Events {showEventLog ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+            <button
+              onClick={() => {
+                if (window.confirm('Reset game progress?')) {
+                  resetGame();
+                  addEvent('Game reset', 'info');
+                  addNotification('Game reset', 'success');
+                }
+              }}
+              className="flex items-center gap-1 text-xs bg-red-100 hover:bg-red-200 px-2 py-1 rounded dark:bg-red-700 dark:hover:bg-red-600"
+            >
+              Reset
             </button>
           </div>
         </div>

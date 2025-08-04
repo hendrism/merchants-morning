@@ -1,0 +1,18 @@
+export const MATERIALS = {
+  iron: { name: 'Iron', rarity: 'common', icon: '⚙️' },
+  wood: { name: 'Wood', rarity: 'common', icon: '🪵' },
+  fur: { name: 'Fur', rarity: 'common', icon: '🦫' },
+  cloth: { name: 'Cloth', rarity: 'common', icon: '🧵' },
+  stone: { name: 'Stone', rarity: 'common', icon: '🪨' },
+  bone: { name: 'Bone', rarity: 'common', icon: '🦴' },
+  leather: { name: 'Leather', rarity: 'uncommon', icon: '🪖' },
+  silver_ore: { name: 'Silver Ore', rarity: 'uncommon', icon: '🥈' },
+  silk: { name: 'Silk', rarity: 'uncommon', icon: '🕸️' },
+  bronze: { name: 'Bronze', rarity: 'uncommon', icon: '🔶' },
+  gemstone: { name: 'Gemstone', rarity: 'rare', icon: '💎' },
+  gold_ore: { name: 'Gold Ore', rarity: 'rare', icon: '✨' },
+  crystal: { name: 'Crystal', rarity: 'rare', icon: '🔮' },
+  mithril: { name: 'Mithril', rarity: 'rare', icon: '⚡' },
+  ruby: { name: 'Ruby', rarity: 'rare', icon: '♦️' },
+  obsidian: { name: 'Obsidian', rarity: 'rare', icon: '⬛' },
+};
