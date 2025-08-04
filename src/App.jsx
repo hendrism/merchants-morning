@@ -2,69 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Package, Hammer, Store, Star, Coins, ChevronRight, X, Check, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { PHASES, MATERIALS, RECIPES, BOX_TYPES } from './constants';
 
 const MerchantsMorning = () => {
-  const PHASES = {
-    MORNING: 'morning',
-    CRAFTING: 'crafting', 
-    SHOPPING: 'shopping',
-    END_DAY: 'end_day'
-  };
-
-  const MATERIALS = {
-    iron: { name: 'Iron', rarity: 'common', icon: '⚙️' },
-    wood: { name: 'Wood', rarity: 'common', icon: '🪵' },
-    fur: { name: 'Fur', rarity: 'common', icon: '🦫' },
-    cloth: { name: 'Cloth', rarity: 'common', icon: '🧵' },
-    stone: { name: 'Stone', rarity: 'common', icon: '🪨' },
-    bone: { name: 'Bone', rarity: 'common', icon: '🦴' },
-    leather: { name: 'Leather', rarity: 'uncommon', icon: '🪖' },
-    silver_ore: { name: 'Silver Ore', rarity: 'uncommon', icon: '🥈' },
-    silk: { name: 'Silk', rarity: 'uncommon', icon: '🕸️' },
-    bronze: { name: 'Bronze', rarity: 'uncommon', icon: '🔶' },
-    gemstone: { name: 'Gemstone', rarity: 'rare', icon: '💎' },
-    gold_ore: { name: 'Gold Ore', rarity: 'rare', icon: '✨' },
-    crystal: { name: 'Crystal', rarity: 'rare', icon: '🔮' },
-    mithril: { name: 'Mithril', rarity: 'rare', icon: '⚡' },
-    ruby: { name: 'Ruby', rarity: 'rare', icon: '♦️' },
-    obsidian: { name: 'Obsidian', rarity: 'rare', icon: '⬛' }
-  };
-
-  const RECIPES = [
-    { id: 'iron_dagger', name: 'Iron Dagger', ingredients: { iron: 1, wood: 1 }, type: 'weapon', rarity: 'common', sellPrice: 10 },
-    { id: 'wooden_club', name: 'Wooden Club', ingredients: { wood: 2, stone: 1 }, type: 'weapon', rarity: 'common', sellPrice: 8 },
-    { id: 'stone_axe', name: 'Stone Axe', ingredients: { stone: 2, wood: 1 }, type: 'weapon', rarity: 'common', sellPrice: 12 },
-    { id: 'iron_sword', name: 'Iron Sword', ingredients: { iron: 2, wood: 1, leather: 1 }, type: 'weapon', rarity: 'uncommon', sellPrice: 25 },
-    { id: 'silver_blade', name: 'Silver Blade', ingredients: { silver_ore: 2, wood: 1 }, type: 'weapon', rarity: 'uncommon', sellPrice: 28 },
-    { id: 'bronze_spear', name: 'Bronze Spear', ingredients: { bronze: 1, wood: 2 }, type: 'weapon', rarity: 'uncommon', sellPrice: 22 },
-    { id: 'crystal_staff', name: 'Crystal Staff', ingredients: { wood: 1, crystal: 2 }, type: 'weapon', rarity: 'rare', sellPrice: 60 },
-    { id: 'obsidian_blade', name: 'Obsidian Blade', ingredients: { obsidian: 2, mithril: 1 }, type: 'weapon', rarity: 'rare', sellPrice: 75 },
-    { id: 'runed_sword', name: 'Runed Sword', ingredients: { mithril: 2, ruby: 1, silk: 1 }, type: 'weapon', rarity: 'rare', sellPrice: 80 },
-    { id: 'cloth_robe', name: 'Cloth Robe', ingredients: { cloth: 3, fur: 1 }, type: 'armor', rarity: 'common', sellPrice: 18 },
-    { id: 'wooden_shield', name: 'Wooden Shield', ingredients: { wood: 3 }, type: 'armor', rarity: 'common', sellPrice: 12 },
-    { id: 'fur_vest', name: 'Fur Vest', ingredients: { fur: 3, bone: 1 }, type: 'armor', rarity: 'common', sellPrice: 15 },
-    { id: 'leather_cap', name: 'Leather Cap', ingredients: { fur: 2, leather: 1 }, type: 'armor', rarity: 'uncommon', sellPrice: 25 },
-    { id: 'bronze_helmet', name: 'Bronze Helmet', ingredients: { bronze: 2, cloth: 1 }, type: 'armor', rarity: 'uncommon', sellPrice: 30 },
-    { id: 'silk_cloak', name: 'Silk Cloak', ingredients: { silk: 2, silver_ore: 1 }, type: 'armor', rarity: 'uncommon', sellPrice: 32 },
-    { id: 'mithril_chainmail', name: 'Mithril Chainmail', ingredients: { mithril: 3, silk: 1 }, type: 'armor', rarity: 'rare', sellPrice: 65 },
-    { id: 'crystal_armor', name: 'Crystal Armor', ingredients: { crystal: 2, mithril: 2 }, type: 'armor', rarity: 'rare', sellPrice: 70 },
-    { id: 'golden_breastplate', name: 'Golden Breastplate', ingredients: { gold_ore: 3, gemstone: 1 }, type: 'armor', rarity: 'rare', sellPrice: 78 },
-    { id: 'bone_charm', name: 'Bone Charm', ingredients: { bone: 2, cloth: 1 }, type: 'trinket', rarity: 'common', sellPrice: 14 },
-    { id: 'wooden_talisman', name: 'Wooden Talisman', ingredients: { wood: 2, stone: 1 }, type: 'trinket', rarity: 'common', sellPrice: 16 },
-    { id: 'iron_ring', name: 'Iron Ring', ingredients: { iron: 2, fur: 1 }, type: 'trinket', rarity: 'common', sellPrice: 13 },
-    { id: 'silver_amulet', name: 'Silver Amulet', ingredients: { silver_ore: 2, silk: 1 }, type: 'trinket', rarity: 'uncommon', sellPrice: 26 },
-    { id: 'bronze_pendant', name: 'Bronze Pendant', ingredients: { bronze: 1, leather: 1, stone: 1 }, type: 'trinket', rarity: 'uncommon', sellPrice: 24 },
-    { id: 'enchanted_bracelet', name: 'Enchanted Bracelet', ingredients: { silver_ore: 1, bone: 2 }, type: 'trinket', rarity: 'uncommon', sellPrice: 28 },
-    { id: 'gem_ring', name: 'Gem Ring', ingredients: { gold_ore: 1, gemstone: 1 }, type: 'trinket', rarity: 'rare', sellPrice: 50 },
-    { id: 'ruby_crown', name: 'Ruby Crown', ingredients: { gold_ore: 2, ruby: 2 }, type: 'trinket', rarity: 'rare', sellPrice: 85 },
-    { id: 'crystal_orb', name: 'Crystal Orb', ingredients: { crystal: 2, mithril: 1, silk: 1 }, type: 'trinket', rarity: 'rare', sellPrice: 72 }
-  ];
-
-  const BOX_TYPES = {
-    bronze: { name: 'Bronze Box', cost: 20, materialCount: [5, 7], rarityWeights: { common: 75, uncommon: 25, rare: 0 } },
-    silver: { name: 'Silver Box', cost: 45, materialCount: [6, 9], rarityWeights: { common: 45, uncommon: 45, rare: 10 } },
-    gold: { name: 'Gold Box', cost: 85, materialCount: [7, 10], rarityWeights: { common: 25, uncommon: 55, rare: 20 } }
-  };
 
   const [gameState, setGameState] = useState({
     phase: PHASES.MORNING,
