@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Package, Coins, ChevronRight, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Package, Coins, ChevronRight, AlertCircle, ChevronDown, ChevronUp, Sun, Moon } from 'lucide-react';
 import { PHASES, MATERIALS, BOX_TYPES } from './constants';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
@@ -52,12 +52,31 @@ const MerchantsMorning = () => {
   const [craftingTab, setCraftingTab] = useState('weapon');
   const [inventoryTab, setInventoryTab] = useState('weapon');
   const [sellingTab, setSellingTab] = useState('weapon');
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const stored = window.localStorage.getItem('darkMode');
+    return stored ? stored === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+  const notificationTimers = useRef([]);
 
   useEffect(() => {
     if (selectedCustomer) {
       setSellingTab(selectedCustomer.requestType);
     }
   }, [selectedCustomer]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('darkMode', darkMode);
+    }
+  }, [darkMode]);
+
+  useEffect(() => {
+    return () => {
+      notificationTimers.current.forEach(clearTimeout);
+    };
+  }, []);
 
   const addEvent = (message, type = 'info') => {
     const event = {
@@ -76,9 +95,11 @@ const MerchantsMorning = () => {
       type
     };
     setNotifications(prev => [...prev, notification]);
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== notification.id));
+      notificationTimers.current = notificationTimers.current.filter(t => t !== timer);
     }, 3000);
+    notificationTimers.current.push(timer);
   };
 
   const getRarityColor = (rarity) => {
@@ -105,13 +126,13 @@ const MerchantsMorning = () => {
     useCustomers(gameState, setGameState, addEvent, addNotification, setSelectedCustomer);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-16 dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
       <div className="max-w-6xl mx-auto p-3">
-        <div className="bg-white rounded-lg shadow-lg p-3 mb-3 flex items-center justify-between">
+        <div className="bg-white rounded-lg shadow-lg p-3 mb-3 flex items-center justify-between dark:bg-gray-800">
           <div>
-            <h1 className="text-lg sm:text-xl font-bold text-amber-800">🏰 Merchant's Morning</h1>
-            <p className="text-xs text-amber-600">Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}</p>
+            <h1 className="text-lg sm:text-xl font-bold text-amber-800 dark:text-amber-300">🏰 Merchant's Morning</h1>
+            <p className="text-xs text-amber-600 dark:text-amber-400">Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-lg font-bold text-yellow-600">
@@ -119,8 +140,15 @@ const MerchantsMorning = () => {
               {gameState.gold}
             </div>
             <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+              aria-label="Toggle dark mode"
+            >
+              {darkMode ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button
               onClick={() => setShowEventLog(!showEventLog)}
-              className="flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded"
+              className="flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded dark:bg-gray-700 dark:hover:bg-gray-600"
             >
               <AlertCircle className="w-3 h-3" />
               Events {showEventLog ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -129,23 +157,23 @@ const MerchantsMorning = () => {
         </div>
 
         {showEventLog && (
-          <div className="bg-white rounded-lg shadow-lg p-3 mb-3">
+          <div className="bg-white rounded-lg shadow-lg p-3 mb-3 dark:bg-gray-800">
             <EventLog events={eventLog} />
           </div>
         )}
 
         {gameState.phase === PHASES.MORNING && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-4">
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
               <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
                 <Package className="w-4 h-4" />
                 Supply Boxes
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 {Object.entries(BOX_TYPES).map(([type, box]) => (
-                  <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50">
+                  <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
                     <h3 className="font-bold capitalize text-sm mb-1">{box.name}</h3>
-                    <p className="text-xs text-gray-600 mb-2">
+                    <p className="text-xs text-gray-600 mb-2 dark:text-gray-300">
                       {box.materialCount[0]}-{box.materialCount[1]} materials
                     </p>
                     <button
@@ -166,7 +194,7 @@ const MerchantsMorning = () => {
               </button>
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-4">
+            <div className="bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
               <h3 className="text-lg font-bold mb-3">Materials</h3>
               <div className="grid grid-cols-2 gap-2">
                 {Object.entries(gameState.materials).filter(([_, count]) => count > 0).map(([materialId, count]) => {
@@ -220,7 +248,7 @@ const MerchantsMorning = () => {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-2">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-2 dark:bg-gray-800 dark:border-gray-700">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold text-yellow-600">
@@ -238,7 +266,7 @@ const MerchantsMorning = () => {
                 );
               })}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 dark:text-gray-400">
               Day {gameState.day}
             </div>
           </div>

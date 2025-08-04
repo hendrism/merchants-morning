@@ -16,7 +16,7 @@ const ShopInterface = ({
   getRarityColor,
 }) => (
   <div className="space-y-4">
-    <div className="bg-white rounded-lg shadow-lg p-4">
+    <div className="bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
       <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
         <Store className="w-4 h-4" />
         Select Customer ({gameState.customers.filter(c => !c.satisfied).length} waiting)
@@ -33,7 +33,7 @@ const ShopInterface = ({
             className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${
               selectedCustomer?.id === customer.id
                 ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             <div className="font-bold">
@@ -48,8 +48,8 @@ const ShopInterface = ({
       </div>
 
       {gameState.customers.filter(c => c.satisfied).length > 0 && (
-        <div className="mt-3 p-2 bg-green-50 rounded border-green-200 border">
-          <p className="text-sm text-green-700">
+        <div className="mt-3 p-2 bg-green-50 rounded border-green-200 border dark:bg-green-900 dark:border-green-700">
+          <p className="text-sm text-green-700 dark:text-green-300">
             ✅ Served: {gameState.customers.filter(c => c.satisfied).map(c => `${c.name} (${c.payment}g)`).join(', ')}
           </p>
         </div>
@@ -64,19 +64,19 @@ const ShopInterface = ({
     </div>
 
     {selectedCustomer && (
-      <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-        <p className="font-medium text-blue-800">
+      <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 dark:bg-blue-900 dark:border-blue-700">
+        <p className="font-medium text-blue-800 dark:text-blue-300">
           Selling to: {selectedCustomer.name} (wants {selectedCustomer.requestRarity} {selectedCustomer.requestType} • offers {selectedCustomer.offerPrice}g)
           {selectedCustomer.isFlexible && <span className="text-blue-600"> • Flexible with substitutes 😊</span>}
         </p>
       </div>
     )}
 
-    <div className="bg-white rounded-lg shadow-lg p-4">
+    <div className="bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
       <h3 className="text-lg font-bold mb-3">Your Items for Sale</h3>
 
       {!selectedCustomer && (
-        <p className="text-sm text-gray-500 mb-4 p-3 bg-gray-50 rounded">
+        <p className="text-sm text-gray-500 mb-4 p-3 bg-gray-50 rounded dark:text-gray-400 dark:bg-gray-700">
           👆 Select a customer above to see item pricing and sell items
         </p>
       )}
@@ -102,7 +102,7 @@ const ShopInterface = ({
           const recipe = RECIPES.find(r => r.id === itemId);
 
           let saleInfo = null;
-          let cardStyle = 'border-gray-200 bg-white';
+          let cardStyle = 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-700';
 
           if (selectedCustomer) {
             const exactMatch = recipe.type === selectedCustomer.requestType && recipe.rarity === selectedCustomer.requestRarity;
@@ -144,7 +144,7 @@ const ShopInterface = ({
                   <p className={`text-xs px-1 py-0.5 rounded inline-block mb-1 border ${getRarityColor(recipe.rarity)}`}>
                     {recipe.type} • {recipe.rarity}
                   </p>
-                  <p className="text-xs text-gray-600">Stock: {count}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-300">Stock: {count}</p>
                 </div>
               </div>
 
@@ -173,7 +173,7 @@ const ShopInterface = ({
                 className={`w-full py-2 rounded text-sm font-bold transition-colors ${
                   selectedCustomer
                     ? 'bg-green-500 hover:bg-green-600 text-white'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-300 text-gray-500 dark:bg-gray-600 dark:text-gray-400 cursor-not-allowed'
                 }`}
               >
                 {selectedCustomer ? `Sell to ${selectedCustomer.name}` : 'Select Customer First'}
@@ -184,8 +184,8 @@ const ShopInterface = ({
 
         {filterInventoryByType(sellingTab).length === 0 && (
           <div className="col-span-full text-center py-8">
-            <p className="text-gray-500 italic">No {sellingTab}s in stock</p>
-            <p className="text-xs text-gray-400 mt-1">Craft some items to sell!</p>
+            <p className="text-gray-500 italic dark:text-gray-400">No {sellingTab}s in stock</p>
+            <p className="text-xs text-gray-400 mt-1 dark:text-gray-500">Craft some items to sell!</p>
           </div>
         )}
       </div>
