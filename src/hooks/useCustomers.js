@@ -1,5 +1,6 @@
 import { PHASES, RECIPES } from '../constants';
 import { random } from '../utils/random';
+import { getRarityRank } from '../utils/rarity';
 
 const useCustomers = (gameState, setGameState, addEvent, addNotification, setSelectedCustomer) => {
   const generateCustomers = () => {
@@ -84,8 +85,7 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
         satisfaction = 'reluctant';
       }
 
-      const rarityOrder = { common: 1, uncommon: 2, rare: 3 };
-      if (rarityOrder[recipe.rarity] > rarityOrder[customer.requestRarity]) {
+      if (getRarityRank(recipe.rarity) > getRarityRank(customer.requestRarity)) {
         penalty -= 0.1;
         satisfaction = customer.isFlexible ? 'delighted upgrade' : 'acceptable upgrade';
       }

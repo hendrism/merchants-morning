@@ -1,5 +1,6 @@
-import { MATERIALS, RECIPES, BOX_TYPES, RARITY_ORDER } from '../constants';
+import { MATERIALS, RECIPES, BOX_TYPES } from '../constants';
 import { random } from '../utils/random';
+import { compareRarities } from '../utils/rarity';
 
 const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
   const getRandomMaterial = (rarityWeights) => {
@@ -85,26 +86,25 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
       });
 
   const sortRecipesByRarityAndCraftability = (recipes) =>
-    recipes.sort((a, b) => {
+    [...recipes].sort((a, b) => {
       const canCraftA = canCraft(a);
       const canCraftB = canCraft(b);
       if (canCraftA && !canCraftB) return -1;
       if (!canCraftA && canCraftB) return 1;
-      return RARITY_ORDER[b.rarity] - RARITY_ORDER[a.rarity];
+      return compareRarities(b.rarity, a.rarity);
     });
 
   const sortByMatchQualityAndRarity = (inventoryItems, customer) =>
-    inventoryItems.sort((a, b) => {
+    [...inventoryItems].sort((a, b) => {
       const recipeA = RECIPES.find(r => r.id === a[0]);
       const recipeB = RECIPES.find(r => r.id === b[0]);
       if (!customer) {
-        return RARITY_ORDER[recipeB.rarity] - RARITY_ORDER[recipeA.rarity];
+        return compareRarities(recipeB.rarity, recipeA.rarity);
       }
       const getMatchScore = (recipe) => {
         const exactMatch = recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
         if (exactMatch) return 4;
-        const rarityOrder = { common: 1, uncommon: 2, rare: 3 };
-        if (rarityOrder[recipe.rarity] > rarityOrder[customer.requestRarity] && recipe.type === customer.requestType) {
+        if (compareRarities(recipe.rarity, customer.requestRarity) > 0 && recipe.type === customer.requestType) {
           return 3;
         }
         if (recipe.type === customer.requestType) {
@@ -120,11 +120,11 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
       if (scoreA !== scoreB) {
         return scoreB - scoreA;
       }
-      return RARITY_ORDER[recipeB.rarity] - RARITY_ORDER[recipeA.rarity];
+      return compareRarities(recipeB.rarity, recipeA.rarity);
     });
 
   const getTopMaterials = () =>
-    Object.entries(gameState.materials)
+    [...Object.entries(gameState.materials)]
       .filter(([, count]) => count > 0)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 4);

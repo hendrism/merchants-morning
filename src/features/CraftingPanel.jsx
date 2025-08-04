@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Hammer, Store } from 'lucide-react';
-import { MATERIALS, RECIPES, ITEM_TYPES, RARITY_ORDER } from '../constants';
+import { MATERIALS, RECIPES, ITEM_TYPES } from '../constants';
 import TabButton from '../components/TabButton';
+import { compareRarities } from '../utils/rarity';
 
 const CraftingPanel = ({
   gameState,
@@ -16,7 +17,25 @@ const CraftingPanel = ({
   filterInventoryByType,
   openShop,
   getRarityColor,
-}) => (
+}) => {
+  const sortedRecipes = useMemo(
+    () => sortRecipesByRarityAndCraftability(filterRecipesByType(craftingTab)),
+    [craftingTab, gameState.materials]
+  );
+
+  const sortedInventory = useMemo(
+    () =>
+      filterInventoryByType(inventoryTab)
+        .slice()
+        .sort(([itemIdA], [itemIdB]) => {
+          const recipeA = RECIPES.find(r => r.id === itemIdA);
+          const recipeB = RECIPES.find(r => r.id === itemIdB);
+          return compareRarities(recipeB.rarity, recipeA.rarity);
+        }),
+    [inventoryTab, gameState.inventory]
+  );
+
+  return (
   <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
       <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
@@ -43,7 +62,7 @@ const CraftingPanel = ({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4 max-h-80 overflow-y-auto">
-        {sortRecipesByRarityAndCraftability(filterRecipesByType(craftingTab)).map(recipe => (
+        {sortedRecipes.map(recipe => (
           <div
             key={recipe.id}
             className={`border rounded-lg p-2 ${
@@ -113,13 +132,7 @@ const CraftingPanel = ({
       </div>
 
       <div className="space-y-2">
-        {filterInventoryByType(inventoryTab)
-          .sort(([itemIdA], [itemIdB]) => {
-            const recipeA = RECIPES.find(r => r.id === itemIdA);
-            const recipeB = RECIPES.find(r => r.id === itemIdB);
-            return RARITY_ORDER[recipeB.rarity] - RARITY_ORDER[recipeA.rarity];
-          })
-          .map(([itemId, count]) => {
+        {sortedInventory.map(([itemId, count]) => {
             const recipe = RECIPES.find(r => r.id === itemId);
             return (
               <div key={itemId} className={`p-2 rounded text-xs border ${getRarityColor(recipe.rarity)}`}>
@@ -128,12 +141,13 @@ const CraftingPanel = ({
               </div>
             );
           })}
-        {filterInventoryByType(inventoryTab).length === 0 && (
+        {sortedInventory.length === 0 && (
           <p className="text-xs text-gray-500 italic dark:text-gray-400">No {inventoryTab}s crafted yet</p>
         )}
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default CraftingPanel;
