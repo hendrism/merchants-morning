@@ -418,8 +418,7 @@ const MerchantsMorning = () => {
   );
 
   return (
-    
-      
+    <div>
         {notifications.map(notification => (
           <div
             key={notification.id}
@@ -444,17 +443,14 @@ const MerchantsMorning = () => {
               
               {gameState.gold}
             
-            <button
-              onClick={() => setShowEventLog(!showEventLog)}
-              className="flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded"
-            >
-              
-              Events {showEventLog ?  : }
-            
-          
-        
+              <button
+                onClick={() => setShowEventLog(!showEventLog)}
+                className="flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded"
+              >
+                Events {showEventLog ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </button>
 
-        {showEventLog && (
+          {showEventLog && (
           
             
               {eventLog.length === 0 ? (
@@ -546,6 +542,7 @@ const MerchantsMorning = () => {
                       count={`${craftableCount}/${totalCount}`}
                     >
                       {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </TabButton>
                     
                   );
                 })}
@@ -606,6 +603,7 @@ const MerchantsMorning = () => {
                       count={count}
                     >
                       {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </TabButton>
                     
                   );
                 })}
@@ -710,6 +708,7 @@ const MerchantsMorning = () => {
                       count={count}
                     >
                       {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </TabButton>
                     
                   );
                 })}
@@ -867,6 +866,7 @@ const MerchantsMorning = () => {
           
         
       
+    </div>
     
   );
 };
