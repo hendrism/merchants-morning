@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Package, Coins, ChevronRight, AlertCircle, ChevronDown, ChevronUp, Sun, Moon } from 'lucide-react';
+import { Package, Coins, ChevronRight, AlertCircle, ChevronDown, ChevronUp, Sun, Moon, RotateCcw } from 'lucide-react';
 import { PHASES, MATERIALS, BOX_TYPES } from './constants';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
@@ -8,42 +8,10 @@ import useCustomers from './hooks/useCustomers';
 import CraftingPanel from './features/CraftingPanel';
 import ShopInterface from './features/ShopInterface';
 import EndOfDaySummary from './features/EndOfDaySummary';
+import usePersistentGameState from './hooks/usePersistentGameState';
 
 const MerchantsMorning = () => {
-  const [gameState, setGameState] = useState({
-    phase: PHASES.MORNING,
-    day: 1,
-    gold: 120,
-    materials: {
-      iron: 3,
-      wood: 3,
-      fur: 2,
-      cloth: 2,
-      stone: 2,
-      bone: 1
-    },
-    inventory: {},
-    customers: [],
-    totalEarnings: 0,
-    shopLevel: 1
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const savedState = window.localStorage.getItem('gameState');
-    if (savedState) {
-      try {
-        setGameState(JSON.parse(savedState));
-      } catch (e) {
-        console.error('Failed to load game state', e);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem('gameState', JSON.stringify(gameState));
-  }, [gameState]);
+  const { gameState, setGameState, resetGame } = usePersistentGameState();
 
   const [eventLog, setEventLog] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -54,8 +22,12 @@ const MerchantsMorning = () => {
   const [sellingTab, setSellingTab] = useState('weapon');
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window === 'undefined') return false;
-    const stored = window.localStorage.getItem('darkMode');
-    return stored ? stored === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    try {
+      const stored = window.localStorage.getItem('darkMode');
+      return stored ? stored === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch {
+      return false;
+    }
   });
   const notificationTimers = useRef([]);
 
@@ -68,7 +40,11 @@ const MerchantsMorning = () => {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem('darkMode', darkMode);
+      try {
+        window.localStorage.setItem('darkMode', darkMode);
+      } catch (e) {
+        console.error('Failed to save dark mode', e);
+      }
     }
   }, [darkMode]);
 
@@ -125,6 +101,13 @@ const MerchantsMorning = () => {
   const { openShop, serveCustomer, endDay, startNewDay } =
     useCustomers(gameState, setGameState, addEvent, addNotification, setSelectedCustomer);
 
+  const handleReset = () => {
+    resetGame();
+    setEventLog([]);
+    setNotifications([]);
+    setSelectedCustomer(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-16 dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
@@ -152,6 +135,13 @@ const MerchantsMorning = () => {
             >
               <AlertCircle className="w-3 h-3" />
               Events {showEventLog ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+            <button
+              onClick={handleReset}
+              className="flex items-center gap-1 text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
+            >
+              <RotateCcw className="w-3 h-3" />
+              Reset
             </button>
           </div>
         </div>

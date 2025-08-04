@@ -1,29 +1,3 @@
-export const PHASES = {
-  MORNING: 'morning',
-  CRAFTING: 'crafting',
-  SHOPPING: 'shopping',
-  END_DAY: 'end_day',
-};
-
-export const MATERIALS = {
-  iron: { name: 'Iron', rarity: 'common', icon: '⚙️' },
-  wood: { name: 'Wood', rarity: 'common', icon: '🪵' },
-  fur: { name: 'Fur', rarity: 'common', icon: '🦫' },
-  cloth: { name: 'Cloth', rarity: 'common', icon: '🧵' },
-  stone: { name: 'Stone', rarity: 'common', icon: '🪨' },
-  bone: { name: 'Bone', rarity: 'common', icon: '🦴' },
-  leather: { name: 'Leather', rarity: 'uncommon', icon: '🪖' },
-  silver_ore: { name: 'Silver Ore', rarity: 'uncommon', icon: '🥈' },
-  silk: { name: 'Silk', rarity: 'uncommon', icon: '🕸️' },
-  bronze: { name: 'Bronze', rarity: 'uncommon', icon: '🔶' },
-  gemstone: { name: 'Gemstone', rarity: 'rare', icon: '💎' },
-  gold_ore: { name: 'Gold Ore', rarity: 'rare', icon: '✨' },
-  crystal: { name: 'Crystal', rarity: 'rare', icon: '🔮' },
-  mithril: { name: 'Mithril', rarity: 'rare', icon: '⚡' },
-  ruby: { name: 'Ruby', rarity: 'rare', icon: '♦️' },
-  obsidian: { name: 'Obsidian', rarity: 'rare', icon: '⬛' },
-};
-
 export const RECIPES = [
   {
     id: 'iron_dagger',
@@ -242,13 +216,3 @@ export const RECIPES = [
     sellPrice: 72,
   },
 ];
-
-export const BOX_TYPES = {
-  bronze: { name: 'Bronze Box', cost: 20, materialCount: [5, 7], rarityWeights: { common: 75, uncommon: 25, rare: 0 } },
-  silver: { name: 'Silver Box', cost: 45, materialCount: [6, 9], rarityWeights: { common: 45, uncommon: 45, rare: 10 } },
-  gold: { name: 'Gold Box', cost: 85, materialCount: [7, 10], rarityWeights: { common: 25, uncommon: 55, rare: 20 } },
-};
-
-export const ITEM_TYPES = ['weapon', 'armor', 'trinket'];
-export const RARITY_ORDER = { rare: 3, uncommon: 2, common: 1 };
-
