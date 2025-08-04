@@ -8,7 +8,7 @@
     <meta name="description" content="A fantasy shopkeeping game where you craft items and serve customers" />
     
     <!-- PWA Meta Tags -->
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/icon-192.png" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
     <!-- CRITICAL: Tailwind CSS - Make sure this loads FIRST -->
@@ -78,7 +78,7 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('%PUBLIC_URL%/sw.js')
+          navigator.serviceWorker.register('%PUBLIC_URL%/service-worker.js')
             .then((registration) => {
               console.log('SW registered: ', registration);
             })
