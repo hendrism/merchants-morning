@@ -1,0 +1,33 @@
+import useCrafting from '../useCrafting';
+import { RECIPES } from '../../constants';
+import { PHASES } from '../../constants';
+
+describe('sorting helpers', () => {
+  test('sortRecipesByRarityAndCraftability prioritizes craftable recipes and preserves input', () => {
+    const state = { materials: { iron: 2, wood: 1 }, inventory: {}, phase: PHASES.CRAFTING };
+    const { sortRecipesByRarityAndCraftability } = useCrafting(state, () => {}, jest.fn(), jest.fn());
+    const recipes = RECIPES.filter(r => ['iron_dagger', 'iron_sword'].includes(r.id));
+    const copy = [...recipes];
+
+    const result = sortRecipesByRarityAndCraftability(recipes);
+
+    expect(result.map(r => r.id)).toEqual(['iron_dagger', 'iron_sword']);
+    expect(recipes).toEqual(copy);
+  });
+
+  test('sortByMatchQualityAndRarity respects customer preferences and preserves input', () => {
+    const state = { materials: {}, inventory: {}, phase: PHASES.SHOPPING };
+    const { sortByMatchQualityAndRarity } = useCrafting(state, () => {}, jest.fn(), jest.fn());
+    const inventory = [ ['iron_dagger', 1], ['iron_sword', 1] ];
+    const copy = [...inventory];
+
+    const customer = { requestType: 'weapon', requestRarity: 'common', isFlexible: false, offerPrice: 0 };
+
+    const result = sortByMatchQualityAndRarity(inventory, customer);
+    expect(result[0][0]).toBe('iron_dagger');
+    expect(inventory).toEqual(copy);
+
+    const resultNoCustomer = sortByMatchQualityAndRarity(inventory, null);
+    expect(resultNoCustomer[0][0]).toBe('iron_sword');
+  });
+});
