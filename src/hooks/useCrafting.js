@@ -1,14 +1,15 @@
 import { MATERIALS, RECIPES, BOX_TYPES, RARITY_ORDER } from '../constants';
+import { random } from '../utils/random';
 
 const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
   const getRandomMaterial = (rarityWeights) => {
-    const rand = Math.random() * 100;
+    const rand = random() * 100;
     let threshold = 0;
     for (const [rarity, weight] of Object.entries(rarityWeights)) {
       threshold += weight;
       if (rand <= threshold) {
         const materialsOfRarity = Object.entries(MATERIALS).filter(([, mat]) => mat.rarity === rarity);
-        const randomMat = materialsOfRarity[Math.floor(Math.random() * materialsOfRarity.length)];
+        const randomMat = materialsOfRarity[Math.floor(random() * materialsOfRarity.length)];
         return randomMat[0];
       }
     }
@@ -21,7 +22,7 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
       addNotification('Not enough gold!', 'error');
       return;
     }
-    const materialCount = Math.floor(Math.random() * (box.materialCount[1] - box.materialCount[0] + 1)) + box.materialCount[0];
+    const materialCount = Math.floor(random() * (box.materialCount[1] - box.materialCount[0] + 1)) + box.materialCount[0];
     const newMaterials = { ...gameState.materials };
     const foundMaterials = [];
     for (let i = 0; i < materialCount; i++) {
