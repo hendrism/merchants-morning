@@ -19,7 +19,7 @@ TabButton.propTypes = {
   active: PropTypes.bool,
   onClick: PropTypes.func.isRequired,
   children: PropTypes.node.isRequired,
-  count: PropTypes.number,
+  count: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
 export default TabButton;

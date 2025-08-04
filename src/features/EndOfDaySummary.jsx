@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Star } from 'lucide-react';
 
 const EndOfDaySummary = ({ gameState, startNewDay }) => (
@@ -32,5 +33,18 @@ const EndOfDaySummary = ({ gameState, startNewDay }) => (
     </button>
   </div>
 );
+
+EndOfDaySummary.propTypes = {
+  gameState: PropTypes.shape({
+    day: PropTypes.number.isRequired,
+    customers: PropTypes.arrayOf(
+      PropTypes.shape({
+        payment: PropTypes.number,
+        satisfied: PropTypes.bool,
+      })
+    ).isRequired,
+  }).isRequired,
+  startNewDay: PropTypes.func.isRequired,
+};
 
 export default EndOfDaySummary;

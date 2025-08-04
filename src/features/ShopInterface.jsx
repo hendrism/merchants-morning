@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { Store } from 'lucide-react';
 import TabButton from '../components/TabButton';
 import { ITEM_TYPES, RECIPES } from '../constants';
@@ -198,6 +199,31 @@ const ShopInterface = ({
     </div>
   </div>
   );
+};
+
+ShopInterface.propTypes = {
+  gameState: PropTypes.shape({
+    customers: PropTypes.array.isRequired,
+    inventory: PropTypes.object.isRequired,
+  }).isRequired,
+  selectedCustomer: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    name: PropTypes.string.isRequired,
+    requestType: PropTypes.string.isRequired,
+    requestRarity: PropTypes.string.isRequired,
+    offerPrice: PropTypes.number.isRequired,
+    satisfied: PropTypes.bool,
+    isFlexible: PropTypes.bool,
+    payment: PropTypes.number,
+  }),
+  setSelectedCustomer: PropTypes.func.isRequired,
+  sellingTab: PropTypes.string.isRequired,
+  setSellingTab: PropTypes.func.isRequired,
+  filterInventoryByType: PropTypes.func.isRequired,
+  sortByMatchQualityAndRarity: PropTypes.func.isRequired,
+  serveCustomer: PropTypes.func.isRequired,
+  endDay: PropTypes.func.isRequired,
+  getRarityColor: PropTypes.func.isRequired,
 };
 
 export default ShopInterface;
