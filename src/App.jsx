@@ -354,429 +354,114 @@ const MerchantsMorning = () => {
 
   return (
     <div>
-        <Notifications notifications={notifications} />
+      <Notifications notifications={notifications} />
+      <h1>🏰 Merchant's Morning</h1>
+      <p>
+        Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}
+      </p>
+      <p>Gold: {gameState.gold}</p>
+      <button onClick={() => setShowEventLog(!showEventLog)}>
+        Events {showEventLog ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+      {showEventLog && <EventLog events={eventLog} />}
 
-      
-
-      
-        
-          
-            🏰 Merchant's Morning
-            Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}
-          
-          
-            
-              
-              {gameState.gold}
-            
-              <button
-                onClick={() => setShowEventLog(!showEventLog)}
-                className="flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded"
-              >
-                Events {showEventLog ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      {gameState.phase === PHASES.MORNING && (
+        <div>
+          <h2>Supply Boxes</h2>
+          {Object.entries(BOX_TYPES).map(([type, box]) => (
+            <div key={type}>
+              <div>{box.name}</div>
+              <div>
+                {box.materialCount[0]}-{box.materialCount[1]} materials
+              </div>
+              <button onClick={() => openBox(type)} disabled={gameState.gold < box.cost}>
+                {box.cost} Gold
               </button>
+            </div>
+          ))}
+          <button onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }))}>
+            Continue to Crafting
+          </button>
+          <h3>Materials</h3>
+          {Object.entries(gameState.materials)
+            .filter(([_, count]) => count > 0)
+            .map(([materialId, count]) => {
+              const material = MATERIALS[materialId];
+              return (
+                <div key={materialId}>
+                  {material.icon} {material.name}: {count}
+                </div>
+              );
+            })}
+        </div>
+      )}
 
-            {showEventLog && (
-              <EventLog events={eventLog} />
-            )}
-
-
-        {gameState.phase === PHASES.MORNING && (
-          
-            
-              
-                
-                Supply Boxes
-              
-              
-                {Object.entries(BOX_TYPES).map(([type, box]) => (
-                  
-                    {box.name}
-                    
-                      {box.materialCount[0]}-{box.materialCount[1]} materials
-                    
-                    <button
-                      onClick={() => openBox(type)}
-                      disabled={gameState.gold < box.cost}
-                      className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 text-white px-3 py-2 rounded font-bold text-sm"
-                    >
-                      {box.cost} Gold
-                    
-                  
-                ))}
-              
-              <button
-                onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }))}
-                className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-bold flex items-center justify-center gap-2"
+      {gameState.phase === PHASES.CRAFTING && (
+        <div>
+          <h2>Crafting Workshop</h2>
+          <div>
+            {ITEM_TYPES.map(type => (
+              <TabButton
+                key={type}
+                active={craftingTab === type}
+                onClick={() => setCraftingTab(type)}
               >
-                Continue to Crafting 
-              
-            
+                {type}
+              </TabButton>
+            ))}
+          </div>
+          {sortRecipesByRarityAndCraftability(filterRecipesByType(craftingTab)).map(recipe => (
+            <div key={recipe.id}>
+              <div>
+                {recipe.name} ({recipe.rarity})
+              </div>
+              <button onClick={() => craftItem(recipe.id)} disabled={!canCraft(recipe)}>
+                {canCraft(recipe) ? 'Craft' : 'Need Materials'}
+              </button>
+            </div>
+          ))}
+          <button onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.SHOPPING }))}>
+            Open Shop
+          </button>
+          <h3>Inventory</h3>
+          <div>
+            {ITEM_TYPES.map(type => (
+              <TabButton
+                key={type}
+                active={inventoryTab === type}
+                onClick={() => setInventoryTab(type)}
+              >
+                {type}
+              </TabButton>
+            ))}
+          </div>
+          {filterInventoryByType(inventoryTab).map(([itemId, count]) => {
+            const recipe = RECIPES.find(r => r.id === itemId);
+            return (
+              <div key={itemId}>
+                {recipe.name} - {count}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-            
-              Materials
-              
-                {Object.entries(gameState.materials).filter(([_, count]) => count > 0).map(([materialId, count]) => {
-                  const material = MATERIALS[materialId];
-                  return (
-                    
-                      {material.icon}
-                      {material.name}: {count}
-                    
-                  );
-                })}
-              
-            
-          
-        )}
+      {gameState.phase === PHASES.SHOPPING && (
+        <div>
+          <h2>Shopping</h2>
+          <button onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.END_DAY }))}>
+            Close Shop for Today
+          </button>
+        </div>
+      )}
 
-        {gameState.phase === PHASES.CRAFTING && (
-          
-            
-              
-                
-                Crafting Workshop
-              
-              
-              
-                {ITEM_TYPES.map(type => {
-                  const allRecipes = filterRecipesByType(type);
-                  const craftableCount = allRecipes.filter(recipe => canCraft(recipe)).length;
-                  const totalCount = allRecipes.length;
-                  return (
-                    <TabButton
-                      key={type}
-                      active={craftingTab === type}
-                      onClick={() => setCraftingTab(type)}
-                      count={`${craftableCount}/${totalCount}`}
-                    >
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </TabButton>
-                    
-                  );
-                })}
-              
-
-              
-                {sortRecipesByRarityAndCraftability(filterRecipesByType(craftingTab)).map(recipe => (
-                  
-                    
-                      
-                        {recipe.name}
-                        
-                          {recipe.rarity}
-                        
-                      
-                      <button
-                        onClick={() => craftItem(recipe.id)}
-                        disabled={!canCraft(recipe)}
-                        className={`px-2 py-1 rounded text-xs font-bold ${
-                          canCraft(recipe) 
-                            ? 'bg-blue-500 hover:bg-blue-600 text-white' 
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        }`}
-                      >
-                        {canCraft(recipe) ? '✓ Craft' : '✗ Need Materials'}
-                      
-                    
-                    
-                      {Object.entries(recipe.ingredients).map(([mat, count]) => {
-                        const have = gameState.materials[mat] || 0;
-                        const hasEnough = have >= count;
-                        return (
-                          
-                            {MATERIALS[mat].icon}{count}({have})
-                          
-                        );
-                      })}
-                    
-                  
-                ))}
-              
-              
-                Open Shop 
-              
-            
-
-            
-              Inventory
-              
-              
-                {ITEM_TYPES.map(type => {
-                  const count = filterInventoryByType(type).length;
-                  return (
-                    <TabButton
-                      key={type}
-                      active={inventoryTab === type}
-                      onClick={() => setInventoryTab(type)}
-                      count={count}
-                    >
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </TabButton>
-                    
-                  );
-                })}
-              
-
-              
-                {filterInventoryByType(inventoryTab)
-                  .sort(([itemIdA], [itemIdB]) => {
-                    const recipeA = RECIPES.find(r => r.id === itemIdA);
-                    const recipeB = RECIPES.find(r => r.id === itemIdB);
-                    return RARITY_ORDER[recipeB.rarity] - RARITY_ORDER[recipeA.rarity];
-                  })
-                  .map(([itemId, count]) => {
-                  const recipe = RECIPES.find(r => r.id === itemId);
-                  return (
-                    
-                      {recipe.name}
-                      Stock: {count} • {recipe.sellPrice}g each
-                    
-                  );
-                })}
-                {filterInventoryByType(inventoryTab).length === 0 && (
-                  No {inventoryTab}s crafted yet
-                )}
-              
-            
-          
-        )}
-
-        {gameState.phase === PHASES.SHOPPING && (
-          
-            
-              
-                
-                Select Customer ({gameState.customers.filter(c => !c.satisfied).length} waiting)
-              
-              
-              
-                {gameState.customers.filter(c => !c.satisfied).map(customer => (
-                  <button
-                    key={customer.id}
-                    onClick={() => {
-                      setSelectedCustomer(customer);
-                      setSellingTab(customer.requestType);
-                    }}
-                    className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${
-                      selectedCustomer?.id === customer.id 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    
-                      {customer.name}
-                      {customer.isFlexible && 😊}
-                    
-                    
-                      {customer.requestRarity} {customer.requestType} • {customer.offerPrice}g
-                    
-                  
-                ))}
-              
-
-              {gameState.customers.filter(c => c.satisfied).length > 0 && (
-                
-                  
-                    ✅ Served: {gameState.customers.filter(c => c.satisfied).map(c => `${c.name} (${c.payment}g)`).join(', ')}
-                  
-                
-              )}
-
-              
-                Close Shop for Today
-              
-            
-
-            {selectedCustomer && (
-              
-                
-                  Selling to: {selectedCustomer.name} (wants {selectedCustomer.requestRarity} {selectedCustomer.requestType} • offers {selectedCustomer.offerPrice}g)
-                  {selectedCustomer.isFlexible &&  • Flexible with substitutes 😊}
-                
-              
-            )}
-
-            
-              Your Items for Sale
-              
-              {!selectedCustomer && (
-                
-                  👆 Select a customer above to see item pricing and sell items
-                
-              )}
-              
-              
-                {ITEM_TYPES.map(type => {
-                  const count = filterInventoryByType(type).length;
-                  return (
-                    <TabButton
-                      key={type}
-                      active={sellingTab === type}
-                      onClick={() => setSellingTab(type)}
-                      count={count}
-                    >
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </TabButton>
-                    
-                  );
-                })}
-              
-              
-              
-                {sortByMatchQualityAndRarity(filterInventoryByType(sellingTab), selectedCustomer).map(([itemId, count]) => {
-                  const recipe = RECIPES.find(r => r.id === itemId);
-                  
-                  let saleInfo = null;
-                  let cardStyle = 'border-gray-200 bg-white';
-                  
-                  if (selectedCustomer) {
-                    const exactMatch = recipe.type === selectedCustomer.requestType && recipe.rarity === selectedCustomer.requestRarity;
-                    let payment = selectedCustomer.offerPrice;
-                    let status = 'perfect';
-                    
-                    if (!exactMatch) {
-                      let penalty = selectedCustomer.isFlexible ? 0.2 : 0.4;
-                      const rarityOrder = { common: 1, uncommon: 2, rare: 3 };
-                      if (rarityOrder[recipe.rarity] > rarityOrder[selectedCustomer.requestRarity]) {
-                        penalty -= 0.1;
-                        status = 'upgrade';
-                      } else if (recipe.type === selectedCustomer.requestType) {
-                        status = 'wrong_rarity';
-                      } else {
-                        status = 'substitute';
-                      }
-                      payment = Math.floor(payment * (1 - penalty));
-                    }
-                    
-                    saleInfo = { payment, status, exactMatch };
-                    
-                    if (saleInfo.exactMatch) {
-                      cardStyle = 'border-green-300 bg-green-50';
-                    } else if (saleInfo.status === 'upgrade') {
-                      cardStyle = 'border-blue-300 bg-blue-50';
-                    } else if (saleInfo.status === 'wrong_rarity' || (saleInfo.status === 'substitute' && selectedCustomer.isFlexible)) {
-                      cardStyle = 'border-yellow-300 bg-yellow-50';
-                    } else {
-                      cardStyle = 'border-red-200 bg-red-50';
-                    }
-                  }
-                  
-                  return (
-                    
-                      
-                        
-                          {recipe.name}
-                          
-                            {recipe.type} • {recipe.rarity}
-                          
-                          Stock: {count}
-                        
-                      
-                      
-                      {selectedCustomer && saleInfo && (
-                        
-                          
-                            {saleInfo.exactMatch ? (
-                              ✓ Perfect Match!
-                            ) : saleInfo.status === 'upgrade' ? (
-                              ⬆️ Upgrade!
-                            ) : saleInfo.status === 'wrong_rarity' ? (
-                              ≈ Wrong rarity
-                            ) : selectedCustomer.isFlexible ? (
-                              ~ Acceptable substitute
-                            ) : (
-                              ~ Poor substitute
-                            )}
-                          
-                          {saleInfo.payment}g
-                        
-                      )}
-                      
-                      <button 
-                        onClick={() => selectedCustomer && serveCustomer(selectedCustomer.id, itemId)}
-                        disabled={!selectedCustomer}
-                        className={`w-full py-2 rounded text-sm font-bold transition-colors ${
-                          selectedCustomer 
-                            ? 'bg-green-500 hover:bg-green-600 text-white' 
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        }`}
-                      >
-                        {selectedCustomer ? `Sell to ${selectedCustomer.name}` : 'Select Customer First'}
-                      
-                    
-                  );
-                })}
-                
-                {filterInventoryByType(sellingTab).length === 0 && (
-                  
-                    No {sellingTab}s in stock
-                    Craft some items to sell!
-                  
-                )}
-              
-            
-          
-        )}
-
-        {gameState.phase === PHASES.END_DAY && (
-          
-            
-              
-              Day {gameState.day} Complete!
-            
-            
-            
-              
-                Today's Earnings
-                
-                  {gameState.customers.reduce((total, c) => total + (c.payment || 0), 0)} Gold
-                
-              
-              
-              
-                Customers Served
-                
-                  {gameState.customers.filter(c => c.satisfied).length} / {gameState.customers.length}
-                
-              
-            
-
-            
-              Start Day {gameState.day + 1}
-            
-          
-        )}
-      
-
-      
-        
-          
-            
-              
-              {gameState.gold}
-            
-            
-            
-              {getTopMaterials().map(([materialId, count]) => {
-                const material = MATERIALS[materialId];
-                return (
-                  
-                    {material.icon}
-                    {count}
-                  
-                );
-              })}
-            
-
-            
-              Day {gameState.day}
-            
-          
-        
-      
+      {gameState.phase === PHASES.END_DAY && (
+        <div>
+          <h2>Day {gameState.day} Complete!</h2>
+          <button onClick={() => startNewDay()}>Start Day {gameState.day + 1}</button>
+        </div>
+      )}
     </div>
-    
   );
 };
 

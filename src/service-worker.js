@@ -1,26 +1,5 @@
-const CACHE_NAME = 'merchants-morning-v1';
-const urlsToCache = [
-  '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/manifest.json'
-];
+/* eslint-disable no-restricted-globals */
+/* eslint-disable no-undef */
+import { precacheAndRoute } from 'workbox-precaching';
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
-  );
-});
-
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
-  );
-});
+precacheAndRoute(self.__WB_MANIFEST);
