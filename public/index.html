@@ -11,63 +11,6 @@
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
-    <!-- CRITICAL: Tailwind CSS - Make sure this loads FIRST -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      // Tailwind Config - Add custom colors and ensure it works
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              amber: {
-                50: '#fffbeb',
-                100: '#fef3c7',
-                500: '#f59e0b',
-                600: '#d97706',
-                800: '#92400e'
-              }
-            }
-          }
-        }
-      }
-    </script>
-    
-    <!-- Fallback CSS in case Tailwind doesn't load -->
-    <style>
-      /* Basic fallback styles */
-      .bg-gradient-to-b { background: linear-gradient(to bottom, #fffbeb, #fed7aa); }
-      .text-amber-800 { color: #92400e; }
-      .bg-blue-500 { background-color: #3b82f6; }
-      .text-white { color: white; }
-      .p-4 { padding: 1rem; }
-      .mb-4 { margin-bottom: 1rem; }
-      .rounded-lg { border-radius: 0.5rem; }
-      .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-      .font-bold { font-weight: 700; }
-      .grid { display: grid; }
-      .flex { display: flex; }
-      .items-center { align-items: center; }
-      .justify-between { justify-content: space-between; }
-      .gap-2 { gap: 0.5rem; }
-      .w-full { width: 100%; }
-      .min-h-screen { min-height: 100vh; }
-      .bg-white { background-color: white; }
-      .text-gray-600 { color: #4b5563; }
-      .border { border-width: 1px; border-color: #d1d5db; }
-      .px-4 { padding-left: 1rem; padding-right: 1rem; }
-      .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-      .hover\:bg-gray-200:hover { background-color: #e5e7eb; }
-      .cursor-pointer { cursor: pointer; }
-      .overflow-y-auto { overflow-y: auto; }
-      .fixed { position: fixed; }
-      .bottom-0 { bottom: 0; }
-      .left-0 { left: 0; }
-      .right-0 { right: 0; }
-      .border-t { border-top-width: 1px; }
-      .max-w-6xl { max-width: 72rem; }
-      .mx-auto { margin-left: auto; margin-right: auto; }
-    </style>
-    
     <title>Merchant's Morning</title>
   </head>
   <body>
