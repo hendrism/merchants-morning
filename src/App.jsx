@@ -164,114 +164,167 @@ const MerchantsMorning = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-amber-100 text-amber-800 p-4">
       <Notifications notifications={notifications} />
-      <h1>🏰 Merchant's Morning</h1>
-      <p>
-        Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}
-      </p>
-      <p>Gold: {gameState.gold}</p>
-      <button onClick={() => setShowEventLog(!showEventLog)}>
-        Events {showEventLog ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-      </button>
-      {showEventLog && <EventLog events={eventLog} />}
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-2xl font-bold mb-4 text-center">🏰 Merchant's Morning</h1>
+        <p className="mb-2 text-center">
+          Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}
+        </p>
+        <p className="mb-4 text-center">Gold: {gameState.gold}</p>
+        <button
+          className="text-blue-600 underline mb-4"
+          onClick={() => setShowEventLog(!showEventLog)}
+        >
+          Events {showEventLog ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+        {showEventLog && <EventLog events={eventLog} />}
 
-      {gameState.phase === PHASES.MORNING && (
-        <div>
-          <h2>Supply Boxes</h2>
-          {Object.entries(BOX_TYPES).map(([type, box]) => (
-            <div key={type}>
-              <div>{box.name}</div>
-              <div>
-                {box.materialCount[0]}-{box.materialCount[1]} materials
-              </div>
-              <button onClick={() => openBox(type)} disabled={gameState.gold < box.cost}>
-                {box.cost} Gold
-              </button>
-            </div>
-          ))}
-          <button onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }))}>
-            Continue to Crafting
-          </button>
-          <h3>Materials</h3>
-          {Object.entries(gameState.materials)
-            .filter(([_, count]) => count > 0)
-            .map(([materialId, count]) => {
-              const material = MATERIALS[materialId];
-              return (
-                <div key={materialId}>
-                  {material.icon} {material.name}: {count}
+        {gameState.phase === PHASES.MORNING && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold">Supply Boxes</h2>
+            {Object.entries(BOX_TYPES).map(([type, box]) => (
+              <div
+                key={type}
+                className="bg-white rounded-lg shadow-lg p-4 flex items-center justify-between"
+              >
+                <div>
+                  <div className="font-bold">{box.name}</div>
+                  <div className="text-sm text-gray-600">
+                    {box.materialCount[0]}-{box.materialCount[1]} materials
+                  </div>
                 </div>
-              );
-            })}
-        </div>
-      )}
-
-      {gameState.phase === PHASES.CRAFTING && (
-        <div>
-          <h2>Crafting Workshop</h2>
-          <div>
-            {ITEM_TYPES.map(type => (
-              <TabButton
-                key={type}
-                active={craftingTab === type}
-                onClick={() => setCraftingTab(type)}
-              >
-                {type}
-              </TabButton>
-            ))}
-          </div>
-          {sortRecipesByRarityAndCraftability(filterRecipesByType(craftingTab)).map(recipe => (
-            <div key={recipe.id}>
-              <div>
-                {recipe.name} ({recipe.rarity})
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                  onClick={() => openBox(type)}
+                  disabled={gameState.gold < box.cost}
+                >
+                  {box.cost} Gold
+                </button>
               </div>
-              <button onClick={() => craftItem(recipe.id)} disabled={!canCraft(recipe)}>
-                {canCraft(recipe) ? 'Craft' : 'Need Materials'}
-              </button>
+            ))}
+            <button
+              className="bg-amber-600 text-white px-4 py-2 rounded-lg"
+              onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }))}
+            >
+              Continue to Crafting
+            </button>
+            <h3 className="text-lg font-bold">Materials</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {Object.entries(gameState.materials)
+                .filter(([_, count]) => count > 0)
+                .map(([materialId, count]) => {
+                  const material = MATERIALS[materialId];
+                  return (
+                    <div
+                      key={materialId}
+                      className="bg-white border rounded p-2 flex items-center justify-between"
+                    >
+                      <span>
+                        {material.icon} {material.name}
+                      </span>
+                      <span className="font-bold">{count}</span>
+                    </div>
+                  );
+                })}
             </div>
-          ))}
-          <button onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.SHOPPING }))}>
-            Open Shop
-          </button>
-          <h3>Inventory</h3>
-          <div>
-            {ITEM_TYPES.map(type => (
-              <TabButton
-                key={type}
-                active={inventoryTab === type}
-                onClick={() => setInventoryTab(type)}
-              >
-                {type}
-              </TabButton>
-            ))}
           </div>
-          {filterInventoryByType(inventoryTab).map(([itemId, count]) => {
-            const recipe = RECIPES.find(r => r.id === itemId);
-            return (
-              <div key={itemId}>
-                {recipe.name} - {count}
-              </div>
-            );
-          })}
-        </div>
-      )}
+        )}
 
-      {gameState.phase === PHASES.SHOPPING && (
-        <div>
-          <h2>Shopping</h2>
-          <button onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.END_DAY }))}>
-            Close Shop for Today
-          </button>
-        </div>
-      )}
+        {gameState.phase === PHASES.CRAFTING && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold">Crafting Workshop</h2>
+            <div className="flex gap-2 mb-2">
+              {ITEM_TYPES.map(type => (
+                <TabButton
+                  key={type}
+                  active={craftingTab === type}
+                  onClick={() => setCraftingTab(type)}
+                >
+                  {type}
+                </TabButton>
+              ))}
+            </div>
+            <div className="space-y-2">
+              {sortRecipesByRarityAndCraftability(filterRecipesByType(craftingTab)).map(
+                recipe => (
+                  <div
+                    key={recipe.id}
+                    className="bg-white rounded p-2 flex items-center justify-between"
+                  >
+                    <div>
+                      {recipe.name} ({recipe.rarity})
+                    </div>
+                    <button
+                      className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50"
+                      onClick={() => craftItem(recipe.id)}
+                      disabled={!canCraft(recipe)}
+                    >
+                      {canCraft(recipe) ? 'Craft' : 'Need Materials'}
+                    </button>
+                  </div>
+                )
+              )}
+            </div>
+            <button
+              className="bg-amber-600 text-white px-4 py-2 rounded-lg"
+              onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.SHOPPING }))}
+            >
+              Open Shop
+            </button>
+            <h3 className="text-lg font-bold">Inventory</h3>
+            <div className="flex gap-2 mb-2">
+              {ITEM_TYPES.map(type => (
+                <TabButton
+                  key={type}
+                  active={inventoryTab === type}
+                  onClick={() => setInventoryTab(type)}
+                >
+                  {type}
+                </TabButton>
+              ))}
+            </div>
+            <div className="space-y-1">
+              {filterInventoryByType(inventoryTab).map(([itemId, count]) => {
+                const recipe = RECIPES.find(r => r.id === itemId);
+                return (
+                  <div
+                    key={itemId}
+                    className="bg-white border rounded p-2 flex items-center justify-between"
+                  >
+                    <span>{recipe.name}</span>
+                    <span className="font-bold">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
-      {gameState.phase === PHASES.END_DAY && (
-        <div>
-          <h2>Day {gameState.day} Complete!</h2>
-          <button onClick={() => startNewDay()}>Start Day {gameState.day + 1}</button>
-        </div>
-      )}
+        {gameState.phase === PHASES.SHOPPING && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold">Shopping</h2>
+            <button
+              className="bg-amber-600 text-white px-4 py-2 rounded-lg"
+              onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.END_DAY }))}
+            >
+              Close Shop for Today
+            </button>
+          </div>
+        )}
+
+        {gameState.phase === PHASES.END_DAY && (
+          <div className="space-y-4 text-center">
+            <h2 className="text-xl font-bold">Day {gameState.day} Complete!</h2>
+            <button
+              className="bg-amber-600 text-white px-4 py-2 rounded-lg"
+              onClick={() => startNewDay()}
+            >
+              Start Day {gameState.day + 1}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
