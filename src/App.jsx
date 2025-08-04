@@ -164,16 +164,16 @@ const MerchantsMorning = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-amber-100 text-amber-800 p-4">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 text-amber-800 pb-16">
       <Notifications notifications={notifications} />
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4 text-center">🏰 Merchant's Morning</h1>
-        <p className="mb-2 text-center">
+      <div className="max-w-6xl mx-auto p-3">
+        <h1 className="text-lg sm:text-xl font-bold text-amber-800 mb-3 text-center">🏰 Merchant's Morning</h1>
+        <p className="text-xs text-amber-600 mb-2 text-center">
           Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}
         </p>
-        <p className="mb-4 text-center">Gold: {gameState.gold}</p>
+        <p className="text-lg font-bold text-yellow-600 mb-4 text-center">Gold: {gameState.gold}</p>
         <button
-          className="text-blue-600 underline mb-4"
+          className="text-blue-500 underline mb-4"
           onClick={() => setShowEventLog(!showEventLog)}
         >
           Events {showEventLog ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -186,7 +186,7 @@ const MerchantsMorning = () => {
             {Object.entries(BOX_TYPES).map(([type, box]) => (
               <div
                 key={type}
-                className="bg-white rounded-lg shadow-lg p-4 flex items-center justify-between"
+                className="game-card mb-3 flex items-center justify-between hover:bg-gray-50 transition-all"
               >
                 <div>
                   <div className="font-bold">{box.name}</div>
@@ -195,7 +195,7 @@ const MerchantsMorning = () => {
                   </div>
                 </div>
                 <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
                   onClick={() => openBox(type)}
                   disabled={gameState.gold < box.cost}
                 >
@@ -204,7 +204,7 @@ const MerchantsMorning = () => {
               </div>
             ))}
             <button
-              className="bg-amber-600 text-white px-4 py-2 rounded-lg"
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
               onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }))}
             >
               Continue to Crafting
@@ -218,7 +218,7 @@ const MerchantsMorning = () => {
                   return (
                     <div
                       key={materialId}
-                      className="bg-white border rounded p-2 flex items-center justify-between"
+                      className={`p-2 rounded text-xs border flex items-center justify-between rarity-${material.rarity}`}
                     >
                       <span>
                         {material.icon} {material.name}
@@ -250,13 +250,22 @@ const MerchantsMorning = () => {
                 recipe => (
                   <div
                     key={recipe.id}
-                    className="bg-white rounded p-2 flex items-center justify-between"
+                    className={`rounded p-2 flex items-center justify-between border ${
+                      canCraft(recipe)
+                        ? 'border-green-300 bg-green-50'
+                        : 'border-gray-200 opacity-75'
+                    }`}
                   >
                     <div>
-                      {recipe.name} ({recipe.rarity})
+                      <div className="font-bold text-sm">{recipe.name}</div>
+                      <div
+                        className={`rarity-${recipe.rarity} text-xs px-1 py-0.5 rounded inline-block mt-1`}
+                      >
+                        {recipe.rarity}
+                      </div>
                     </div>
                     <button
-                      className="bg-blue-500 text-white px-2 py-1 rounded disabled:opacity-50"
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
                       onClick={() => craftItem(recipe.id)}
                       disabled={!canCraft(recipe)}
                     >
@@ -267,7 +276,7 @@ const MerchantsMorning = () => {
               )}
             </div>
             <button
-              className="bg-amber-600 text-white px-4 py-2 rounded-lg"
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
               onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.SHOPPING }))}
             >
               Open Shop
@@ -284,15 +293,22 @@ const MerchantsMorning = () => {
                 </TabButton>
               ))}
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               {filterInventoryByType(inventoryTab).map(([itemId, count]) => {
                 const recipe = RECIPES.find(r => r.id === itemId);
                 return (
                   <div
                     key={itemId}
-                    className="bg-white border rounded p-2 flex items-center justify-between"
+                    className="border rounded-lg p-3 flex items-center justify-between"
                   >
-                    <span>{recipe.name}</span>
+                    <div>
+                      <div className="font-bold text-sm">{recipe.name}</div>
+                      <div
+                        className={`rarity-${recipe.rarity} text-xs px-1 py-0.5 rounded inline-block mt-1`}
+                      >
+                        {recipe.rarity}
+                      </div>
+                    </div>
                     <span className="font-bold">{count}</span>
                   </div>
                 );
@@ -305,7 +321,7 @@ const MerchantsMorning = () => {
           <div className="space-y-4">
             <h2 className="text-xl font-bold">Shopping</h2>
             <button
-              className="bg-amber-600 text-white px-4 py-2 rounded-lg"
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
               onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.END_DAY }))}
             >
               Close Shop for Today
@@ -317,7 +333,7 @@ const MerchantsMorning = () => {
           <div className="space-y-4 text-center">
             <h2 className="text-xl font-bold">Day {gameState.day} Complete!</h2>
             <button
-              className="bg-amber-600 text-white px-4 py-2 rounded-lg"
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
               onClick={() => startNewDay()}
             >
               Start Day {gameState.day + 1}
