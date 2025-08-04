@@ -5,44 +5,11 @@
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   
-  <!-- CRITICAL: Load Tailwind FIRST with multiple fallbacks -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://unpkg.com/tailwindcss@^3/dist/tailwind.min.css" rel="stylesheet">
-  
-  <!-- Tailwind Config -->
-  <script>
-    if (window.tailwind) {
-      tailwind.config = {
-        theme: {
-          extend: {
-            animation: {
-              'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  
   <title>Merchant's Morning</title>
 </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     
-    <!-- PWA Service Worker Registration -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('%PUBLIC_URL%/service-worker.js')
-            .then((registration) => {
-              console.log('SW registered: ', registration);
-            })
-            .catch((registrationError) => {
-              console.log('SW registration failed: ', registrationError);
-            });
-        });
-      }
-    </script>
   </body>
 </html>
