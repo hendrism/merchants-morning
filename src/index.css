@@ -142,10 +142,6 @@
   .lg\:col-span-2 { grid-column: span 2 / span 2; }
 }
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Reset and base styles */
 * {
   box-sizing: border-box;
