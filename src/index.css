@@ -1,10 +1,26 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Import Tailwind - This is critical */
+@import url('https://cdn.tailwindcss.com');
+
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -21,20 +37,157 @@
   background: #a8a8a8;
 }
 
-/* Ensure the app takes full height */
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-/* Prevent zoom on mobile */
-input, select, textarea {
+/* Prevent zoom on mobile when focusing inputs */
+input, select, textarea, button {
   font-size: 16px !important;
+  outline: none;
 }
 
-/* Mobile-friendly touch targets */
+/* Mobile-friendly touch targets - minimum 44x44px */
 button {
   min-height: 44px;
   min-width: 44px;
+  touch-action: manipulation;
+}
+
+/* Smooth transitions */
+button, .transition-colors {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Fix for iOS Safari bottom bar */
+@supports (-webkit-touch-callout: none) {
+  .pb-16 {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Ensure animations work properly */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom game-specific styles */
+.game-card {
+  @apply bg-white rounded-lg shadow-lg p-4 border;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.15);
+}
+
+.rarity-common {
+  @apply text-gray-600 bg-gray-100 border-gray-200;
+}
+
+.rarity-uncommon {
+  @apply text-green-600 bg-green-100 border-green-200;
+}
+
+.rarity-rare {
+  @apply text-purple-600 bg-purple-100 border-purple-200;
+}
+
+/* Loading state for when Tailwind is loading */
+.loading-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #fffbeb, #fed7aa);
+  font-family: system-ui, sans-serif;
+}
+
+/* Mobile responsiveness helpers */
+@media (max-width: 640px) {
+  .mobile-padding {
+    padding: 0.75rem;
+  }
+  
+  .mobile-text {
+    font-size: 0.875rem;
+  }
+  
+  .mobile-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Fix for touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .hover\:bg-gray-50:hover {
+    background-color: initial;
+  }
+  
+  button:active, .cursor-pointer:active {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Print styles (hide unnecessary elements when printing) */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .border {
+    border-width: 2px;
+  }
+  
+  .shadow-lg {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  /* Add dark mode styles here if needed */
+}
+
+/* Focus styles for accessibility */
+button:focus, 
+input:focus, 
+select:focus, 
+textarea:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Loading spinner (optional) */
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
