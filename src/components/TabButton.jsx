@@ -5,7 +5,8 @@ const TabButton = ({ active, onClick, children, count }) => (
     onClick={onClick}
     className={`px-3 py-1 rounded-md text-sm font-bold ${active ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
   >
-    {children} {count && `(${count})`}
+    {children}
+    {count !== undefined && count !== null && ` (${count})`}
   </button>
 );
 
