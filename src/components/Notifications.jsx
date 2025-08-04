@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const Notifications = ({ notifications }) => (
   <div className="fixed top-4 right-4 space-y-2 z-50">
@@ -18,5 +19,15 @@ const Notifications = ({ notifications }) => (
     ))}
   </div>
 );
+
+Notifications.propTypes = {
+  notifications: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      message: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+};
 
 export default Notifications;

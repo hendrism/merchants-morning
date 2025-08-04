@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const EventLog = ({ events }) => (
   <div className="bg-gray-50 border rounded p-2 max-h-40 overflow-y-auto">
@@ -24,5 +25,16 @@ const EventLog = ({ events }) => (
     )}
   </div>
 );
+
+EventLog.propTypes = {
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      message: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      timestamp: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+};
 
 export default EventLog;

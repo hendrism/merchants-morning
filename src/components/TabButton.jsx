@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const TabButton = ({ active, onClick, children, count }) => (
   <button
@@ -13,5 +14,12 @@ const TabButton = ({ active, onClick, children, count }) => (
     {count !== undefined && count !== null && ` (${count})`}
   </button>
 );
+
+TabButton.propTypes = {
+  active: PropTypes.bool,
+  onClick: PropTypes.func.isRequired,
+  children: PropTypes.node.isRequired,
+  count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+};
 
 export default TabButton;
