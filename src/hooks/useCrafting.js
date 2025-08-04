@@ -18,25 +18,30 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
 
   const openBox = (boxType) => {
     const box = BOX_TYPES[boxType];
-    if (gameState.gold < box.cost) {
-      addNotification('Not enough gold!', 'error');
-      return;
-    }
-    const materialCount = Math.floor(random() * (box.materialCount[1] - box.materialCount[0] + 1)) + box.materialCount[0];
-    const newMaterials = { ...gameState.materials };
+    let materialCount = 0;
     const foundMaterials = [];
-    for (let i = 0; i < materialCount; i++) {
-      const material = getRandomMaterial(box.rarityWeights);
-      newMaterials[material] = (newMaterials[material] || 0) + 1;
-      foundMaterials.push(MATERIALS[material].name);
+    setGameState(prev => {
+      if (prev.gold < box.cost) {
+        addNotification('Not enough gold!', 'error');
+        return prev;
+      }
+      materialCount = Math.floor(random() * (box.materialCount[1] - box.materialCount[0] + 1)) + box.materialCount[0];
+      const newMaterials = { ...prev.materials };
+      for (let i = 0; i < materialCount; i++) {
+        const material = getRandomMaterial(box.rarityWeights);
+        newMaterials[material] = (newMaterials[material] || 0) + 1;
+        foundMaterials.push(MATERIALS[material].name);
+      }
+      return {
+        ...prev,
+        gold: prev.gold - box.cost,
+        materials: newMaterials,
+      };
+    });
+    if (materialCount > 0) {
+      addEvent(`Opened ${box.name}: Found ${foundMaterials.join(', ')}`, 'success');
+      addNotification(`📦 Opened ${box.name}! Found ${materialCount} materials`, 'success');
     }
-    setGameState(prev => ({
-      ...prev,
-      gold: prev.gold - box.cost,
-      materials: newMaterials
-    }));
-    addEvent(`Opened ${box.name}: Found ${foundMaterials.join(', ')}`, 'success');
-    addNotification(`📦 Opened ${box.name}! Found ${materialCount} materials`, 'success');
   };
 
   const craftItem = (recipeId) => {
