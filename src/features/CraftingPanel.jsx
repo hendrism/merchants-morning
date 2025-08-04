@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { Hammer, Store } from 'lucide-react';
 import { MATERIALS, RECIPES, ITEM_TYPES } from '../constants';
 import TabButton from '../components/TabButton';
@@ -151,3 +152,21 @@ const CraftingPanel = ({
 };
 
 export default CraftingPanel;
+
+CraftingPanel.propTypes = {
+  gameState: PropTypes.shape({
+    materials: PropTypes.object.isRequired,
+    inventory: PropTypes.object.isRequired,
+  }).isRequired,
+  craftingTab: PropTypes.oneOf(ITEM_TYPES).isRequired,
+  setCraftingTab: PropTypes.func.isRequired,
+  inventoryTab: PropTypes.oneOf(ITEM_TYPES).isRequired,
+  setInventoryTab: PropTypes.func.isRequired,
+  canCraft: PropTypes.func.isRequired,
+  craftItem: PropTypes.func.isRequired,
+  filterRecipesByType: PropTypes.func.isRequired,
+  sortRecipesByRarityAndCraftability: PropTypes.func.isRequired,
+  filterInventoryByType: PropTypes.func.isRequired,
+  openShop: PropTypes.func.isRequired,
+  getRarityColor: PropTypes.func.isRequired,
+};
