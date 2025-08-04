@@ -1,23 +1,25 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { playNotificationSound, closeAudioContext } from '../utils/audio';
 
-const Notifications = ({ notifications }) => {
+const Notifications = ({ notifications, soundEnabled }) => {
   useEffect(() => {
+    if (!soundEnabled) return;
     if (notifications.length === 0) return;
-    const AudioCtx = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
-    if (!AudioCtx) return;
+    playNotificationSound();
+  }, [notifications, soundEnabled]);
 
-    const audioCtx = new AudioCtx();
-    const oscillator = audioCtx.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-    oscillator.connect(audioCtx.destination);
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.1);
-  }, [notifications]);
+  useEffect(() => {
+    if (!soundEnabled) {
+      closeAudioContext();
+    }
+    return () => {
+      closeAudioContext();
+    };
+  }, [soundEnabled]);
 
   return (
-    <div className="fixed top-4 right-4 space-y-2 z-50">
+    <div role="status" aria-live="polite" className="fixed top-4 right-4 space-y-2 z-50">
       {notifications.map(notification => (
         <div
           key={notification.id}
@@ -44,6 +46,11 @@ Notifications.propTypes = {
       type: PropTypes.string.isRequired,
     })
   ).isRequired,
+  soundEnabled: PropTypes.bool,
+};
+
+Notifications.defaultProps = {
+  soundEnabled: true,
 };
 
 export default Notifications;

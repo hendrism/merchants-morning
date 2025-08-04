@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Package, Coins, ChevronRight, AlertCircle, ChevronDown, ChevronUp, Sun, Moon } from 'lucide-react';
+import {
+  Package,
+  Coins,
+  ChevronRight,
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  Sun,
+  Moon,
+  Volume2,
+  VolumeX,
+} from 'lucide-react';
 import { PHASES, MATERIALS, BOX_TYPES } from './constants';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
@@ -30,6 +41,16 @@ const MerchantsMorning = () => {
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
   });
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    try {
+      const stored = window.localStorage.getItem('soundEnabled');
+      return stored ? stored === 'true' : true;
+    } catch (e) {
+      console.error('Failed to load sound preference', e);
+      return true;
+    }
+  });
   const notificationTimers = useRef([]);
 
   useEffect(() => {
@@ -48,6 +69,16 @@ const MerchantsMorning = () => {
       }
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem('soundEnabled', soundEnabled);
+      } catch (e) {
+        console.error('Failed to save sound preference', e);
+      }
+    }
+  }, [soundEnabled]);
 
   useEffect(() => {
     return () => {
@@ -104,7 +135,7 @@ const MerchantsMorning = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-16 dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
-      <Notifications notifications={notifications} />
+      <Notifications notifications={notifications} soundEnabled={soundEnabled} />
       <div className="max-w-6xl mx-auto p-3">
         <div className="bg-white rounded-lg shadow-lg p-3 mb-3 flex items-center justify-between dark:bg-gray-800">
           <div>
@@ -122,6 +153,13 @@ const MerchantsMorning = () => {
               aria-label="Toggle dark mode"
             >
               {darkMode ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className="p-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+              aria-label={soundEnabled ? 'Mute notification sounds' : 'Enable notification sounds'}
+            >
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </button>
             <button
               onClick={() => setShowEventLog(!showEventLog)}
