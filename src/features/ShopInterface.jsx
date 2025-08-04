@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Store } from 'lucide-react';
 import TabButton from '../components/TabButton';
 import { ITEM_TYPES, RECIPES } from '../constants';
+import { getRarityRank } from '../utils/rarity';
 
 const ShopInterface = ({
   gameState,
@@ -14,7 +15,13 @@ const ShopInterface = ({
   serveCustomer,
   endDay,
   getRarityColor,
-}) => (
+}) => {
+  const sortedInventory = useMemo(
+    () => sortByMatchQualityAndRarity(filterInventoryByType(sellingTab), selectedCustomer),
+    [sellingTab, selectedCustomer, gameState.inventory]
+  );
+
+  return (
   <div className="space-y-4">
     <div className="bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
       <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
@@ -98,7 +105,7 @@ const ShopInterface = ({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
-        {sortByMatchQualityAndRarity(filterInventoryByType(sellingTab), selectedCustomer).map(([itemId, count]) => {
+        {sortedInventory.map(([itemId, count]) => {
           const recipe = RECIPES.find(r => r.id === itemId);
 
           let saleInfo = null;
@@ -111,8 +118,7 @@ const ShopInterface = ({
 
             if (!exactMatch) {
               let penalty = selectedCustomer.isFlexible ? 0.2 : 0.4;
-              const rarityOrder = { common: 1, uncommon: 2, rare: 3 };
-              if (rarityOrder[recipe.rarity] > rarityOrder[selectedCustomer.requestRarity]) {
+              if (getRarityRank(recipe.rarity) > getRarityRank(selectedCustomer.requestRarity)) {
                 penalty -= 0.1;
                 status = 'upgrade';
               } else if (recipe.type === selectedCustomer.requestType) {
@@ -182,7 +188,7 @@ const ShopInterface = ({
           );
         })}
 
-        {filterInventoryByType(sellingTab).length === 0 && (
+        {sortedInventory.length === 0 && (
           <div className="col-span-full text-center py-8">
             <p className="text-gray-500 italic dark:text-gray-400">No {sellingTab}s in stock</p>
             <p className="text-xs text-gray-400 mt-1 dark:text-gray-500">Craft some items to sell!</p>
@@ -191,6 +197,7 @@ const ShopInterface = ({
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default ShopInterface;
