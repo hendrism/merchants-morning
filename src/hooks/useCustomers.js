@@ -1,8 +1,9 @@
 import { PHASES, RECIPES } from '../constants';
+import { random } from '../utils/random';
 
 const useCustomers = (gameState, setGameState, addEvent, addNotification, setSelectedCustomer) => {
   const generateCustomers = () => {
-    const customerCount = Math.floor(Math.random() * 4) + 3;
+    const customerCount = Math.floor(random() * 4) + 3;
     const customers = [];
 
     const getRarityWeights = (day) => {
@@ -16,7 +17,7 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
     };
 
     const getRandomRarity = (weights) => {
-      const rand = Math.random() * 100;
+      const rand = random() * 100;
       let threshold = 0;
       for (const [rarity, weight] of Object.entries(weights)) {
         threshold += weight;
@@ -29,23 +30,23 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       const requests = ['weapon', 'armor', 'trinket'];
       const rarityWeights = getRarityWeights(gameState.day);
 
-      const requestType = requests[Math.floor(Math.random() * requests.length)];
+      const requestType = requests[Math.floor(random() * requests.length)];
       const requestRarity = getRandomRarity(rarityWeights);
       const basePrice = requestRarity === 'common' ? 15 : requestRarity === 'uncommon' ? 25 : 50;
-      const offerPrice = Math.floor(basePrice * (0.9 + Math.random() * 0.3));
+      const offerPrice = Math.floor(basePrice * (0.9 + random() * 0.3));
 
-      const flexibility = Math.random();
+      const flexibility = random();
       const isFlexible = flexibility > 0.6;
 
       customers.push({
-        id: i,
+        id: crypto.randomUUID(),
         name: `Customer ${i + 1}`,
         requestType,
         requestRarity,
         offerPrice,
         satisfied: false,
         isFlexible,
-        patience: Math.floor(Math.random() * 3) + 2
+        patience: Math.floor(random() * 3) + 2
       });
     }
 

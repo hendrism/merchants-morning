@@ -28,6 +28,23 @@ const MerchantsMorning = () => {
     shopLevel: 1
   });
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedState = window.localStorage.getItem('gameState');
+    if (savedState) {
+      try {
+        setGameState(JSON.parse(savedState));
+      } catch (e) {
+        console.error('Failed to load game state', e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('gameState', JSON.stringify(gameState));
+  }, [gameState]);
+
   const [eventLog, setEventLog] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -44,7 +61,7 @@ const MerchantsMorning = () => {
 
   const addEvent = (message, type = 'info') => {
     const event = {
-      id: Date.now(),
+        id: crypto.randomUUID(),
       message,
       type,
       timestamp: new Date().toLocaleTimeString()
@@ -54,7 +71,7 @@ const MerchantsMorning = () => {
 
   const addNotification = (message, type = 'success') => {
     const notification = {
-      id: Date.now(),
+        id: crypto.randomUUID(),
       message,
       type
     };
