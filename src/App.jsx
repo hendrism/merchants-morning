@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Package, Hammer, Store, Star, Coins, ChevronRight, X, Check, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import TabButton from './components/TabButton';
 import Notifications from './components/Notifications';
 import EventLog from './components/EventLog';
@@ -26,18 +26,9 @@ const MerchantsMorning = () => {
 
   const [eventLog, setEventLog] = useState([]);
   const [notifications, setNotifications] = useState([]);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showEventLog, setShowEventLog] = useState(false);
   const [craftingTab, setCraftingTab] = useState('weapon');
   const [inventoryTab, setInventoryTab] = useState('weapon');
-  const [sellingTab, setSellingTab] = useState('weapon');
-
-  // Auto-switch selling tab when customer is selected
-  useEffect(() => {
-    if (selectedCustomer) {
-      setSellingTab(selectedCustomer.requestType);
-    }
-  }, [selectedCustomer]);
 
   const addEvent = (message, type = 'info') => {
     const event = {
@@ -59,15 +50,6 @@ const MerchantsMorning = () => {
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== notification.id));
     }, 3000);
-  };
-
-  const getRarityColor = (rarity) => {
-    switch(rarity) {
-      case 'common': return 'text-gray-600 bg-gray-100 border-gray-200';
-      case 'uncommon': return 'text-green-600 bg-green-100 border-green-200';
-      case 'rare': return 'text-purple-600 bg-purple-100 border-purple-200';
-      default: return 'text-gray-600 bg-gray-100 border-gray-200';
-    }
   };
 
   const getRandomMaterial = (rarityWeights) => {
@@ -141,129 +123,6 @@ const MerchantsMorning = () => {
     addNotification(`🔨 Successfully crafted ${recipe.name}!`, 'success');
   };
 
-  const generateCustomers = () => {
-    const customerCount = Math.floor(Math.random() * 4) + 3;
-    const customers = [];
-    
-    const getRarityWeights = (day) => {
-      if (day <= 3) {
-        return { common: 70, uncommon: 30, rare: 0 };
-      } else if (day <= 6) {
-        return { common: 50, uncommon: 40, rare: 10 };
-      } else {
-        return { common: 30, uncommon: 45, rare: 25 };
-      }
-    };
-    
-    const getRandomRarity = (weights) => {
-      const rand = Math.random() * 100;
-      let threshold = 0;
-      for (const [rarity, weight] of Object.entries(weights)) {
-        threshold += weight;
-        if (rand <= threshold) return rarity;
-      }
-      return 'common';
-    };
-    
-    for (let i = 0; i < customerCount; i++) {
-      const requests = ['weapon', 'armor', 'trinket'];
-      const rarityWeights = getRarityWeights(gameState.day);
-      
-      const requestType = requests[Math.floor(Math.random() * requests.length)];
-      const requestRarity = getRandomRarity(rarityWeights);
-      const basePrice = requestRarity === 'common' ? 15 : requestRarity === 'uncommon' ? 25 : 50;
-      const offerPrice = Math.floor(basePrice * (0.9 + Math.random() * 0.3));
-      
-      const flexibility = Math.random();
-      const isFlexible = flexibility > 0.6;
-      
-      customers.push({
-        id: i,
-        name: `Customer ${i + 1}`,
-        requestType,
-        requestRarity,
-        offerPrice,
-        satisfied: false,
-        isFlexible,
-        patience: Math.floor(Math.random() * 3) + 2
-      });
-    }
-    
-    return customers;
-  };
-
-  const openShop = () => {
-    const customers = generateCustomers();
-    setGameState(prev => ({
-      ...prev,
-      phase: PHASES.SHOPPING,
-      customers
-    }));
-    addEvent(`Shop opened with ${customers.length} customers waiting`, 'info');
-  };
-
-  const serveCustomer = (customerId, itemId) => {
-    const customer = gameState.customers.find(c => c.id === customerId);
-    const recipe = RECIPES.find(r => r.id === itemId);
-    
-    if (!customer || !recipe || (gameState.inventory[itemId] || 0) < 1) return;
-
-    let payment = customer.offerPrice;
-    let satisfaction = 'perfect';
-
-    const exactMatch = recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
-    
-    if (!exactMatch) {
-      let penalty = 0.4;
-      
-      if (customer.isFlexible) {
-        penalty = 0.2;
-        satisfaction = 'good substitute';
-      } else {
-        satisfaction = 'reluctant';
-      }
-      
-      const rarityOrder = { common: 1, uncommon: 2, rare: 3 };
-      if (rarityOrder[recipe.rarity] > rarityOrder[customer.requestRarity]) {
-        penalty -= 0.1;
-        satisfaction = customer.isFlexible ? 'delighted upgrade' : 'acceptable upgrade';
-      }
-      
-      if (recipe.type === customer.requestType) {
-        penalty -= 0.1;
-      }
-      
-      payment = Math.floor(payment * (1 - penalty));
-    }
-
-    const newInventory = { ...gameState.inventory };
-    newInventory[itemId] -= 1;
-
-    const newCustomers = gameState.customers.map(c => 
-      c.id === customerId ? { ...c, satisfied: true, payment, satisfaction } : c
-    );
-
-    setGameState(prev => ({
-      ...prev,
-      inventory: newInventory,
-      customers: newCustomers,
-      gold: prev.gold + payment,
-      totalEarnings: prev.totalEarnings + payment
-    }));
-
-    const matchText = exactMatch ? '(Perfect match!)' : `(${satisfaction})`;
-    addEvent(`Sold ${recipe.name} to ${customer.name} for ${payment} gold ${matchText}`, 'success');
-    addNotification(`💰 Sold ${recipe.name} for ${payment} gold!`, 'success');
-    setSelectedCustomer(null);
-  };
-
-  const endDay = () => {
-    setGameState(prev => ({
-      ...prev,
-      phase: PHASES.END_DAY
-    }));
-  };
-
   const startNewDay = () => {
     setGameState(prev => ({
       ...prev,
@@ -272,70 +131,22 @@ const MerchantsMorning = () => {
       customers: []
     }));
     addEvent(`Started Day ${gameState.day + 1}`, 'info');
-    setSelectedCustomer(null);
   };
 
   const canCraft = (recipe) => {
-    return Object.entries(recipe.ingredients).every(([material, needed]) => 
+    return Object.entries(recipe.ingredients).every(([material, needed]) =>
       (gameState.materials[material] || 0) >= needed
     );
   };
-
-  const getTopMaterials = () => {
-    return Object.entries(gameState.materials)
-      .filter(([_, count]) => count > 0)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 4);
-  };
-
-  // Item categories and rarity ranking moved to constants.js
-
   const sortRecipesByRarityAndCraftability = (recipes) => {
     return recipes.sort((a, b) => {
       const canCraftA = canCraft(a);
       const canCraftB = canCraft(b);
-      
+
       if (canCraftA && !canCraftB) return -1;
       if (!canCraftA && canCraftB) return 1;
-      
-      return RARITY_ORDER[b.rarity] - RARITY_ORDER[a.rarity];
-    });
-  };
 
-  const sortByMatchQualityAndRarity = (inventoryItems, customer) => {
-    return inventoryItems.sort((a, b) => {
-      const recipeA = RECIPES.find(r => r.id === a[0]);
-      const recipeB = RECIPES.find(r => r.id === b[0]);
-      
-      if (!customer) {
-        return RARITY_ORDER[recipeB.rarity] - RARITY_ORDER[recipeA.rarity];
-      }
-      
-      const getMatchScore = (recipe) => {
-        const exactMatch = recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
-        if (exactMatch) return 4;
-        
-        const rarityOrder = { common: 1, uncommon: 2, rare: 3 };
-        if (rarityOrder[recipe.rarity] > rarityOrder[customer.requestRarity] && recipe.type === customer.requestType) {
-          return 3;
-        }
-        if (recipe.type === customer.requestType) {
-          return 2;
-        }
-        if (customer.isFlexible) {
-          return 1;
-        }
-        return 0;
-      };
-      
-      const scoreA = getMatchScore(recipeA);
-      const scoreB = getMatchScore(recipeB);
-      
-      if (scoreA !== scoreB) {
-        return scoreB - scoreA;
-      }
-      
-      return RARITY_ORDER[recipeB.rarity] - RARITY_ORDER[recipeA.rarity];
+      return RARITY_ORDER[b.rarity] - RARITY_ORDER[a.rarity];
     });
   };
 
