@@ -5,6 +5,8 @@ import Notifications from './components/Notifications';
 import EventLog from './components/EventLog';
 import { PHASES, MATERIALS, RECIPES, BOX_TYPES, ITEM_TYPES, RARITY_ORDER } from './constants';
 
+const CUSTOMER_NAMES = ['Aria', 'Borin', 'Cedric', 'Delia', 'Elric', 'Fiona', 'Galen', 'Helga'];
+
 const MerchantsMorning = () => {
   const [gameState, setGameState] = useState({
     phase: PHASES.MORNING,
@@ -163,6 +165,40 @@ const MerchantsMorning = () => {
       });
   };
 
+  const generateCustomers = (count = 3) => {
+    return Array.from({ length: count }, (_, i) => {
+      const recipe = RECIPES[Math.floor(Math.random() * RECIPES.length)];
+      const name = CUSTOMER_NAMES[Math.floor(Math.random() * CUSTOMER_NAMES.length)];
+      return { id: Date.now() + i, name, wants: recipe.id };
+    });
+  };
+
+  const sellToCustomer = (customer) => {
+    const itemId = customer.wants;
+    const recipe = RECIPES.find(r => r.id === itemId);
+    if (!recipe) return;
+
+    if ((gameState.inventory[itemId] || 0) <= 0) {
+      addNotification("Need an item to sell!", 'error');
+      return;
+    }
+
+    const newInventory = { ...gameState.inventory };
+    newInventory[itemId] -= 1;
+    if (newInventory[itemId] <= 0) delete newInventory[itemId];
+
+    setGameState(prev => ({
+      ...prev,
+      inventory: newInventory,
+      customers: prev.customers.filter(c => c.id !== customer.id),
+      gold: prev.gold + recipe.sellPrice,
+      totalEarnings: prev.totalEarnings + recipe.sellPrice
+    }));
+
+    addEvent(`Sold ${recipe.name} for ${recipe.sellPrice} gold`, 'success');
+    addNotification(`💰 Sold ${recipe.name} for ${recipe.sellPrice} gold`, 'success');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 text-amber-800 pb-16">
       <Notifications notifications={notifications} />
@@ -277,7 +313,13 @@ const MerchantsMorning = () => {
             </div>
             <button
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
-              onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.SHOPPING }))}
+              onClick={() =>
+                setGameState(prev => ({
+                  ...prev,
+                  phase: PHASES.SHOPPING,
+                  customers: generateCustomers()
+                }))
+              }
             >
               Open Shop
             </button>
@@ -320,6 +362,33 @@ const MerchantsMorning = () => {
         {gameState.phase === PHASES.SHOPPING && (
           <div className="space-y-4">
             <h2 className="text-xl font-bold">Shopping</h2>
+            <div className="space-y-2">
+              {gameState.customers.length === 0 && (
+                <p className="text-sm text-center">No customers left.</p>
+              )}
+              {gameState.customers.map(customer => {
+                const recipe = RECIPES.find(r => r.id === customer.wants);
+                const inStock = (gameState.inventory[customer.wants] || 0) > 0;
+                return (
+                  <div
+                    key={customer.id}
+                    className="border rounded-lg p-3 flex items-center justify-between"
+                  >
+                    <div>
+                      <div className="font-bold text-sm">{customer.name}</div>
+                      <div className="text-xs">wants {recipe?.name}</div>
+                    </div>
+                    <button
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                      onClick={() => sellToCustomer(customer)}
+                      disabled={!inStock}
+                    >
+                      {inStock ? `Sell (${recipe.sellPrice}g)` : 'Out of stock'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
             <button
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
               onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.END_DAY }))}
