@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Package, Coins, ChevronRight, AlertCircle, ChevronDown, ChevronUp, Sun, Moon } from 'lucide-react';
 import { PHASES, MATERIALS, BOX_TYPES } from './constants';
 import EventLog from './components/EventLog';
@@ -98,6 +98,8 @@ const MerchantsMorning = () => {
     sortByMatchQualityAndRarity,
     getTopMaterials,
   } = useCrafting(gameState, setGameState, addEvent, addNotification);
+
+  const topMaterials = useMemo(() => getTopMaterials(), [getTopMaterials]);
 
   const { openShop, serveCustomer, endDay, startNewDay } =
     useCustomers(gameState, setGameState, addEvent, addNotification, setSelectedCustomer);
@@ -245,7 +247,7 @@ const MerchantsMorning = () => {
               {gameState.gold}
             </div>
             <div className="flex items-center gap-2 overflow-x-auto">
-              {getTopMaterials().map(([materialId, count]) => {
+              {topMaterials.map(([materialId, count]) => {
                 const material = MATERIALS[materialId];
                 return (
                   <div key={materialId} className="flex items-center gap-1 text-xs whitespace-nowrap">
