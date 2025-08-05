@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Package, Coins, AlertCircle, Sun, Moon, Menu, BookOpen, Settings, HelpCircle } from 'lucide-react';
 import { PHASES, MATERIALS, BOX_TYPES } from './constants';
 import EventLog from './components/EventLog';
@@ -101,6 +101,20 @@ const MerchantsMorning = () => {
     getTopMaterials,
     getSaleInfo,
   } = useCrafting(gameState, setGameState, addEvent, addNotification);
+
+  const materialsByType = useMemo(
+    () =>
+      Object.entries(gameState.materials)
+        .filter(([, count]) => count > 0)
+        .reduce((acc, [id, count]) => {
+          const material = MATERIALS[id];
+          const type = material.type || 'other';
+          if (!acc[type]) acc[type] = [];
+          acc[type].push({ id, count, material });
+          return acc;
+        }, {}),
+    [gameState.materials]
+  );
 
   const filterInventoryByType = useCallback(
     (type) => rawFilterInventoryByType(type),
@@ -235,17 +249,23 @@ const MerchantsMorning = () => {
 
             <div className="bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
               <h3 className="text-lg font-bold mb-3">Materials</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {Object.entries(gameState.materials).filter(([_, count]) => count > 0).map(([materialId, count]) => {
-                  const material = MATERIALS[materialId];
-                  return (
-                    <div key={materialId} className={`p-2 rounded text-sm sm:text-xs ${getRarityColor(material.rarity)}`}>
-                      <span className="mr-1">{material.icon}</span>
-                      {material.name}: {count}
+              {Object.keys(materialsByType).length > 0 ? (
+                Object.entries(materialsByType).map(([type, mats]) => (
+                  <div key={type} className="mb-2">
+                    <h4 className="font-semibold text-sm mb-1 capitalize">{type}</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {mats.map(({ id, count, material }) => (
+                        <div key={id} className={`p-2 rounded text-sm sm:text-xs ${getRarityColor(material.rarity)}`}>
+                          <span className="mr-1">{material.icon}</span>
+                          {material.name}: {count}
+                        </div>
+                      ))}
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-600 dark:text-gray-300">No materials</p>
+              )}
             </div>
           </div>
         )}
