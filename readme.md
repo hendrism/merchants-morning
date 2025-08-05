@@ -7,7 +7,7 @@ A fantasy shopkeeping Progressive Web App where you craft items from materials a
 - **Daily Loop Gameplay**: Buy supplies → Craft items → Serve customers → Earn gold
 - **Progressive Difficulty**: Customers want more valuable items as days progress
 - **Smart Crafting System**: Tabbed interface with rarity-based sorting
-- **Strategic Selling**: Match customer requests or offer substitutes
+- **Strategic Selling**: Match customer requests and earn bonuses for upgrades
 - **PWA Ready**: Install on mobile/desktop, works offline
 
 ## 🚀 Quick Setup
@@ -55,7 +55,7 @@ A fantasy shopkeeping Progressive Web App where you craft items from materials a
 - Select customers from horizontal tabs
 - Auto-switches to relevant product category
 - Perfect matches = full payment
-- Substitutes = reduced payment (except to flexible customers 😊)
+- Wrong item types cannot be sold
 
 ### End of Day
 - Review earnings and customer satisfaction
