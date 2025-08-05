@@ -188,6 +188,24 @@ const MerchantsMorning = () => {
 
         {gameState.phase === PHASES.MORNING && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-3 bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
+              <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
+                <BookOpen className="w-4 h-4" />
+                Morning Gazette
+              </h2>
+              {gameState.marketReports.length > 0 ? (
+                <ul className="list-disc pl-5 space-y-1 text-sm">
+                  {gameState.marketReports.map((report, idx) => (
+                    <li key={idx}>{report}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm italic text-gray-600 dark:text-gray-300">
+                  The market is quiet today.
+                </p>
+              )}
+            </div>
+
             <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
               <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
                 <Package className="w-4 h-4" />
