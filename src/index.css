@@ -132,6 +132,16 @@ button, .transition-colors {
   }
 }
 
+@layer utilities {
+  .min-touch {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 /* Dark mode placeholder */
 @media (prefers-color-scheme: dark) {
   /* Add dark mode styles here if needed */
