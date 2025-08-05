@@ -36,7 +36,28 @@ const ShopInterface = ({
         Select Customer ({gameState.customers.filter(c => !c.satisfied).length} waiting)
       </h2>
 
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="sm:hidden mb-3">
+        <select
+          value={selectedCustomer?.id || ''}
+          onChange={(e) => {
+            const customer = gameState.customers.find(c => String(c.id) === e.target.value);
+            if (customer) {
+              setSelectedCustomer(customer);
+              setSellingTab(customer.requestType);
+            }
+          }}
+          className="w-full p-2 rounded-lg border bg-white dark:bg-gray-700 dark:text-gray-200 min-h-[44px]"
+        >
+          <option value="">Select a customer</option>
+          {gameState.customers.filter(c => !c.satisfied).map(c => (
+            <option key={c.id} value={c.id}>
+              {c.name} - {c.requestRarity} {c.requestType} ({c.maxBudget}g)
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="hidden sm:flex gap-2 overflow-x-auto pb-2">
         {gameState.customers.filter(c => !c.satisfied).map(customer => (
           <button
             key={customer.id}
@@ -44,7 +65,7 @@ const ShopInterface = ({
               setSelectedCustomer(customer);
               setSellingTab(customer.requestType);
             }}
-            className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg whitespace-nowrap font-medium transition-colors min-h-[44px] min-w-[44px] text-sm sm:text-xs ${
               selectedCustomer?.id === customer.id
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
@@ -56,7 +77,7 @@ const ShopInterface = ({
               {customer.budgetTier === 'budget' && <span className="ml-1">🪙</span>}
               {customer.isFlexible && <span className="ml-1">😊</span>}
             </div>
-            <div className="text-xs opacity-80">
+            <div className="text-sm sm:text-xs opacity-80">
               {customer.requestRarity} {customer.requestType} • Budget: {customer.maxBudget}g
             </div>
           </button>
@@ -97,7 +118,7 @@ const ShopInterface = ({
         </p>
       )}
 
-      <div className="flex gap-1 mb-3">
+      <div className="flex gap-1 mb-3 overflow-x-auto pb-1">
         {ITEM_TYPES.map(type => {
           const count = filterInventoryByType(type).length;
           return (
@@ -191,16 +212,16 @@ const ShopInterface = ({
               <div className="flex justify-between items-start mb-2">
                 <div className="flex-1">
                   <h4 className="font-bold text-sm">{recipe.name}</h4>
-                  <p className={`text-xs px-1 py-0.5 rounded inline-block mb-1 border ${getRarityColor(recipe.rarity)}`}>
+                  <p className={`text-sm sm:text-xs px-1 py-0.5 rounded inline-block mb-1 border ${getRarityColor(recipe.rarity)}`}>
                     {recipe.type} • {recipe.rarity}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-300">Stock: {count}</p>
+                  <p className="text-sm sm:text-xs text-gray-600 dark:text-gray-300">Stock: {count}</p>
                 </div>
               </div>
 
               {selectedCustomer && saleInfo && (
                 <div className="mb-2">
-                  <p className="text-xs font-bold">
+                  <p className="text-sm sm:text-xs font-bold">
                     {saleInfo.exactMatch ? (
                       <span className="text-green-600">✓ Perfect Match!</span>
                     ) : saleInfo.status === 'upgrade' ? (
@@ -241,7 +262,7 @@ const ShopInterface = ({
         {sortedInventory.length === 0 && (
           <div className="col-span-full text-center py-8">
             <p className="text-gray-500 italic dark:text-gray-400">No {sellingTab}s in stock</p>
-            <p className="text-xs text-gray-400 mt-1 dark:text-gray-500">Craft some items to sell!</p>
+            <p className="text-sm sm:text-xs text-gray-400 mt-1 dark:text-gray-500">Craft some items to sell!</p>
           </div>
         )}
       </div>

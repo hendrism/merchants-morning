@@ -31,7 +31,7 @@ describe('ShopInterface', () => {
 
     const { rerender } = render(<ShopInterface {...props} />);
 
-    fireEvent.click(screen.getByText('Alice', { exact: false }));
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'c1' } });
     expect(props.setSelectedCustomer).toHaveBeenCalledWith(customer);
     expect(props.setSellingTab).toHaveBeenCalledWith('weapon');
 

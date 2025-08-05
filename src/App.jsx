@@ -108,13 +108,13 @@ const MerchantsMorning = () => {
     useCustomers(gameState, setGameState, addEvent, addNotification, setSelectedCustomer);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-16 dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-20 pb-safe dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
       <div className="max-w-6xl mx-auto p-3">
         <div className="bg-white rounded-lg shadow-lg p-3 mb-3 flex items-center justify-between dark:bg-gray-800">
           <div>
             <h1 className="text-lg sm:text-xl font-bold text-amber-800 dark:text-amber-300">🏰 Merchant's Morning</h1>
-            <p className="text-xs text-amber-600 dark:text-amber-400">Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}</p>
+            <p className="text-sm sm:text-xs text-amber-600 dark:text-amber-400">Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-lg font-bold text-yellow-600">
@@ -130,7 +130,7 @@ const MerchantsMorning = () => {
             </button>
             <button
               onClick={() => setShowEventLog(!showEventLog)}
-              className="flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded dark:bg-gray-700 dark:hover:bg-gray-600 text-sm sm:text-xs min-h-[44px] min-w-[44px]"
             >
               <AlertCircle className="w-3 h-3" />
               Events {showEventLog ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -143,7 +143,7 @@ const MerchantsMorning = () => {
                   addNotification('Game reset', 'success');
                 }
               }}
-              className="flex items-center gap-1 text-xs bg-red-100 hover:bg-red-200 px-2 py-1 rounded dark:bg-red-700 dark:hover:bg-red-600"
+              className="flex items-center gap-1 bg-red-100 hover:bg-red-200 px-2 py-1 rounded dark:bg-red-700 dark:hover:bg-red-600 text-sm sm:text-xs min-h-[44px] min-w-[44px]"
             >
               Reset Game
             </button>
@@ -167,7 +167,7 @@ const MerchantsMorning = () => {
                 {Object.entries(BOX_TYPES).map(([type, box]) => (
                   <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
                     <h3 className="font-bold capitalize text-sm mb-1">{box.name}</h3>
-                    <p className="text-xs text-gray-600 mb-2 dark:text-gray-300">
+                    <p className="text-sm sm:text-xs text-gray-600 mb-2 dark:text-gray-300">
                       {box.materialCount[0]}-{box.materialCount[1]} materials
                     </p>
                     <button
@@ -190,11 +190,11 @@ const MerchantsMorning = () => {
 
             <div className="bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
               <h3 className="text-lg font-bold mb-3">Materials</h3>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {Object.entries(gameState.materials).filter(([_, count]) => count > 0).map(([materialId, count]) => {
                   const material = MATERIALS[materialId];
                   return (
-                    <div key={materialId} className={`p-2 rounded text-xs ${getRarityColor(material.rarity)}`}>
+                    <div key={materialId} className={`p-2 rounded text-sm sm:text-xs ${getRarityColor(material.rarity)}`}>
                       <span className="mr-1">{material.icon}</span>
                       {material.name}: {count}
                     </div>
@@ -242,7 +242,7 @@ const MerchantsMorning = () => {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-2 dark:bg-gray-800 dark:border-gray-700">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-2 pb-safe dark:bg-gray-800 dark:border-gray-700">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold text-yellow-600">
@@ -253,14 +253,14 @@ const MerchantsMorning = () => {
               {getTopMaterials().map(([materialId, count]) => {
                 const material = MATERIALS[materialId];
                 return (
-                  <div key={materialId} className="flex items-center gap-1 text-xs whitespace-nowrap">
+                  <div key={materialId} className="flex items-center gap-1 text-sm sm:text-xs whitespace-nowrap">
                     <span>{material.icon}</span>
                     <span className="font-medium">{count}</span>
                   </div>
                 );
               })}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
+            <div className="text-sm sm:text-xs text-gray-500 dark:text-gray-400">
               Day {gameState.day}
             </div>
           </div>
