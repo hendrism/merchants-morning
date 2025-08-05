@@ -21,7 +21,7 @@ const CraftingPanel = ({
 }) => {
   const sortedRecipes = useMemo(
     () => sortRecipesByRarityAndCraftability(filterRecipesByType(craftingTab)),
-    [craftingTab, gameState.materials]
+    [craftingTab, gameState.materials, filterRecipesByType, sortRecipesByRarityAndCraftability]
   );
 
   const sortedInventory = useMemo(
@@ -33,7 +33,7 @@ const CraftingPanel = ({
           const recipeB = RECIPES.find(r => r.id === itemIdB);
           return compareRarities(recipeB.rarity, recipeA.rarity);
         }),
-    [inventoryTab, gameState.inventory]
+    [inventoryTab, gameState.inventory, filterInventoryByType]
   );
 
   return (
