@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Package, Coins, ChevronRight, AlertCircle, ChevronDown, ChevronUp, Sun, Moon } from 'lucide-react';
+import { Package, Coins, ChevronRight, AlertCircle, ChevronDown, ChevronUp, Sun, Moon, Menu } from 'lucide-react';
 import { PHASES, MATERIALS, BOX_TYPES } from './constants';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
@@ -30,6 +30,7 @@ const MerchantsMorning = () => {
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
   });
+  const [menuOpen, setMenuOpen] = useState(false);
   const notificationTimers = useRef([]);
 
   useEffect(() => {
@@ -111,42 +112,57 @@ const MerchantsMorning = () => {
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-20 pb-safe dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
       <div className="max-w-6xl mx-auto p-3">
-        <div className="bg-white rounded-lg shadow-lg p-3 mb-3 flex items-center justify-between dark:bg-gray-800">
+        <div className="bg-white rounded-lg shadow-lg p-3 mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 dark:bg-gray-800">
           <div>
             <h1 className="text-lg sm:text-xl font-bold text-amber-800 dark:text-amber-300">🏰 Merchant's Morning</h1>
             <p className="text-sm sm:text-xs text-amber-600 dark:text-amber-400">Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center flex-wrap gap-2">
             <div className="flex items-center gap-2 text-lg font-bold text-yellow-600">
               <Coins className="w-4 h-4" />
               {gameState.gold}
             </div>
             <button
+              onClick={() => setShowEventLog(!showEventLog)}
+              className="w-10 h-10 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+              aria-label="Toggle event log"
+            >
+              {showEventLog ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </button>
+            <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="w-10 h-10 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
               aria-label="Toggle dark mode"
             >
-              {darkMode ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4" />}
+              {darkMode ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5" />}
             </button>
-            <button
-              onClick={() => setShowEventLog(!showEventLog)}
-              className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded dark:bg-gray-700 dark:hover:bg-gray-600 text-sm sm:text-xs min-h-[44px] min-w-[44px]"
-            >
-              <AlertCircle className="w-3 h-3" />
-              Events {showEventLog ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            </button>
-            <button
-              onClick={() => {
-                if (window.confirm('Reset game progress?')) {
-                  resetGame();
-                  addEvent('Game reset', 'info');
-                  addNotification('Game reset', 'success');
-                }
-              }}
-              className="flex items-center gap-1 bg-red-100 hover:bg-red-200 px-2 py-1 rounded dark:bg-red-700 dark:hover:bg-red-600 text-sm sm:text-xs min-h-[44px] min-w-[44px]"
-            >
-              Reset Game
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="w-10 h-10 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+                aria-label="Open menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg dark:bg-gray-700 dark:border-gray-600">
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Reset game progress?')) {
+                        resetGame();
+                        addEvent('Game reset', 'info');
+                        addNotification('Game reset', 'success');
+                      }
+                      setMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
+                  >
+                    <AlertCircle className="w-4 h-4" />
+                    Reset Game
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -242,27 +258,51 @@ const MerchantsMorning = () => {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-2 pb-safe dark:bg-gray-800 dark:border-gray-700">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 font-bold text-yellow-600">
-              <Coins className="w-4 h-4" />
-              {gameState.gold}
-            </div>
-            <div className="flex items-center gap-2 overflow-x-auto">
-              {getTopMaterials().map(([materialId, count]) => {
-                const material = MATERIALS[materialId];
-                return (
-                  <div key={materialId} className="flex items-center gap-1 text-sm sm:text-xs whitespace-nowrap">
-                    <span>{material.icon}</span>
-                    <span className="font-medium">{count}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="text-sm sm:text-xs text-gray-500 dark:text-gray-400">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-3 pb-safe dark:bg-gray-800 dark:border-gray-700">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 font-bold text-yellow-600">
+            <Coins className="w-4 h-4" />
+            {gameState.gold}
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto flex-1 justify-center">
+            {getTopMaterials().map(([materialId, count]) => {
+              const material = MATERIALS[materialId];
+              return (
+                <div key={materialId} className="flex items-center gap-1 text-sm sm:text-xs whitespace-nowrap">
+                  <span>{material.icon}</span>
+                  <span className="font-medium">{count}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm sm:text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
               Day {gameState.day}
-            </div>
+            </span>
+            {gameState.phase === PHASES.MORNING && (
+              <button
+                onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }))}
+                className="bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 rounded"
+              >
+                Craft
+              </button>
+            )}
+            {gameState.phase === PHASES.CRAFTING && (
+              <button
+                onClick={openShop}
+                className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-1 rounded"
+              >
+                Shop
+              </button>
+            )}
+            {gameState.phase === PHASES.SHOPPING && (
+              <button
+                onClick={endDay}
+                className="bg-purple-500 hover:bg-purple-600 text-white text-xs px-2 py-1 rounded"
+              >
+                End
+              </button>
+            )}
           </div>
         </div>
       </div>
