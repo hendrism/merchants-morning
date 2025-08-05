@@ -3,6 +3,7 @@ import { Package, Coins, AlertCircle, Sun, Moon, Menu, BookOpen, Settings, HelpC
 import { PHASES, MATERIALS, BOX_TYPES } from './constants';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
+import Button from './components/Button';
 import useCrafting from './hooks/useCrafting';
 import useCustomers from './hooks/useCustomers';
 import useGameState from './hooks/useGameState';
@@ -300,36 +301,40 @@ const MerchantsMorning = () => {
           </div>
           <div className="flex-[3] px-4 border-l border-gray-400/30 dark:border-white/20 flex items-center">
             {gameState.phase === PHASES.MORNING && (
-              <button
-                onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }))}
+              <Button
+                onClick={() => {
+                  setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }));
+                  addEvent('Crafting phase started', 'info');
+                  addNotification('⚒️ Crafting phase started', 'info');
+                }}
                 className="w-full h-12 rounded-lg font-bold text-white bg-green-500 hover:bg-green-600 shadow"
               >
                 START CRAFTING
-              </button>
+              </Button>
             )}
             {gameState.phase === PHASES.CRAFTING && (
-              <button
+              <Button
                 onClick={openShop}
                 className="w-full h-12 rounded-lg font-bold text-white bg-blue-500 hover:bg-blue-600 shadow"
               >
                 OPEN SHOP
-              </button>
+              </Button>
             )}
             {gameState.phase === PHASES.SHOPPING && (
-              <button
+              <Button
                 onClick={endDay}
                 className="w-full h-12 rounded-lg font-bold text-white bg-purple-500 hover:bg-purple-600 shadow"
               >
                 CLOSE SHOP
-              </button>
+              </Button>
             )}
             {gameState.phase === PHASES.END_DAY && (
-              <button
+              <Button
                 onClick={startNewDay}
                 className="w-full h-12 rounded-lg font-bold text-white bg-amber-500 hover:bg-amber-600 shadow"
               >
                 NEW DAY
-              </button>
+              </Button>
             )}
           </div>
         </div>
