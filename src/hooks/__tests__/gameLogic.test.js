@@ -1,3 +1,4 @@
+import { renderHook } from '@testing-library/react';
 import useCrafting from '../useCrafting';
 import useCustomers from '../useCustomers';
 import { setSeed } from '../../utils/random';
@@ -7,7 +8,8 @@ describe('core game logic', () => {
   test('openBox charges gold and yields deterministic materials', () => {
     let state1 = { gold: 100, materials: {}, inventory: {}, phase: PHASES.MORNING };
     const setState1 = (fn) => { state1 = typeof fn === 'function' ? fn(state1) : fn; };
-    const { openBox } = useCrafting(state1, setState1, jest.fn(), jest.fn());
+    const { result: result1 } = renderHook(() => useCrafting(state1, setState1, jest.fn(), jest.fn()));
+    const { openBox } = result1.current;
 
     setSeed(123);
     openBox('bronze');
@@ -17,7 +19,8 @@ describe('core game logic', () => {
 
     let state2 = { gold: 100, materials: {}, inventory: {}, phase: PHASES.MORNING };
     const setState2 = (fn) => { state2 = typeof fn === 'function' ? fn(state2) : fn; };
-    const { openBox: openBox2 } = useCrafting(state2, setState2, jest.fn(), jest.fn());
+    const { result: result2 } = renderHook(() => useCrafting(state2, setState2, jest.fn(), jest.fn()));
+    const { openBox: openBox2 } = result2.current;
 
     setSeed(123);
     openBox2('bronze');
@@ -29,7 +32,8 @@ describe('core game logic', () => {
   test('craftItem consumes materials and adds to inventory', () => {
     let state = { materials: { iron: 2, wood: 1 }, inventory: {}, gold: 0, phase: PHASES.CRAFTING };
     const setState = (fn) => { state = typeof fn === 'function' ? fn(state) : fn; };
-    const { craftItem } = useCrafting(state, setState, jest.fn(), jest.fn());
+    const { result } = renderHook(() => useCrafting(state, setState, jest.fn(), jest.fn()));
+    const { craftItem } = result.current;
 
     craftItem('iron_dagger');
 
@@ -40,7 +44,8 @@ describe('core game logic', () => {
   test('craftItem does nothing if materials are insufficient', () => {
     let state = { materials: { iron: 1 }, inventory: {}, gold: 0, phase: PHASES.CRAFTING };
     const setState = (fn) => { state = typeof fn === 'function' ? fn(state) : fn; };
-    const { craftItem } = useCrafting(state, setState, jest.fn(), jest.fn());
+    const { result } = renderHook(() => useCrafting(state, setState, jest.fn(), jest.fn()));
+    const { craftItem } = result.current;
 
     craftItem('iron_dagger');
 
@@ -65,7 +70,8 @@ describe('core game logic', () => {
   test('openBox does not spend gold if insufficient funds', () => {
     let state = { gold: 10, materials: {}, inventory: {}, phase: PHASES.MORNING };
     const setState = (fn) => { state = typeof fn === 'function' ? fn(state) : fn; };
-    const { openBox } = useCrafting(state, setState, jest.fn(), jest.fn());
+    const { result } = renderHook(() => useCrafting(state, setState, jest.fn(), jest.fn()));
+    const { openBox } = result.current;
 
     openBox('bronze');
 

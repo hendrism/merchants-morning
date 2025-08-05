@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { MATERIALS, RECIPES, BOX_TYPES } from '../constants';
 import { random } from '../utils/random';
 import { compareRarities } from '../utils/rarity';
@@ -69,30 +70,41 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
     addNotification(`🔨 Successfully crafted ${recipe.name}!`, 'success');
   };
 
-  const canCraft = (recipe) => (
-    Object.entries(recipe.ingredients).every(([material, needed]) =>
-      (gameState.materials[material] || 0) >= needed
-    )
+  const canCraft = useCallback(
+    (recipe) =>
+      Object.entries(recipe.ingredients).every(([material, needed]) =>
+        (gameState.materials[material] || 0) >= needed
+      ),
+    [gameState.materials]
   );
 
-  const filterRecipesByType = (type) => RECIPES.filter(recipe => recipe.type === type);
+  const filterRecipesByType = useCallback(
+    (type) => RECIPES.filter(recipe => recipe.type === type),
+    []
+  );
 
-  const filterInventoryByType = (type) =>
-    Object.entries(gameState.inventory)
-      .filter(([_, count]) => count > 0)
-      .filter(([itemId]) => {
-        const recipe = RECIPES.find(r => r.id === itemId);
-        return recipe && recipe.type === type;
-      });
+  const filterInventoryByType = useCallback(
+    (type) =>
+      Object.entries(gameState.inventory)
+        .filter(([_, count]) => count > 0)
+        .filter(([itemId]) => {
+          const recipe = RECIPES.find(r => r.id === itemId);
+          return recipe && recipe.type === type;
+        }),
+    [gameState.inventory]
+  );
 
-  const sortRecipesByRarityAndCraftability = (recipes) =>
-    [...recipes].sort((a, b) => {
-      const canCraftA = canCraft(a);
-      const canCraftB = canCraft(b);
-      if (canCraftA && !canCraftB) return -1;
-      if (!canCraftA && canCraftB) return 1;
-      return compareRarities(b.rarity, a.rarity);
-    });
+  const sortRecipesByRarityAndCraftability = useCallback(
+    (recipes) =>
+      [...recipes].sort((a, b) => {
+        const canCraftA = canCraft(a);
+        const canCraftB = canCraft(b);
+        if (canCraftA && !canCraftB) return -1;
+        if (!canCraftA && canCraftB) return 1;
+        return compareRarities(b.rarity, a.rarity);
+      }),
+    [canCraft]
+  );
 
   const sortByMatchQualityAndRarity = (inventoryItems, customer) =>
     [...inventoryItems].sort((a, b) => {
