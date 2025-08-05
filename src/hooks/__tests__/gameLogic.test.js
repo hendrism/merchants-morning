@@ -57,7 +57,8 @@ describe('core game logic', () => {
     let state = { phase: PHASES.END_DAY, day: 1, customers: [{ id: '1' }], inventory: {}, gold: 0, totalEarnings: 0 };
     const setState = (fn) => { state = typeof fn === 'function' ? fn(state) : fn; };
     const setSelectedCustomer = jest.fn();
-    const { startNewDay } = useCustomers(state, setState, jest.fn(), jest.fn(), setSelectedCustomer);
+    const addNotification = jest.fn();
+    const { startNewDay } = useCustomers(state, setState, jest.fn(), addNotification, setSelectedCustomer);
 
     startNewDay();
 
@@ -65,6 +66,7 @@ describe('core game logic', () => {
     expect(state.phase).toBe(PHASES.MORNING);
     expect(state.customers).toEqual([]);
     expect(setSelectedCustomer).toHaveBeenCalledWith(null);
+    expect(addNotification).toHaveBeenCalled();
   });
 
   test('openBox does not spend gold if insufficient funds', () => {

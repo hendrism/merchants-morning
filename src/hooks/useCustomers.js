@@ -128,6 +128,7 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       customers
     }));
     addEvent(`Shop opened with ${customers.length} customers waiting`, 'info');
+    addNotification('🛒 Shop opened', 'info');
   };
 
   const serveCustomer = (customerId, itemId, action = 'sell') => {
@@ -247,6 +248,8 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       ...prev,
       phase: PHASES.END_DAY
     }));
+    addEvent('Shop closed for the day', 'info');
+    addNotification('🏁 Shop closed for the day', 'info');
   };
 
   const startNewDay = () => {
@@ -259,7 +262,9 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       marketReports: reports,
       marketBias: bias,
     }));
-    addEvent(`Started Day ${gameState.day + 1}`, 'info');
+    const nextDay = gameState.day + 1;
+    addEvent(`Started Day ${nextDay}`, 'info');
+    addNotification(`🌅 Started Day ${nextDay}`, 'info');
     setSelectedCustomer(null);
   };
 
