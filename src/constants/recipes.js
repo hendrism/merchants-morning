@@ -1,4 +1,8 @@
-export const RECIPES = [
+import { MATERIALS, MATERIAL_VALUE_RANGE } from './materials.js';
+
+const MATERIAL_RARITY_MULTIPLIERS = { common: 1, uncommon: 1.5, rare: 2.5 };
+
+const BASE_RECIPES = [
   {
     id: 'iron_dagger',
     name: 'Iron Dagger',
@@ -6,7 +10,6 @@ export const RECIPES = [
     type: 'weapon',
     subcategory: 'dagger',
     rarity: 'common',
-    sellPrice: 10,
   },
   {
     id: 'wooden_club',
@@ -15,7 +18,6 @@ export const RECIPES = [
     type: 'weapon',
     subcategory: 'club',
     rarity: 'common',
-    sellPrice: 8,
   },
   {
     id: 'stone_axe',
@@ -24,7 +26,6 @@ export const RECIPES = [
     type: 'weapon',
     subcategory: 'axe',
     rarity: 'common',
-    sellPrice: 12,
   },
   {
     id: 'iron_sword',
@@ -33,7 +34,6 @@ export const RECIPES = [
     type: 'weapon',
     subcategory: 'sword',
     rarity: 'uncommon',
-    sellPrice: 25,
   },
   {
     id: 'silver_blade',
@@ -42,7 +42,6 @@ export const RECIPES = [
     type: 'weapon',
     subcategory: 'sword',
     rarity: 'uncommon',
-    sellPrice: 28,
   },
   {
     id: 'bronze_spear',
@@ -51,7 +50,6 @@ export const RECIPES = [
     type: 'weapon',
     subcategory: 'spear',
     rarity: 'uncommon',
-    sellPrice: 22,
   },
   {
     id: 'crystal_staff',
@@ -60,7 +58,6 @@ export const RECIPES = [
     type: 'weapon',
     subcategory: 'staff',
     rarity: 'rare',
-    sellPrice: 60,
   },
   {
     id: 'obsidian_blade',
@@ -69,7 +66,6 @@ export const RECIPES = [
     type: 'weapon',
     subcategory: 'sword',
     rarity: 'rare',
-    sellPrice: 75,
   },
   {
     id: 'runed_sword',
@@ -78,7 +74,6 @@ export const RECIPES = [
     type: 'weapon',
     subcategory: 'sword',
     rarity: 'rare',
-    sellPrice: 80,
   },
   {
     id: 'cloth_robe',
@@ -87,7 +82,6 @@ export const RECIPES = [
     type: 'armor',
     subcategory: 'robe',
     rarity: 'common',
-    sellPrice: 18,
   },
   {
     id: 'wooden_shield',
@@ -96,7 +90,6 @@ export const RECIPES = [
     type: 'armor',
     subcategory: 'light',
     rarity: 'common',
-    sellPrice: 12,
   },
   {
     id: 'fur_vest',
@@ -105,7 +98,6 @@ export const RECIPES = [
     type: 'armor',
     subcategory: 'light',
     rarity: 'common',
-    sellPrice: 15,
   },
   {
     id: 'leather_cap',
@@ -114,7 +106,6 @@ export const RECIPES = [
     type: 'armor',
     subcategory: 'light',
     rarity: 'uncommon',
-    sellPrice: 25,
   },
   {
     id: 'bronze_helmet',
@@ -123,7 +114,6 @@ export const RECIPES = [
     type: 'armor',
     subcategory: 'heavy',
     rarity: 'uncommon',
-    sellPrice: 30,
   },
   {
     id: 'silk_cloak',
@@ -132,7 +122,6 @@ export const RECIPES = [
     type: 'armor',
     subcategory: 'robe',
     rarity: 'uncommon',
-    sellPrice: 32,
   },
   {
     id: 'mithril_chainmail',
@@ -141,7 +130,6 @@ export const RECIPES = [
     type: 'armor',
     subcategory: 'heavy',
     rarity: 'rare',
-    sellPrice: 65,
   },
   {
     id: 'crystal_armor',
@@ -150,7 +138,6 @@ export const RECIPES = [
     type: 'armor',
     subcategory: 'heavy',
     rarity: 'rare',
-    sellPrice: 70,
   },
   {
     id: 'golden_breastplate',
@@ -159,7 +146,6 @@ export const RECIPES = [
     type: 'armor',
     subcategory: 'heavy',
     rarity: 'rare',
-    sellPrice: 78,
   },
   {
     id: 'bone_charm',
@@ -168,7 +154,6 @@ export const RECIPES = [
     type: 'trinket',
     subcategory: 'charm',
     rarity: 'common',
-    sellPrice: 14,
   },
   {
     id: 'wooden_talisman',
@@ -177,7 +162,6 @@ export const RECIPES = [
     type: 'trinket',
     subcategory: 'talisman',
     rarity: 'common',
-    sellPrice: 16,
   },
   {
     id: 'iron_ring',
@@ -186,7 +170,6 @@ export const RECIPES = [
     type: 'trinket',
     subcategory: 'ring',
     rarity: 'common',
-    sellPrice: 13,
   },
   {
     id: 'silver_amulet',
@@ -195,7 +178,6 @@ export const RECIPES = [
     type: 'trinket',
     subcategory: 'amulet',
     rarity: 'uncommon',
-    sellPrice: 26,
   },
   {
     id: 'bronze_pendant',
@@ -204,7 +186,6 @@ export const RECIPES = [
     type: 'trinket',
     subcategory: 'pendant',
     rarity: 'uncommon',
-    sellPrice: 24,
   },
   {
     id: 'enchanted_bracelet',
@@ -213,7 +194,6 @@ export const RECIPES = [
     type: 'trinket',
     subcategory: 'bracelet',
     rarity: 'uncommon',
-    sellPrice: 28,
   },
   {
     id: 'gem_ring',
@@ -222,7 +202,6 @@ export const RECIPES = [
     type: 'trinket',
     subcategory: 'ring',
     rarity: 'rare',
-    sellPrice: 50,
   },
   {
     id: 'ruby_crown',
@@ -231,7 +210,6 @@ export const RECIPES = [
     type: 'trinket',
     subcategory: 'crown',
     rarity: 'rare',
-    sellPrice: 85,
   },
   {
     id: 'crystal_orb',
@@ -240,6 +218,19 @@ export const RECIPES = [
     type: 'trinket',
     subcategory: 'orb',
     rarity: 'rare',
-    sellPrice: 72,
   },
 ];
+
+const calculateRecipePrice = (recipe) => {
+  let total = 0;
+  for (const [material, count] of Object.entries(recipe.ingredients)) {
+    const rarity = MATERIALS[material]?.rarity || 'common';
+    const [, max] = MATERIAL_VALUE_RANGE[rarity] || [0, 0];
+    const multiplier = MATERIAL_RARITY_MULTIPLIERS[rarity] || 1;
+    total += count * max * multiplier;
+  }
+  const rarityBonus = recipe.rarity === 'common' ? 1.25 : 1;
+  return Math.round(total * rarityBonus);
+};
+
+export const RECIPES = BASE_RECIPES.map(r => ({ ...r, sellPrice: calculateRecipePrice(r) }));
