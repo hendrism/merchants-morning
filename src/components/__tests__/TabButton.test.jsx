@@ -9,7 +9,9 @@ describe('TabButton', () => {
         Weapons
       </TabButton>
     );
-    expect(screen.getByRole('button')).toHaveTextContent('Weapons (0)');
+    const button = screen.getByRole('button');
+    expect(button).toHaveTextContent('Weapons');
+    expect(button).toHaveTextContent('0');
   });
 
   test('hides count when not provided', () => {

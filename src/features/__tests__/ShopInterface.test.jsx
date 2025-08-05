@@ -25,7 +25,6 @@ describe('ShopInterface', () => {
       filterInventoryByType: jest.fn(() => [['iron_dagger', 1]]),
       sortByMatchQualityAndRarity: jest.fn(items => items),
       serveCustomer: jest.fn(),
-      endDay: jest.fn(),
       getRarityColor: jest.fn(() => 'border-gray-200'),
     };
 
@@ -39,8 +38,5 @@ describe('ShopInterface', () => {
 
     fireEvent.click(screen.getByText('Sell to Alice'));
     expect(props.serveCustomer).toHaveBeenCalledWith('c1', 'iron_dagger');
-
-    fireEvent.click(screen.getByText('Close Shop for Today'));
-    expect(props.endDay).toHaveBeenCalled();
   });
 });

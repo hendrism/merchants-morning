@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Star } from 'lucide-react';
 
-const EndOfDaySummary = ({ gameState, startNewDay }) => (
+const EndOfDaySummary = ({ gameState }) => (
   <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-2xl mx-auto">
     <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
       <Star className="w-5 h-5" />
@@ -25,12 +25,6 @@ const EndOfDaySummary = ({ gameState, startNewDay }) => (
       </div>
     </div>
 
-    <button
-      onClick={startNewDay}
-      className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-lg font-bold text-lg"
-    >
-      Start Day {gameState.day + 1}
-    </button>
   </div>
 );
 
@@ -44,7 +38,6 @@ EndOfDaySummary.propTypes = {
       })
     ).isRequired,
   }).isRequired,
-  startNewDay: PropTypes.func.isRequired,
 };
 
 export default EndOfDaySummary;
