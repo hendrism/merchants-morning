@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PHASES } from '../constants';
+import useGamePersistence from './useGamePersistence';
 
 const INITIAL_GAME_STATE = {
   phase: PHASES.MORNING,
@@ -20,35 +21,17 @@ const INITIAL_GAME_STATE = {
 };
 
 const useGameState = () => {
-  const [gameState, setGameState] = useState(() => {
-    if (typeof window === 'undefined') return INITIAL_GAME_STATE;
-    try {
-      const saved = window.localStorage.getItem('gameState');
-      return saved ? JSON.parse(saved) : INITIAL_GAME_STATE;
-    } catch (e) {
-      console.error('Failed to load game state', e);
-      return INITIAL_GAME_STATE;
-    }
-  });
+  const { loadState, saveState, clearState } = useGamePersistence('gameState');
+
+  const [gameState, setGameState] = useState(() => loadState() || INITIAL_GAME_STATE);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      window.localStorage.setItem('gameState', JSON.stringify(gameState));
-    } catch (e) {
-      console.error('Failed to save game state', e);
-    }
-  }, [gameState]);
+    saveState(gameState);
+  }, [gameState, saveState]);
 
   const resetGame = () => {
     setGameState(INITIAL_GAME_STATE);
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.removeItem('gameState');
-      } catch (e) {
-        console.error('Failed to clear game state', e);
-      }
-    }
+    clearState();
   };
 
   return [gameState, setGameState, resetGame];

@@ -106,34 +106,37 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
     [canCraft]
   );
 
-  const sortByMatchQualityAndRarity = (inventoryItems, customer) =>
-    [...inventoryItems].sort((a, b) => {
-      const recipeA = RECIPES.find(r => r.id === a[0]);
-      const recipeB = RECIPES.find(r => r.id === b[0]);
-      if (!customer) {
+  const sortByMatchQualityAndRarity = useCallback(
+    (inventoryItems, customer) =>
+      [...inventoryItems].sort((a, b) => {
+        const recipeA = RECIPES.find(r => r.id === a[0]);
+        const recipeB = RECIPES.find(r => r.id === b[0]);
+        if (!customer) {
+          return compareRarities(recipeB.rarity, recipeA.rarity);
+        }
+        const getMatchScore = (recipe) => {
+          const exactMatch = recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
+          if (exactMatch) return 4;
+          if (compareRarities(recipe.rarity, customer.requestRarity) > 0 && recipe.type === customer.requestType) {
+            return 3;
+          }
+          if (recipe.type === customer.requestType) {
+            return 2;
+          }
+          if (customer.isFlexible) {
+            return 1;
+          }
+          return 0;
+        };
+        const scoreA = getMatchScore(recipeA);
+        const scoreB = getMatchScore(recipeB);
+        if (scoreA !== scoreB) {
+          return scoreB - scoreA;
+        }
         return compareRarities(recipeB.rarity, recipeA.rarity);
-      }
-      const getMatchScore = (recipe) => {
-        const exactMatch = recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
-        if (exactMatch) return 4;
-        if (compareRarities(recipe.rarity, customer.requestRarity) > 0 && recipe.type === customer.requestType) {
-          return 3;
-        }
-        if (recipe.type === customer.requestType) {
-          return 2;
-        }
-        if (customer.isFlexible) {
-          return 1;
-        }
-        return 0;
-      };
-      const scoreA = getMatchScore(recipeA);
-      const scoreB = getMatchScore(recipeB);
-      if (scoreA !== scoreB) {
-        return scoreB - scoreA;
-      }
-      return compareRarities(recipeB.rarity, recipeA.rarity);
-    });
+      }),
+    []
+  );
 
   const getTopMaterials = () =>
     [...Object.entries(gameState.materials)]

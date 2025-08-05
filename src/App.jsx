@@ -95,18 +95,13 @@ const MerchantsMorning = () => {
     filterRecipesByType,
     filterInventoryByType: rawFilterInventoryByType,
     sortRecipesByRarityAndCraftability,
-    sortByMatchQualityAndRarity: rawSortByMatchQualityAndRarity,
+    sortByMatchQualityAndRarity,
     getTopMaterials,
   } = useCrafting(gameState, setGameState, addEvent, addNotification);
 
   const filterInventoryByType = useCallback(
     (type) => rawFilterInventoryByType(type),
     [gameState.inventory]
-  );
-
-  const sortByMatchQualityAndRarity = useCallback(
-    (items, customer) => rawSortByMatchQualityAndRarity(items, customer),
-    []
   );
 
   const { openShop, serveCustomer, endDay, startNewDay } =
@@ -150,7 +145,7 @@ const MerchantsMorning = () => {
               }}
               className="flex items-center gap-1 text-xs bg-red-100 hover:bg-red-200 px-2 py-1 rounded dark:bg-red-700 dark:hover:bg-red-600"
             >
-              Reset
+              Reset Game
             </button>
           </div>
         </div>
