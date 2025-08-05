@@ -142,7 +142,8 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
     [...Object.entries(gameState.materials)]
       .filter(([, count]) => count > 0)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 4);
+      // Show more materials so players get a clearer snapshot of their inventory
+      .slice(0, 6);
 
   return {
     openBox,

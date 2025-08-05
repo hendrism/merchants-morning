@@ -265,27 +265,23 @@ const MerchantsMorning = () => {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg pb-safe dark:bg-gray-800 dark:border-gray-700">
-        <div className="max-w-6xl mx-auto flex items-center h-16">
-          <div className="flex items-center justify-center gap-1 w-20 text-xl font-bold text-yellow-600">
-            <Coins className="w-5 h-5" />
-            {gameState.gold}
-          </div>
-          <div className="flex items-center gap-2 overflow-x-auto flex-1 px-4 border-l border-white/20 dark:border-white/20">
+        <div className="max-w-6xl mx-auto flex items-center h-[70px]">
+          <div className="flex items-center gap-3 overflow-x-auto flex-[7] px-4">
             {getTopMaterials().map(([materialId, count]) => {
               const material = MATERIALS[materialId];
               return (
-                <div key={materialId} className="flex items-center gap-1 text-base whitespace-nowrap">
+                <div key={materialId} className="flex items-center gap-1 text-lg whitespace-nowrap">
                   <span>{material.icon}</span>
                   <span className="font-medium">{count}</span>
                 </div>
               );
             })}
           </div>
-          <div className="w-40 px-2 border-l border-white/20 dark:border-white/20">
+          <div className="flex-[3] px-4 border-l border-gray-400/30 dark:border-white/20 flex items-center">
             {gameState.phase === PHASES.MORNING && (
               <button
                 onClick={() => setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }))}
-                className="w-full h-12 rounded font-bold text-white bg-green-500 hover:bg-green-600"
+                className="w-full h-12 rounded-lg font-bold text-white bg-green-500 hover:bg-green-600 shadow"
               >
                 START CRAFTING
               </button>
@@ -293,7 +289,7 @@ const MerchantsMorning = () => {
             {gameState.phase === PHASES.CRAFTING && (
               <button
                 onClick={openShop}
-                className="w-full h-12 rounded font-bold text-white bg-blue-500 hover:bg-blue-600"
+                className="w-full h-12 rounded-lg font-bold text-white bg-blue-500 hover:bg-blue-600 shadow"
               >
                 OPEN SHOP
               </button>
@@ -301,7 +297,7 @@ const MerchantsMorning = () => {
             {gameState.phase === PHASES.SHOPPING && (
               <button
                 onClick={endDay}
-                className="w-full h-12 rounded font-bold text-white bg-purple-500 hover:bg-purple-600"
+                className="w-full h-12 rounded-lg font-bold text-white bg-purple-500 hover:bg-purple-600 shadow"
               >
                 CLOSE SHOP
               </button>
@@ -309,14 +305,11 @@ const MerchantsMorning = () => {
             {gameState.phase === PHASES.END_DAY && (
               <button
                 onClick={startNewDay}
-                className="w-full h-12 rounded font-bold text-white bg-amber-500 hover:bg-amber-600"
+                className="w-full h-12 rounded-lg font-bold text-white bg-amber-500 hover:bg-amber-600 shadow"
               >
                 NEW DAY
               </button>
             )}
-          </div>
-          <div className="w-20 text-center text-sm text-gray-500 border-l border-white/20 dark:border-white/20">
-            Day {gameState.day}
           </div>
         </div>
       </div>
