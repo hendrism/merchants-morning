@@ -83,6 +83,7 @@ describe('core game logic', () => {
     let state = {
       inventory: { iron_dagger: 1 },
       gold: 0,
+      materials: {},
       customers: [
         {
           id: 'c1',
@@ -115,6 +116,7 @@ describe('core game logic', () => {
     let state = {
       inventory: { iron_sword: 1 },
       gold: 0,
+      materials: {},
       customers: [
         {
           id: 'c1',
@@ -146,6 +148,7 @@ describe('core game logic', () => {
     let state = {
       inventory: { iron_sword: 1 },
       gold: 0,
+      materials: {},
       customers: [
         {
           id: 'c1',
@@ -175,10 +178,78 @@ describe('core game logic', () => {
     expect(state.customers[0].satisfied).toBe(false);
   });
 
+  test('serveCustomer accepts lower gold offer', () => {
+    let state = {
+      inventory: { iron_sword: 1 },
+      gold: 0,
+      materials: {},
+      customers: [
+        {
+          id: 'c1',
+          name: 'Budget Bob',
+          profession: 'merchant',
+          requestType: 'weapon',
+          requestRarity: 'common',
+          offerPrice: 25,
+          satisfied: false,
+          budgetTier: 'budget',
+          maxBudget: 15,
+          materials: [],
+        },
+      ],
+      totalEarnings: 0,
+      phase: PHASES.SHOPPING,
+    };
+    const setState = (fn) => { state = typeof fn === 'function' ? fn(state) : fn; };
+    const { serveCustomer } = useCustomers(state, setState, jest.fn(), jest.fn(), jest.fn());
+
+    serveCustomer('c1', 'iron_sword', 'accept_lower');
+
+    expect(state.gold).toBe(15);
+    expect(state.inventory.iron_sword).toBe(0);
+    expect(state.customers[0].satisfied).toBe(true);
+  });
+
+  test('serveCustomer barters for materials', () => {
+    let state = {
+      inventory: { iron_sword: 1 },
+      gold: 0,
+      materials: {},
+      customers: [
+        {
+          id: 'c1',
+          name: 'Barter Ben',
+          profession: 'knight',
+          requestType: 'weapon',
+          requestRarity: 'common',
+          offerPrice: 25,
+          satisfied: false,
+          budgetTier: 'budget',
+          maxBudget: 15,
+          materials: [
+            { id: 'iron', value: 4 },
+            { id: 'wood', value: 3 },
+          ],
+        },
+      ],
+      totalEarnings: 0,
+      phase: PHASES.SHOPPING,
+    };
+    const setState = (fn) => { state = typeof fn === 'function' ? fn(state) : fn; };
+    const { serveCustomer } = useCustomers(state, setState, jest.fn(), jest.fn(), jest.fn());
+
+    serveCustomer('c1', 'iron_sword', 'barter');
+
+    expect(state.gold).toBe(15);
+    expect(state.materials).toEqual({ iron: 1, wood: 1 });
+    expect(state.customers[0].satisfied).toBe(true);
+  });
+
   test('serveCustomer rejects wrong item type', () => {
     let state = {
       inventory: { iron_dagger: 1 },
       gold: 0,
+      materials: {},
       customers: [
         {
           id: 'c1',

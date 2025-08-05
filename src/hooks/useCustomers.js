@@ -1,7 +1,8 @@
-import { PHASES, RECIPES, PROFESSIONS, generateProfessionName } from '../constants';
+import { PHASES, RECIPES, PROFESSIONS, generateProfessionName, MATERIALS } from '../constants';
 import { random } from '../utils/random';
 import { getRarityRank } from '../utils/rarity';
 import { generateMarketReports } from '../utils/marketReports';
+import { getMaterialValue } from '../utils/materialValue';
 
 const useCustomers = (gameState, setGameState, addEvent, addNotification, setSelectedCustomer) => {
   const generateCustomers = () => {
@@ -77,6 +78,14 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
 
       const offerPrice = Math.floor(basePrice * (0.9 + random() * 0.3));
 
+      const professionMaterials = PROFESSIONS[professionKey].materials || Object.keys(MATERIALS);
+      const materialCount = Math.floor(random() * 3) + 2;
+      const materials = [];
+      for (let j = 0; j < materialCount; j++) {
+        const matId = professionMaterials[Math.floor(random() * professionMaterials.length)];
+        materials.push({ id: matId, value: getMaterialValue(matId) });
+      }
+
       customers.push({
         id: crypto.randomUUID(),
         name: generateProfessionName(professionKey),
@@ -90,6 +99,7 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
         maxBudget: Math.floor(
           basePrice * (budgetTier === 'wealthy' ? 2.5 : budgetTier === 'budget' ? 1.1 : 1.5)
         ),
+        materials,
       });
     }
 
@@ -106,7 +116,7 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
     addEvent(`Shop opened with ${customers.length} customers waiting`, 'info');
   };
 
-  const serveCustomer = (customerId, itemId) => {
+  const serveCustomer = (customerId, itemId, action = 'sell') => {
     const customer = gameState.customers.find(c => c.id === customerId);
     const recipe = RECIPES.find(r => r.id === itemId);
 
@@ -154,18 +164,31 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
 
     finalPayment = Math.max(finalPayment, Math.floor(basePayment * 0.4));
 
-    if (finalPayment > customer.maxBudget) {
-      if (customer.budgetTier === 'budget') {
-        addNotification(`${customer.name} can't afford that expensive item!`, 'error');
-        return;
-      } else {
-        finalPayment = customer.maxBudget;
-        satisfaction = 'expensive but worth it';
+    if (action === 'sell') {
+      if (finalPayment > customer.maxBudget) {
+        if (customer.budgetTier === 'budget') {
+          addNotification(`${customer.name} can't afford that expensive item!`, 'error');
+          return;
+        } else {
+          finalPayment = customer.maxBudget;
+          satisfaction = 'expensive but worth it';
+        }
       }
+    } else if (action === 'accept_lower' || action === 'barter') {
+      finalPayment = customer.maxBudget;
+      satisfaction = action === 'barter' ? 'barter trade' : 'accepted lower offer';
     }
 
     const newInventory = { ...gameState.inventory };
     newInventory[itemId] -= 1;
+
+    const customerMaterials = customer.materials || [];
+    let newMaterials = { ...gameState.materials };
+    if (action === 'barter') {
+      customerMaterials.forEach(m => {
+        newMaterials[m.id] = (newMaterials[m.id] || 0) + 1;
+      });
+    }
 
     const newCustomers = gameState.customers.map(c =>
       c.id === customerId
@@ -177,6 +200,7 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       ...prev,
       inventory: newInventory,
       customers: newCustomers,
+      materials: newMaterials,
       gold: prev.gold + finalPayment,
       totalEarnings: prev.totalEarnings + finalPayment,
     }));
@@ -187,11 +211,20 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
         : satisfaction === 'perfect style match'
         ? '(Perfect style match!)'
         : `(${satisfaction})`;
+    const matText =
+      action === 'barter' && customerMaterials.length
+        ? ` and materials (${customerMaterials
+            .map(m => MATERIALS[m.id].name)
+            .join(', ')})`
+        : '';
     addEvent(
-      `Sold ${recipe.name} to ${customer.name} for ${finalPayment} gold ${matchText}`,
+      `Sold ${recipe.name} to ${customer.name} for ${finalPayment} gold${matText} ${matchText}`,
       'success'
     );
-    addNotification(`💰 Sold ${recipe.name} for ${finalPayment} gold!`, 'success');
+    addNotification(
+      `💰 Sold ${recipe.name} for ${finalPayment} gold${action === 'barter' ? ' + materials' : ''}!`,
+      'success'
+    );
     setSelectedCustomer(null);
   };
 
