@@ -1,6 +1,7 @@
 import { PHASES, RECIPES } from '../constants';
 import { random } from '../utils/random';
 import { getRarityRank } from '../utils/rarity';
+import { generateMarketReports } from '../utils/marketReports';
 
 const useCustomers = (gameState, setGameState, addEvent, addNotification, setSelectedCustomer) => {
   const generateCustomers = () => {
@@ -17,8 +18,25 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       }
     };
 
+    const pickRequestType = () => {
+      const weights = {
+        weapon: 1 + (gameState.marketBias?.weapon || 0),
+        armor: 1 + (gameState.marketBias?.armor || 0),
+        trinket: 1 + (gameState.marketBias?.trinket || 0),
+      };
+      const total = weights.weapon + weights.armor + weights.trinket;
+      const roll = random() * total;
+      if (roll < weights.weapon) return 'weapon';
+      if (roll < weights.weapon + weights.armor) return 'armor';
+      return 'trinket';
+    };
+
     const getRandomRarity = (weights) => {
-      const rand = random() * 100;
+      if (gameState.marketBias?.rare) {
+        weights.rare += gameState.marketBias.rare * 100;
+      }
+      const total = Object.values(weights).reduce((a, b) => a + b, 0);
+      const rand = random() * total;
       let threshold = 0;
       for (const [rarity, weight] of Object.entries(weights)) {
         threshold += weight;
@@ -28,10 +46,9 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
     };
 
     for (let i = 0; i < customerCount; i++) {
-      const requests = ['weapon', 'armor', 'trinket'];
       const rarityWeights = getRarityWeights(gameState.day);
 
-      const requestType = requests[Math.floor(random() * requests.length)];
+      const requestType = pickRequestType();
       const requestRarity = getRandomRarity(rarityWeights);
 
       const budgetTier = random() < 0.2 ? 'wealthy' : random() < 0.7 ? 'middle' : 'budget';
@@ -167,11 +184,14 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
   };
 
   const startNewDay = () => {
+    const { reports, bias } = generateMarketReports();
     setGameState(prev => ({
       ...prev,
       phase: PHASES.MORNING,
       day: prev.day + 1,
-      customers: []
+      customers: [],
+      marketReports: reports,
+      marketBias: bias,
     }));
     addEvent(`Started Day ${gameState.day + 1}`, 'info');
     setSelectedCustomer(null);
