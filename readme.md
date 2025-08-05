@@ -43,12 +43,12 @@ A fantasy shopkeeping Progressive Web App where you craft items from materials a
 
 ### Morning Phase
 - Buy supply boxes with gold
-- Bronze/Silver/Gold boxes give different material rarities
+- Bronze/Silver/Gold/Mythic boxes give different material rarities
 - Higher tier boxes cost more but give better materials
 
 ### Crafting Phase
 - Use materials to craft weapons, armor, and trinkets
-- Items sorted by rarity: Rare → Uncommon → Common
+- Items sorted by rarity: Legendary → Rare → Uncommon → Common
 - Craftable items highlighted in green
 
 ### Shopping Phase

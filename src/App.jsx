@@ -83,6 +83,8 @@ const MerchantsMorning = () => {
 
   const getRarityColor = (rarity) => {
     switch(rarity) {
+      case 'legendary':
+        return 'text-yellow-600 bg-yellow-100 border-yellow-200';
       case 'uncommon': return 'text-green-600 bg-green-100 border-green-200';
       case 'rare': return 'text-purple-600 bg-purple-100 border-purple-200';
       case 'common':
