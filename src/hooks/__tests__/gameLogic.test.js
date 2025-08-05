@@ -174,4 +174,37 @@ describe('core game logic', () => {
     expect(state.gold).toBe(0);
     expect(state.customers[0].satisfied).toBe(false);
   });
+
+  test('serveCustomer rejects wrong item type', () => {
+    let state = {
+      inventory: { iron_dagger: 1 },
+      gold: 0,
+      customers: [
+        {
+          id: 'c1',
+          name: 'Test',
+          profession: 'merchant',
+          requestType: 'armor',
+          requestRarity: 'common',
+          offerPrice: 10,
+          satisfied: false,
+          isFlexible: true,
+          budgetTier: 'middle',
+          maxBudget: 20,
+        },
+      ],
+      totalEarnings: 0,
+      phase: PHASES.SHOPPING,
+    };
+    const setState = (fn) => { state = typeof fn === 'function' ? fn(state) : fn; };
+    const addNotification = jest.fn();
+    const { serveCustomer } = useCustomers(state, setState, jest.fn(), addNotification, jest.fn());
+
+    serveCustomer('c1', 'iron_dagger');
+
+    expect(addNotification).toHaveBeenCalled();
+    expect(state.inventory.iron_dagger).toBe(1);
+    expect(state.gold).toBe(0);
+    expect(state.customers[0].satisfied).toBe(false);
+  });
 });

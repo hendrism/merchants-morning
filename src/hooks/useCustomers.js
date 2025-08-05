@@ -54,7 +54,8 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       const requestType = pickRequestType();
       const requestRarity = getRandomRarity(rarityWeights);
 
-      let budgetTier = random() < 0.2 ? 'wealthy' : random() < 0.7 ? 'middle' : 'budget';
+      const roll = random();
+      let budgetTier = roll < 0.2 ? 'wealthy' : roll < 0.85 ? 'middle' : 'budget';
       if (professionKey === 'noble') budgetTier = 'wealthy';
       if (professionKey === 'guard') budgetTier = 'budget';
 
@@ -62,7 +63,10 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
 
       switch (budgetTier) {
         case 'wealthy':
-          basePrice *= 1.8;
+          basePrice *= 2.5;
+          break;
+        case 'middle':
+          basePrice *= 1.3;
           break;
         case 'budget':
           basePrice *= 0.6;
@@ -73,9 +77,6 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
 
       const offerPrice = Math.floor(basePrice * (0.9 + random() * 0.3));
 
-      const flexibility = random();
-      const isFlexible = flexibility > 0.6;
-
       customers.push({
         id: crypto.randomUUID(),
         name: generateProfessionName(professionKey),
@@ -84,7 +85,6 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
         requestRarity,
         offerPrice,
         satisfied: false,
-        isFlexible,
         patience: Math.floor(random() * 3) + 2,
         budgetTier,
         maxBudget: Math.floor(
@@ -111,6 +111,10 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
     const recipe = RECIPES.find(r => r.id === itemId);
 
     if (!customer || !recipe || (gameState.inventory[itemId] || 0) < 1) return;
+    if (recipe.type !== customer.requestType) {
+      addNotification(`${customer.name} isn't interested in that type of item!`, 'error');
+      return;
+    }
 
     let basePayment = customer.offerPrice;
     let finalPayment = basePayment;
@@ -134,13 +138,6 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
         const downgradePenalty = Math.abs(rarityUpgrade) * 0.3;
         finalPayment = Math.floor(basePayment * (1 - downgradePenalty));
         satisfaction = 'disappointed downgrade';
-      }
-
-      if (recipe.type !== customer.requestType) {
-        finalPayment = Math.floor(finalPayment * 0.8);
-        satisfaction = customer.isFlexible
-          ? 'acceptable substitute'
-          : 'reluctant purchase';
       }
     }
 
