@@ -14,7 +14,6 @@ const ShopInterface = ({
   filterInventoryByType,
   sortByMatchQualityAndRarity,
   serveCustomer,
-  endDay,
   getRarityColor,
 }) => {
   const sortedInventory = useMemo(
@@ -91,13 +90,6 @@ const ShopInterface = ({
           </p>
         </div>
       )}
-
-      <button
-        onClick={endDay}
-        className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg font-bold"
-      >
-        Close Shop for Today
-      </button>
     </div>
 
     {selectedCustomer && (
@@ -294,7 +286,6 @@ ShopInterface.propTypes = {
   filterInventoryByType: PropTypes.func.isRequired,
   sortByMatchQualityAndRarity: PropTypes.func.isRequired,
   serveCustomer: PropTypes.func.isRequired,
-  endDay: PropTypes.func.isRequired,
   getRarityColor: PropTypes.func.isRequired,
 };
 

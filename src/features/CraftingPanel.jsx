@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Hammer, Store } from 'lucide-react';
+import { Hammer } from 'lucide-react';
 import { MATERIALS, RECIPES, ITEM_TYPES } from '../constants';
 import TabButton from '../components/TabButton';
 import { compareRarities } from '../utils/rarity';
@@ -16,7 +16,6 @@ const CraftingPanel = ({
   filterRecipesByType,
   sortRecipesByRarityAndCraftability,
   filterInventoryByType,
-  openShop,
   getRarityColor,
 }) => {
   const sortedRecipes = useMemo(
@@ -75,7 +74,7 @@ const CraftingPanel = ({
             <div className="flex justify-between items-start mb-1">
               <div className="flex-1">
                 <h4 className={`font-bold text-sm sm:text-xs ${canCraft(recipe) ? 'text-black dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>{recipe.name}</h4>
-                <p className={`text-sm sm:text-xs px-1 py-0.5 rounded inline-block mb-1 border ${getRarityColor(recipe.rarity)}`}>
+                <p className={`text-sm px-1 py-0.5 rounded inline-block mb-1 border ${getRarityColor(recipe.rarity)}`}>
                   {recipe.rarity}
                 </p>
               </div>
@@ -91,13 +90,13 @@ const CraftingPanel = ({
                 {canCraft(recipe) ? '✓ Craft' : '✗ Need Materials'}
               </button>
             </div>
-            <div className="text-sm sm:text-xs text-gray-600 dark:text-gray-300">
+            <div className="flex flex-wrap gap-3 text-sm sm:text-xs text-gray-600 dark:text-gray-300">
               {Object.entries(recipe.ingredients).map(([mat, count]) => {
                 const have = gameState.materials[mat] || 0;
                 const hasEnough = have >= count;
                 return (
-                  <span key={mat} className={`mr-2 ${hasEnough ? 'text-green-600' : 'text-red-600'}`}>
-                    {MATERIALS[mat].icon}{count}({have})
+                  <span key={mat} className={`${hasEnough ? 'text-green-600' : 'text-red-600'}`}>
+                    {MATERIALS[mat].icon} {count}/{have}
                   </span>
                 );
               })}
@@ -105,12 +104,6 @@ const CraftingPanel = ({
           </div>
         ))}
       </div>
-      <button
-        onClick={openShop}
-        className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-bold flex items-center justify-center gap-2"
-      >
-        Open Shop <Store className="w-4 h-4" />
-      </button>
     </div>
 
     <div className="bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
@@ -165,7 +158,6 @@ CraftingPanel.propTypes = {
   filterRecipesByType: PropTypes.func.isRequired,
   sortRecipesByRarityAndCraftability: PropTypes.func.isRequired,
   filterInventoryByType: PropTypes.func.isRequired,
-  openShop: PropTypes.func.isRequired,
   getRarityColor: PropTypes.func.isRequired,
 };
 
