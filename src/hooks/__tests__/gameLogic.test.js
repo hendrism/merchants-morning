@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
-import useCrafting from '../useCrafting';
+import useCrafting, { getSaleInfo } from '../useCrafting';
 import useCustomers from '../useCustomers';
 import { setSeed } from '../../utils/random';
-import { PHASES } from '../../constants';
+import { PHASES, RECIPES } from '../../constants';
 
 describe('core game logic', () => {
   test('openBox charges gold and yields deterministic materials', () => {
@@ -92,7 +92,6 @@ describe('core game logic', () => {
           requestRarity: 'common',
           offerPrice: 10,
           satisfied: false,
-          isFlexible: false,
           budgetTier: 'middle',
           maxBudget: 20,
         },
@@ -124,7 +123,6 @@ describe('core game logic', () => {
           requestRarity: 'common',
           offerPrice: 100,
           satisfied: false,
-          isFlexible: false,
           budgetTier: 'middle',
           maxBudget: 200,
         },
@@ -155,7 +153,6 @@ describe('core game logic', () => {
           requestRarity: 'common',
           offerPrice: 15,
           satisfied: false,
-          isFlexible: false,
           budgetTier: 'budget',
           maxBudget: 16,
         },
@@ -173,5 +170,53 @@ describe('core game logic', () => {
     expect(state.inventory.iron_sword).toBe(1);
     expect(state.gold).toBe(0);
     expect(state.customers[0].satisfied).toBe(false);
+  });
+
+  test('serveCustomer rejects wrong item type', () => {
+    let state = {
+      inventory: { iron_dagger: 1 },
+      gold: 0,
+      customers: [
+        {
+          id: 'c1',
+          name: 'Test',
+          profession: 'merchant',
+          requestType: 'armor',
+          requestRarity: 'common',
+          offerPrice: 10,
+          satisfied: false,
+          budgetTier: 'middle',
+          maxBudget: 20,
+        },
+      ],
+      totalEarnings: 0,
+      phase: PHASES.SHOPPING,
+    };
+    const setState = (fn) => { state = typeof fn === 'function' ? fn(state) : fn; };
+    const addNotification = jest.fn();
+    const { serveCustomer } = useCustomers(state, setState, jest.fn(), addNotification, jest.fn());
+
+    serveCustomer('c1', 'iron_dagger');
+
+    expect(addNotification).toHaveBeenCalled();
+    expect(state.inventory.iron_dagger).toBe(1);
+    expect(state.gold).toBe(0);
+    expect(state.customers[0].satisfied).toBe(false);
+  });
+
+  test('getSaleInfo marks wrong type without blocking affordability', () => {
+    const customer = {
+      requestType: 'armor',
+      requestRarity: 'common',
+      offerPrice: 10,
+      maxBudget: 20,
+      profession: 'merchant',
+      budgetTier: 'middle',
+    };
+    const recipe = RECIPES.find(r => r.id === 'iron_dagger');
+    const info = getSaleInfo(recipe, customer);
+    expect(info.status).toBe('wrong_type');
+    expect(info.payment).toBe(0);
+    expect(info.canAfford).toBe(true);
   });
 });

@@ -74,7 +74,6 @@ const ShopInterface = ({
               {customer.name}
               {customer.budgetTier === 'wealthy' && <span className="ml-1">💰</span>}
               {customer.budgetTier === 'budget' && <span className="ml-1">🪙</span>}
-              {customer.isFlexible && <span className="ml-1">😊</span>}
             </div>
             <div className="text-sm sm:text-xs opacity-80">
               {customer.requestRarity} {customer.requestType} • Budget: {customer.maxBudget}g
@@ -96,7 +95,6 @@ const ShopInterface = ({
       <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 dark:bg-blue-900 dark:border-blue-700">
         <p className="font-medium text-blue-800 dark:text-blue-300">
           Selling to: {selectedCustomer.name} (wants {selectedCustomer.requestRarity} {selectedCustomer.requestType} • Budget: {selectedCustomer.maxBudget}g)
-          {selectedCustomer.isFlexible && <span className="text-blue-600"> • Flexible with substitutes 😊</span>}
         </p>
         <p className="text-sm text-blue-700 dark:text-blue-300">
           Prefers: {
@@ -155,7 +153,6 @@ const ShopInterface = ({
             } else if (
               saleInfo.status === 'downgrade' ||
               saleInfo.status === 'wrong_rarity' ||
-              saleInfo.status === 'substitute' ||
               saleInfo.status === 'over_budget' ||
               saleInfo.status === 'wrong_type'
             ) {
@@ -189,10 +186,8 @@ const ShopInterface = ({
                       <span className="text-blue-600">⬆️ Upgrade!</span>
                     ) : saleInfo.status === 'downgrade' ? (
                       <span className="text-yellow-600">⬇️ Downgrade</span>
-                    ) : saleInfo.status === 'substitute' ? (
-                      <span className="text-yellow-600">~ Acceptable substitute</span>
                     ) : saleInfo.status === 'wrong_type' ? (
-                      <span className="text-red-600">~ Poor substitute</span>
+                      <span className="text-red-600">❌ Wrong item type</span>
                     ) : saleInfo.status === 'cant_afford' ? (
                       <span className="text-red-600">❌ Too expensive</span>
                     ) : saleInfo.status === 'over_budget' ? (
@@ -247,7 +242,6 @@ ShopInterface.propTypes = {
     budgetTier: PropTypes.string.isRequired,
     maxBudget: PropTypes.number.isRequired,
     satisfied: PropTypes.bool,
-    isFlexible: PropTypes.bool,
     payment: PropTypes.number,
   }),
   setSelectedCustomer: PropTypes.func.isRequired,

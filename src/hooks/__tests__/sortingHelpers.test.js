@@ -24,7 +24,7 @@ describe('sorting helpers', () => {
     const inventory = [ ['iron_dagger', 1], ['iron_sword', 1] ];
     const copy = [...inventory];
 
-    const customer = { requestType: 'weapon', requestRarity: 'common', isFlexible: false, offerPrice: 0, profession: 'ranger' };
+    const customer = { requestType: 'weapon', requestRarity: 'common', offerPrice: 0, profession: 'ranger' };
 
     const sorted = sortByMatchQualityAndRarity(inventory, customer);
     expect(sorted[0][0]).toBe('iron_dagger');

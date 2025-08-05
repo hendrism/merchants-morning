@@ -5,10 +5,19 @@ import { compareRarities, getRarityRank } from '../utils/rarity';
 
 export const getSaleInfo = (recipe, customer) => {
   if (!customer || !recipe) return null;
+  if (recipe.type !== customer.requestType) {
+    return {
+      payment: 0,
+      status: 'wrong_type',
+      exactMatch: false,
+      canAfford: true,
+      isPreferred: false,
+    };
+  }
   let basePayment = customer.offerPrice;
   let finalPayment = basePayment;
   let status = 'perfect';
-  const exactMatch = recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
+  const exactMatch = recipe.rarity === customer.requestRarity;
 
   if (exactMatch) {
     finalPayment = Math.floor(basePayment * 1.1);
@@ -25,19 +34,13 @@ export const getSaleInfo = (recipe, customer) => {
     } else {
       status = 'wrong_rarity';
     }
-    if (recipe.type !== customer.requestType) {
-      finalPayment = Math.floor(finalPayment * 0.8);
-      status = customer.isFlexible ? 'substitute' : 'wrong_type';
-    }
   }
 
   let isPreferred = false;
-  if (recipe.type === customer.requestType) {
-    const prefs = PROFESSIONS[customer.profession]?.preferences[recipe.type] || [];
-    if (prefs.includes(recipe.subcategory)) {
-      finalPayment = Math.floor(finalPayment * 1.15);
-      isPreferred = true;
-    }
+  const prefs = PROFESSIONS[customer.profession]?.preferences[recipe.type] || [];
+  if (prefs.includes(recipe.subcategory)) {
+    finalPayment = Math.floor(finalPayment * 1.15);
+    isPreferred = true;
   }
 
   finalPayment = Math.max(finalPayment, Math.floor(basePayment * 0.4));
@@ -185,9 +188,6 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
           }
           if (recipe.type === customer.requestType) {
             return 1;
-          }
-          if (customer.isFlexible) {
-            return 0.5;
           }
           return 0;
         };
