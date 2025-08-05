@@ -12,6 +12,8 @@ describe('ShopInterface', () => {
       offerPrice: 10,
       satisfied: false,
       isFlexible: false,
+      budgetTier: 'middle',
+      maxBudget: 20,
     };
 
     const props = {
@@ -29,7 +31,7 @@ describe('ShopInterface', () => {
 
     const { rerender } = render(<ShopInterface {...props} />);
 
-    fireEvent.click(screen.getByText('Alice'));
+    fireEvent.click(screen.getByText('Alice', { exact: false }));
     expect(props.setSelectedCustomer).toHaveBeenCalledWith(customer);
     expect(props.setSellingTab).toHaveBeenCalledWith('weapon');
 
