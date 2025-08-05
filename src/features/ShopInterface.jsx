@@ -19,7 +19,13 @@ const ShopInterface = ({
 }) => {
   const sortedInventory = useMemo(
     () => sortByMatchQualityAndRarity(filterInventoryByType(sellingTab), selectedCustomer),
-    [sellingTab, selectedCustomer, gameState.inventory]
+    [
+      sellingTab,
+      selectedCustomer,
+      gameState.inventory,
+      filterInventoryByType,
+      sortByMatchQualityAndRarity,
+    ]
   );
 
   return (
