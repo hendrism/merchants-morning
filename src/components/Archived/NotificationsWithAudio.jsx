@@ -5,15 +5,23 @@ const Notifications = ({ notifications, soundEnabled: defaultSoundEnabled = true
   const audioCtxRef = useRef(null);
   const [soundEnabled, setSoundEnabled] = useState(() => {
     if (typeof window !== 'undefined') {
-      const stored = window.localStorage.getItem('notificationSoundEnabled');
-      if (stored !== null) return stored === 'true';
+      try {
+        const stored = window.localStorage.getItem('notificationSoundEnabled');
+        if (stored !== null) return stored === 'true';
+      } catch (e) {
+        console.error('Failed to load notification sound preference', e);
+      }
     }
     return defaultSoundEnabled;
   });
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem('notificationSoundEnabled', soundEnabled);
+      try {
+        window.localStorage.setItem('notificationSoundEnabled', soundEnabled);
+      } catch (e) {
+        console.error('Failed to save notification sound preference', e);
+      }
     }
   }, [soundEnabled]);
 
