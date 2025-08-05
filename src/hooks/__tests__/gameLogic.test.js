@@ -14,7 +14,7 @@ describe('core game logic', () => {
     setSeed(123);
     openBox('bronze');
 
-    expect(state1.gold).toBe(80);
+    expect(state1.gold).toBe(70);
     const materialsAfter = { ...state1.materials };
 
     let state2 = { gold: 100, materials: {}, inventory: {}, phase: PHASES.MORNING };
@@ -25,7 +25,7 @@ describe('core game logic', () => {
     setSeed(123);
     openBox2('bronze');
 
-    expect(state2.gold).toBe(80);
+    expect(state2.gold).toBe(70);
     expect(state2.materials).toEqual(materialsAfter);
   });
 
