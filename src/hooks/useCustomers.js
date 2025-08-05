@@ -102,6 +102,20 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
         materials,
       });
     }
+    // Ensure at least one customer requests each biased item type
+    const biasedTypes = ['weapon', 'armor', 'trinket'].filter(
+      type => (gameState.marketBias?.[type] || 0) > 0
+    );
+    const available = customers.map((_, idx) => idx);
+    biasedTypes.forEach(type => {
+      if (!customers.some(c => c.requestType === type) && available.length) {
+        const idx = available.splice(
+          Math.floor(random() * available.length),
+          1
+        )[0];
+        customers[idx].requestType = type;
+      }
+    });
 
     return customers;
   };
