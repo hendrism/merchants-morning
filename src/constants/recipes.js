@@ -219,6 +219,14 @@ const BASE_RECIPES = [
     subcategory: 'orb',
     rarity: 'rare',
   },
+  {
+    id: 'legendary_sword',
+    name: 'Legendary Sword',
+    ingredients: { mithril: 2, ruby: 1, dragon_scale: 1 },
+    type: 'weapon',
+    subcategory: 'sword',
+    rarity: 'legendary',
+  },
 ];
 
 const calculateRecipePrice = (recipe) => {
