@@ -92,6 +92,8 @@ describe('core game logic', () => {
           offerPrice: 10,
           satisfied: false,
           isFlexible: false,
+          budgetTier: 'middle',
+          maxBudget: 20,
         },
       ],
       totalEarnings: 0,
@@ -103,12 +105,12 @@ describe('core game logic', () => {
     serveCustomer('c1', 'iron_dagger');
 
     expect(state.inventory.iron_dagger).toBe(0);
-    expect(state.gold).toBe(10);
+    expect(state.gold).toBe(11);
     expect(state.customers[0].satisfied).toBe(true);
-    expect(state.customers[0].payment).toBe(10);
+    expect(state.customers[0].payment).toBe(11);
   });
 
-  test('serveCustomer applies penalties for upgrades and wrong rarity', () => {
+  test('serveCustomer rewards higher rarity upgrades', () => {
     let state = {
       inventory: { iron_sword: 1 },
       gold: 0,
@@ -121,6 +123,8 @@ describe('core game logic', () => {
           offerPrice: 100,
           satisfied: false,
           isFlexible: false,
+          budgetTier: 'middle',
+          maxBudget: 200,
         },
       ],
       totalEarnings: 0,
@@ -131,8 +135,40 @@ describe('core game logic', () => {
 
     serveCustomer('c1', 'iron_sword');
 
-    expect(state.gold).toBe(80); // 20% penalty applied
-    expect(state.customers[0].payment).toBe(80);
-    expect(state.customers[0].satisfaction).toBe('acceptable upgrade');
+    expect(state.gold).toBe(135);
+    expect(state.customers[0].payment).toBe(135);
+    expect(state.customers[0].satisfaction).toBe('delighted upgrade');
+  });
+
+  test('budget customers cannot afford expensive items', () => {
+    let state = {
+      inventory: { iron_sword: 1 },
+      gold: 0,
+      customers: [
+        {
+          id: 'c1',
+          name: 'Budget Bob',
+          requestType: 'weapon',
+          requestRarity: 'common',
+          offerPrice: 15,
+          satisfied: false,
+          isFlexible: false,
+          budgetTier: 'budget',
+          maxBudget: 16,
+        },
+      ],
+      totalEarnings: 0,
+      phase: PHASES.SHOPPING,
+    };
+    const setState = (fn) => { state = typeof fn === 'function' ? fn(state) : fn; };
+    const addNotification = jest.fn();
+    const { serveCustomer } = useCustomers(state, setState, jest.fn(), addNotification, jest.fn());
+
+    serveCustomer('c1', 'iron_sword');
+
+    expect(addNotification).toHaveBeenCalled();
+    expect(state.inventory.iron_sword).toBe(1);
+    expect(state.gold).toBe(0);
+    expect(state.customers[0].satisfied).toBe(false);
   });
 });

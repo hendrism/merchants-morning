@@ -52,10 +52,12 @@ const ShopInterface = ({
           >
             <div className="font-bold">
               {customer.name}
+              {customer.budgetTier === 'wealthy' && <span className="ml-1">💰</span>}
+              {customer.budgetTier === 'budget' && <span className="ml-1">🪙</span>}
               {customer.isFlexible && <span className="ml-1">😊</span>}
             </div>
             <div className="text-xs opacity-80">
-              {customer.requestRarity} {customer.requestType} • {customer.offerPrice}g
+              {customer.requestRarity} {customer.requestType} • Budget: {customer.maxBudget}g
             </div>
           </button>
         ))}
@@ -80,7 +82,7 @@ const ShopInterface = ({
     {selectedCustomer && (
       <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 dark:bg-blue-900 dark:border-blue-700">
         <p className="font-medium text-blue-800 dark:text-blue-300">
-          Selling to: {selectedCustomer.name} (wants {selectedCustomer.requestRarity} {selectedCustomer.requestType} • offers {selectedCustomer.offerPrice}g)
+          Selling to: {selectedCustomer.name} (wants {selectedCustomer.requestRarity} {selectedCustomer.requestType} • Budget: {selectedCustomer.maxBudget}g)
           {selectedCustomer.isFlexible && <span className="text-blue-600"> • Flexible with substitutes 😊</span>}
         </p>
       </div>
@@ -119,30 +121,65 @@ const ShopInterface = ({
           let cardStyle = 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-700';
 
           if (selectedCustomer) {
-            const exactMatch = recipe.type === selectedCustomer.requestType && recipe.rarity === selectedCustomer.requestRarity;
-            let payment = selectedCustomer.offerPrice;
+            const exactMatch =
+              recipe.type === selectedCustomer.requestType &&
+              recipe.rarity === selectedCustomer.requestRarity;
+
+            let basePayment = selectedCustomer.offerPrice;
+            let finalPayment = basePayment;
             let status = 'perfect';
 
-            if (!exactMatch) {
-              let penalty = selectedCustomer.isFlexible ? 0.2 : 0.4;
-              if (getRarityRank(recipe.rarity) > getRarityRank(selectedCustomer.requestRarity)) {
-                penalty -= 0.1;
+            if (exactMatch) {
+              finalPayment = Math.floor(basePayment * 1.1);
+            } else {
+              const rarityUpgrade =
+                getRarityRank(recipe.rarity) - getRarityRank(selectedCustomer.requestRarity);
+
+              if (rarityUpgrade > 0) {
+                const upgradeBonus = 0.2 + rarityUpgrade * 0.15;
+                finalPayment = Math.floor(basePayment * (1 + upgradeBonus));
                 status = 'upgrade';
-              } else if (recipe.type === selectedCustomer.requestType) {
-                status = 'wrong_rarity';
+              } else if (rarityUpgrade < 0) {
+                const downgradePenalty = Math.abs(rarityUpgrade) * 0.3;
+                finalPayment = Math.floor(basePayment * (1 - downgradePenalty));
+                status = 'downgrade';
               } else {
-                status = 'substitute';
+                status = 'wrong_rarity';
               }
-              payment = Math.floor(payment * (1 - penalty));
+
+              if (recipe.type !== selectedCustomer.requestType) {
+                finalPayment = Math.floor(finalPayment * 0.8);
+                status = selectedCustomer.isFlexible ? 'substitute' : 'wrong_type';
+              }
             }
 
-            saleInfo = { payment, status, exactMatch };
+            finalPayment = Math.max(finalPayment, Math.floor(basePayment * 0.4));
 
-            if (saleInfo.exactMatch) {
+            let canAfford = true;
+            if (finalPayment > selectedCustomer.maxBudget) {
+              if (selectedCustomer.budgetTier === 'budget') {
+                canAfford = false;
+                status = 'cant_afford';
+              } else {
+                finalPayment = selectedCustomer.maxBudget;
+                status = 'over_budget';
+              }
+            }
+
+            saleInfo = { payment: finalPayment, status, exactMatch, canAfford };
+
+            if (!canAfford) {
+              cardStyle = 'border-red-200 bg-red-50';
+            } else if (saleInfo.exactMatch) {
               cardStyle = 'border-green-300 bg-green-50';
             } else if (saleInfo.status === 'upgrade') {
               cardStyle = 'border-blue-300 bg-blue-50';
-            } else if (saleInfo.status === 'wrong_rarity' || (saleInfo.status === 'substitute' && selectedCustomer.isFlexible)) {
+            } else if (
+              saleInfo.status === 'downgrade' ||
+              saleInfo.status === 'wrong_rarity' ||
+              saleInfo.status === 'substitute' ||
+              saleInfo.status === 'over_budget'
+            ) {
               cardStyle = 'border-yellow-300 bg-yellow-50';
             } else {
               cardStyle = 'border-red-200 bg-red-50';
@@ -168,12 +205,18 @@ const ShopInterface = ({
                       <span className="text-green-600">✓ Perfect Match!</span>
                     ) : saleInfo.status === 'upgrade' ? (
                       <span className="text-blue-600">⬆️ Upgrade!</span>
-                    ) : saleInfo.status === 'wrong_rarity' ? (
-                      <span className="text-yellow-600">≈ Wrong rarity</span>
-                    ) : selectedCustomer.isFlexible ? (
+                    ) : saleInfo.status === 'downgrade' ? (
+                      <span className="text-yellow-600">⬇️ Downgrade</span>
+                    ) : saleInfo.status === 'substitute' ? (
                       <span className="text-yellow-600">~ Acceptable substitute</span>
-                    ) : (
+                    ) : saleInfo.status === 'wrong_type' ? (
                       <span className="text-red-600">~ Poor substitute</span>
+                    ) : saleInfo.status === 'cant_afford' ? (
+                      <span className="text-red-600">❌ Too expensive</span>
+                    ) : saleInfo.status === 'over_budget' ? (
+                      <span className="text-yellow-600">💰 Max budget</span>
+                    ) : (
+                      <span className="text-yellow-600">≈ Wrong rarity</span>
                     )}
                   </p>
                   <p className="text-sm font-bold text-green-600">{saleInfo.payment}g</p>
@@ -218,6 +261,8 @@ ShopInterface.propTypes = {
     requestType: PropTypes.string.isRequired,
     requestRarity: PropTypes.string.isRequired,
     offerPrice: PropTypes.number.isRequired,
+    budgetTier: PropTypes.string.isRequired,
+    maxBudget: PropTypes.number.isRequired,
     satisfied: PropTypes.bool,
     isFlexible: PropTypes.bool,
     payment: PropTypes.number,

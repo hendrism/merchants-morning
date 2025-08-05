@@ -33,7 +33,22 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
 
       const requestType = requests[Math.floor(random() * requests.length)];
       const requestRarity = getRandomRarity(rarityWeights);
-      const basePrice = requestRarity === 'common' ? 15 : requestRarity === 'uncommon' ? 25 : 50;
+
+      const budgetTier = random() < 0.2 ? 'wealthy' : random() < 0.7 ? 'middle' : 'budget';
+
+      let basePrice = requestRarity === 'common' ? 15 : requestRarity === 'uncommon' ? 25 : 50;
+
+      switch (budgetTier) {
+        case 'wealthy':
+          basePrice *= 1.8;
+          break;
+        case 'budget':
+          basePrice *= 0.6;
+          break;
+        default:
+          break;
+      }
+
       const offerPrice = Math.floor(basePrice * (0.9 + random() * 0.3));
 
       const flexibility = random();
@@ -47,7 +62,11 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
         offerPrice,
         satisfied: false,
         isFlexible,
-        patience: Math.floor(random() * 3) + 2
+        patience: Math.floor(random() * 3) + 2,
+        budgetTier,
+        maxBudget: Math.floor(
+          basePrice * (budgetTier === 'wealthy' ? 2.5 : budgetTier === 'budget' ? 1.1 : 1.5)
+        ),
       });
     }
 
@@ -70,51 +89,73 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
 
     if (!customer || !recipe || (gameState.inventory[itemId] || 0) < 1) return;
 
-    let payment = customer.offerPrice;
+    let basePayment = customer.offerPrice;
+    let finalPayment = basePayment;
     let satisfaction = 'perfect';
 
-    const exactMatch = recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
+    const exactMatch =
+      recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
 
-    if (!exactMatch) {
-      let penalty = 0.4;
+    if (exactMatch) {
+      finalPayment = Math.floor(basePayment * 1.1);
+      satisfaction = 'perfect match';
+    } else {
+      const rarityUpgrade =
+        getRarityRank(recipe.rarity) - getRarityRank(customer.requestRarity);
 
-      if (customer.isFlexible) {
-        penalty = 0.2;
-        satisfaction = 'good substitute';
+      if (rarityUpgrade > 0) {
+        const upgradeBonus = 0.2 + rarityUpgrade * 0.15;
+        finalPayment = Math.floor(basePayment * (1 + upgradeBonus));
+        satisfaction = 'delighted upgrade';
+      } else if (rarityUpgrade < 0) {
+        const downgradePenalty = Math.abs(rarityUpgrade) * 0.3;
+        finalPayment = Math.floor(basePayment * (1 - downgradePenalty));
+        satisfaction = 'disappointed downgrade';
+      }
+
+      if (recipe.type !== customer.requestType) {
+        finalPayment = Math.floor(finalPayment * 0.8);
+        satisfaction = customer.isFlexible
+          ? 'acceptable substitute'
+          : 'reluctant purchase';
+      }
+    }
+
+    finalPayment = Math.max(finalPayment, Math.floor(basePayment * 0.4));
+
+    if (finalPayment > customer.maxBudget) {
+      if (customer.budgetTier === 'budget') {
+        addNotification(`${customer.name} can't afford that expensive item!`, 'error');
+        return;
       } else {
-        satisfaction = 'reluctant';
+        finalPayment = customer.maxBudget;
+        satisfaction = 'expensive but worth it';
       }
-
-      if (getRarityRank(recipe.rarity) > getRarityRank(customer.requestRarity)) {
-        penalty -= 0.1;
-        satisfaction = customer.isFlexible ? 'delighted upgrade' : 'acceptable upgrade';
-      }
-
-      if (recipe.type === customer.requestType) {
-        penalty -= 0.1;
-      }
-
-      payment = Math.floor(payment * (1 - penalty));
     }
 
     const newInventory = { ...gameState.inventory };
     newInventory[itemId] -= 1;
 
     const newCustomers = gameState.customers.map(c =>
-      c.id === customerId ? { ...c, satisfied: true, payment, satisfaction } : c
+      c.id === customerId
+        ? { ...c, satisfied: true, payment: finalPayment, satisfaction }
+        : c
     );
 
     setGameState(prev => ({
       ...prev,
       inventory: newInventory,
       customers: newCustomers,
-      gold: prev.gold + payment,
-      totalEarnings: prev.totalEarnings + payment
+      gold: prev.gold + finalPayment,
+      totalEarnings: prev.totalEarnings + finalPayment,
     }));
 
     const matchText = exactMatch ? '(Perfect match!)' : `(${satisfaction})`;
-    addEvent(`Sold ${recipe.name} to ${customer.name} for ${payment} gold ${matchText}`, 'success');
-    addNotification(`💰 Sold ${recipe.name} for ${payment} gold!`, 'success');
+    addEvent(
+      `Sold ${recipe.name} to ${customer.name} for ${finalPayment} gold ${matchText}`,
+      'success'
+    );
+    addNotification(`💰 Sold ${recipe.name} for ${finalPayment} gold!`, 'success');
     setSelectedCustomer(null);
   };
 
