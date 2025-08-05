@@ -1,7 +1,60 @@
 import { useCallback } from 'react';
-import { MATERIALS, RECIPES, BOX_TYPES } from '../constants';
+import { MATERIALS, RECIPES, BOX_TYPES, PROFESSIONS } from '../constants';
 import { random } from '../utils/random';
-import { compareRarities } from '../utils/rarity';
+import { compareRarities, getRarityRank } from '../utils/rarity';
+
+export const getSaleInfo = (recipe, customer) => {
+  if (!customer || !recipe) return null;
+  let basePayment = customer.offerPrice;
+  let finalPayment = basePayment;
+  let status = 'perfect';
+  const exactMatch = recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
+
+  if (exactMatch) {
+    finalPayment = Math.floor(basePayment * 1.1);
+  } else {
+    const rarityUpgrade = getRarityRank(recipe.rarity) - getRarityRank(customer.requestRarity);
+    if (rarityUpgrade > 0) {
+      const upgradeBonus = 0.2 + rarityUpgrade * 0.15;
+      finalPayment = Math.floor(basePayment * (1 + upgradeBonus));
+      status = 'upgrade';
+    } else if (rarityUpgrade < 0) {
+      const downgradePenalty = Math.abs(rarityUpgrade) * 0.3;
+      finalPayment = Math.floor(basePayment * (1 - downgradePenalty));
+      status = 'downgrade';
+    } else {
+      status = 'wrong_rarity';
+    }
+    if (recipe.type !== customer.requestType) {
+      finalPayment = Math.floor(finalPayment * 0.8);
+      status = customer.isFlexible ? 'substitute' : 'wrong_type';
+    }
+  }
+
+  let isPreferred = false;
+  if (recipe.type === customer.requestType) {
+    const prefs = PROFESSIONS[customer.profession]?.preferences[recipe.type] || [];
+    if (prefs.includes(recipe.subcategory)) {
+      finalPayment = Math.floor(finalPayment * 1.15);
+      isPreferred = true;
+    }
+  }
+
+  finalPayment = Math.max(finalPayment, Math.floor(basePayment * 0.4));
+
+  let canAfford = true;
+  if (finalPayment > customer.maxBudget) {
+    if (customer.budgetTier === 'budget') {
+      canAfford = false;
+      status = 'cant_afford';
+    } else {
+      finalPayment = customer.maxBudget;
+      status = 'over_budget';
+    }
+  }
+
+  return { payment: finalPayment, status, exactMatch, canAfford, isPreferred };
+};
 
 const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
   const getRandomMaterial = (rarityWeights) => {
@@ -115,16 +168,26 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
           return compareRarities(recipeB.rarity, recipeA.rarity);
         }
         const getMatchScore = (recipe) => {
-          const exactMatch = recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
+          const exactMatch =
+            recipe.type === customer.requestType && recipe.rarity === customer.requestRarity;
+          const prefers =
+            (PROFESSIONS[customer.profession]?.preferences[recipe.type] || []).includes(
+              recipe.subcategory
+            );
+          if (exactMatch && prefers) return 5;
           if (exactMatch) return 4;
-          if (compareRarities(recipe.rarity, customer.requestRarity) > 0 && recipe.type === customer.requestType) {
-            return 3;
-          }
-          if (recipe.type === customer.requestType) {
+          if (prefers && recipe.type === customer.requestType) return 3;
+          if (
+            compareRarities(recipe.rarity, customer.requestRarity) > 0 &&
+            recipe.type === customer.requestType
+          ) {
             return 2;
           }
-          if (customer.isFlexible) {
+          if (recipe.type === customer.requestType) {
             return 1;
+          }
+          if (customer.isFlexible) {
+            return 0.5;
           }
           return 0;
         };
@@ -154,6 +217,7 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
     sortRecipesByRarityAndCraftability,
     sortByMatchQualityAndRarity,
     getTopMaterials,
+    getSaleInfo,
   };
 };
 

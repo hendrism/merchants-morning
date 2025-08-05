@@ -1,4 +1,4 @@
-import { PHASES, RECIPES } from '../constants';
+import { PHASES, RECIPES, PROFESSIONS, generateProfessionName } from '../constants';
 import { random } from '../utils/random';
 import { getRarityRank } from '../utils/rarity';
 import { generateMarketReports } from '../utils/marketReports';
@@ -45,13 +45,18 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       return 'common';
     };
 
+    const professionKeys = Object.keys(PROFESSIONS);
+
     for (let i = 0; i < customerCount; i++) {
+      const professionKey = professionKeys[Math.floor(random() * professionKeys.length)];
       const rarityWeights = getRarityWeights(gameState.day);
 
       const requestType = pickRequestType();
       const requestRarity = getRandomRarity(rarityWeights);
 
-      const budgetTier = random() < 0.2 ? 'wealthy' : random() < 0.7 ? 'middle' : 'budget';
+      let budgetTier = random() < 0.2 ? 'wealthy' : random() < 0.7 ? 'middle' : 'budget';
+      if (professionKey === 'noble') budgetTier = 'wealthy';
+      if (professionKey === 'guard') budgetTier = 'budget';
 
       let basePrice = requestRarity === 'common' ? 15 : requestRarity === 'uncommon' ? 25 : 50;
 
@@ -73,7 +78,8 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
 
       customers.push({
         id: crypto.randomUUID(),
-        name: `Customer ${i + 1}`,
+        name: generateProfessionName(professionKey),
+        profession: professionKey,
         requestType,
         requestRarity,
         offerPrice,
@@ -138,6 +144,17 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       }
     }
 
+    const prefersSubcategory =
+      recipe.type === customer.requestType &&
+      (PROFESSIONS[customer.profession]?.preferences[recipe.type] || []).includes(
+        recipe.subcategory
+      );
+
+    if (prefersSubcategory) {
+      finalPayment = Math.floor(finalPayment * 1.15);
+      if (exactMatch) satisfaction = 'perfect style match';
+    }
+
     finalPayment = Math.max(finalPayment, Math.floor(basePayment * 0.4));
 
     if (finalPayment > customer.maxBudget) {
@@ -167,7 +184,12 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       totalEarnings: prev.totalEarnings + finalPayment,
     }));
 
-    const matchText = exactMatch ? '(Perfect match!)' : `(${satisfaction})`;
+    const matchText =
+      satisfaction === 'perfect match'
+        ? '(Perfect match!)'
+        : satisfaction === 'perfect style match'
+        ? '(Perfect style match!)'
+        : `(${satisfaction})`;
     addEvent(
       `Sold ${recipe.name} to ${customer.name} for ${finalPayment} gold ${matchText}`,
       'success'
