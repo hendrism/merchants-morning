@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Package, Coins, ChevronRight, AlertCircle, ChevronDown, ChevronUp, Sun, Moon } from 'lucide-react';
 import { PHASES, MATERIALS, BOX_TYPES } from './constants';
 import EventLog from './components/EventLog';
@@ -93,11 +93,21 @@ const MerchantsMorning = () => {
     craftItem,
     canCraft,
     filterRecipesByType,
-    filterInventoryByType,
+    filterInventoryByType: rawFilterInventoryByType,
     sortRecipesByRarityAndCraftability,
-    sortByMatchQualityAndRarity,
+    sortByMatchQualityAndRarity: rawSortByMatchQualityAndRarity,
     getTopMaterials,
   } = useCrafting(gameState, setGameState, addEvent, addNotification);
+
+  const filterInventoryByType = useCallback(
+    (type) => rawFilterInventoryByType(type),
+    [gameState.inventory]
+  );
+
+  const sortByMatchQualityAndRarity = useCallback(
+    (items, customer) => rawSortByMatchQualityAndRarity(items, customer),
+    []
+  );
 
   const { openShop, serveCustomer, endDay, startNewDay } =
     useCustomers(gameState, setGameState, addEvent, addNotification, setSelectedCustomer);
