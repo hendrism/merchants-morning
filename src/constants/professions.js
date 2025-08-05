@@ -1,4 +1,5 @@
 import { random } from '../utils/random';
+import { MATERIALS } from './materials';
 
 export const PROFESSIONS = {
   knight: {
@@ -11,6 +12,7 @@ export const PROFESSIONS = {
     prefixes: ['Sir', 'Dame'],
     names: ['Marcus', 'Gareth', 'Sarah', 'Elena', 'Roland', 'Isolde'],
     epithets: ['the Knight', 'the Paladin', 'the Protector'],
+    materials: ['iron', 'bronze', 'silver_ore'],
   },
   ranger: {
     label: 'Ranger',
@@ -22,6 +24,7 @@ export const PROFESSIONS = {
     prefixes: ['', ''],
     names: ['Elara', 'Marcus', 'Rin', 'Thorne', 'Sylvi', 'Kael'],
     epithets: ['the Scout', 'the Tracker'],
+    materials: ['wood', 'leather', 'fur'],
   },
   mage: {
     label: 'Mage',
@@ -33,6 +36,7 @@ export const PROFESSIONS = {
     prefixes: ['Wizard', 'Sorceress', 'Mage'],
     names: ['Thornwick', 'Luna', 'Eldrin', 'Mira', 'Zara'],
     epithets: ['', ''],
+    materials: ['silk', 'crystal', 'gemstone'],
   },
   merchant: {
     label: 'Merchant',
@@ -44,6 +48,7 @@ export const PROFESSIONS = {
     prefixes: ['Trader', 'Merchant'],
     names: ['Willem', 'Chen', 'Rafi', 'Selim', 'Lucia'],
     epithets: [''],
+    materials: Object.keys(MATERIALS),
   },
   noble: {
     label: 'Noble',
@@ -55,6 +60,7 @@ export const PROFESSIONS = {
     prefixes: ['Lord', 'Lady'],
     names: ['Benedict', 'Violette', 'Edmund', 'Helena'],
     epithets: ['', 'the Magnificent'],
+    materials: ['gemstone', 'gold_ore', 'crystal', 'mithril', 'ruby', 'obsidian'],
   },
   guard: {
     label: 'Guard',
@@ -66,6 +72,7 @@ export const PROFESSIONS = {
     prefixes: ['Guard', 'Sergeant', 'Captain'],
     names: ['Torres', 'Mills', 'Harper', 'Dunn'],
     epithets: [''],
+    materials: ['iron', 'wood', 'cloth', 'stone', 'bone'],
   },
 };
 

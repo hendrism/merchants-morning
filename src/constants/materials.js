@@ -16,3 +16,9 @@ export const MATERIALS = {
   ruby: { name: 'Ruby', rarity: 'rare', icon: '♦️' },
   obsidian: { name: 'Obsidian', rarity: 'rare', icon: '⬛' },
 };
+
+export const MATERIAL_VALUE_RANGE = {
+  common: [3, 5],
+  uncommon: [8, 12],
+  rare: [15, 25],
+};
