@@ -87,6 +87,7 @@ describe('core game logic', () => {
         {
           id: 'c1',
           name: 'Test',
+          profession: 'merchant',
           requestType: 'weapon',
           requestRarity: 'common',
           offerPrice: 10,
@@ -118,6 +119,7 @@ describe('core game logic', () => {
         {
           id: 'c1',
           name: 'Test',
+          profession: 'merchant',
           requestType: 'weapon',
           requestRarity: 'common',
           offerPrice: 100,
@@ -148,6 +150,7 @@ describe('core game logic', () => {
         {
           id: 'c1',
           name: 'Budget Bob',
+          profession: 'merchant',
           requestType: 'weapon',
           requestRarity: 'common',
           offerPrice: 15,

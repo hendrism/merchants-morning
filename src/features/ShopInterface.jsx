@@ -2,8 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Store } from 'lucide-react';
 import TabButton from '../components/TabButton';
-import { ITEM_TYPES, RECIPES } from '../constants';
-import { getRarityRank } from '../utils/rarity';
+import { ITEM_TYPES, RECIPES, PROFESSIONS } from '../constants';
 
 const ShopInterface = ({
   gameState,
@@ -15,6 +14,7 @@ const ShopInterface = ({
   sortByMatchQualityAndRarity,
   serveCustomer,
   getRarityColor,
+  getSaleInfo,
 }) => {
   const sortedInventory = useMemo(
     () => sortByMatchQualityAndRarity(filterInventoryByType(sellingTab), selectedCustomer),
@@ -98,6 +98,14 @@ const ShopInterface = ({
           Selling to: {selectedCustomer.name} (wants {selectedCustomer.requestRarity} {selectedCustomer.requestType} • Budget: {selectedCustomer.maxBudget}g)
           {selectedCustomer.isFlexible && <span className="text-blue-600"> • Flexible with substitutes 😊</span>}
         </p>
+        <p className="text-sm text-blue-700 dark:text-blue-300">
+          Prefers: {
+            Object.values(PROFESSIONS[selectedCustomer.profession].preferences)
+              .filter(p => p.length)
+              .map(p => p.join('/'))
+              .join(', ') || 'varied items'
+          }
+        </p>
       </div>
     )}
 
@@ -134,55 +142,12 @@ const ShopInterface = ({
           let cardStyle = 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-700';
 
           if (selectedCustomer) {
-            const exactMatch =
-              recipe.type === selectedCustomer.requestType &&
-              recipe.rarity === selectedCustomer.requestRarity;
+            saleInfo = getSaleInfo(recipe, selectedCustomer);
 
-            let basePayment = selectedCustomer.offerPrice;
-            let finalPayment = basePayment;
-            let status = 'perfect';
-
-            if (exactMatch) {
-              finalPayment = Math.floor(basePayment * 1.1);
-            } else {
-              const rarityUpgrade =
-                getRarityRank(recipe.rarity) - getRarityRank(selectedCustomer.requestRarity);
-
-              if (rarityUpgrade > 0) {
-                const upgradeBonus = 0.2 + rarityUpgrade * 0.15;
-                finalPayment = Math.floor(basePayment * (1 + upgradeBonus));
-                status = 'upgrade';
-              } else if (rarityUpgrade < 0) {
-                const downgradePenalty = Math.abs(rarityUpgrade) * 0.3;
-                finalPayment = Math.floor(basePayment * (1 - downgradePenalty));
-                status = 'downgrade';
-              } else {
-                status = 'wrong_rarity';
-              }
-
-              if (recipe.type !== selectedCustomer.requestType) {
-                finalPayment = Math.floor(finalPayment * 0.8);
-                status = selectedCustomer.isFlexible ? 'substitute' : 'wrong_type';
-              }
-            }
-
-            finalPayment = Math.max(finalPayment, Math.floor(basePayment * 0.4));
-
-            let canAfford = true;
-            if (finalPayment > selectedCustomer.maxBudget) {
-              if (selectedCustomer.budgetTier === 'budget') {
-                canAfford = false;
-                status = 'cant_afford';
-              } else {
-                finalPayment = selectedCustomer.maxBudget;
-                status = 'over_budget';
-              }
-            }
-
-            saleInfo = { payment: finalPayment, status, exactMatch, canAfford };
-
-            if (!canAfford) {
+            if (!saleInfo.canAfford) {
               cardStyle = 'border-red-200 bg-red-50';
+            } else if (saleInfo.isPreferred) {
+              cardStyle = 'border-purple-300 bg-purple-50';
             } else if (saleInfo.exactMatch) {
               cardStyle = 'border-green-300 bg-green-50';
             } else if (saleInfo.status === 'upgrade') {
@@ -191,7 +156,8 @@ const ShopInterface = ({
               saleInfo.status === 'downgrade' ||
               saleInfo.status === 'wrong_rarity' ||
               saleInfo.status === 'substitute' ||
-              saleInfo.status === 'over_budget'
+              saleInfo.status === 'over_budget' ||
+              saleInfo.status === 'wrong_type'
             ) {
               cardStyle = 'border-yellow-300 bg-yellow-50';
             } else {
@@ -214,6 +180,9 @@ const ShopInterface = ({
               {selectedCustomer && saleInfo && (
                 <div className="mb-2">
                   <p className="text-sm sm:text-xs font-bold">
+                    {saleInfo.isPreferred && (
+                      <span className="text-purple-600 mr-1">★ Preferred style</span>
+                    )}
                     {saleInfo.exactMatch ? (
                       <span className="text-green-600">✓ Perfect Match!</span>
                     ) : saleInfo.status === 'upgrade' ? (
@@ -271,6 +240,7 @@ ShopInterface.propTypes = {
   selectedCustomer: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     name: PropTypes.string.isRequired,
+    profession: PropTypes.string.isRequired,
     requestType: PropTypes.string.isRequired,
     requestRarity: PropTypes.string.isRequired,
     offerPrice: PropTypes.number.isRequired,
@@ -287,6 +257,7 @@ ShopInterface.propTypes = {
   sortByMatchQualityAndRarity: PropTypes.func.isRequired,
   serveCustomer: PropTypes.func.isRequired,
   getRarityColor: PropTypes.func.isRequired,
+  getSaleInfo: PropTypes.func.isRequired,
 };
 
 export default ShopInterface;

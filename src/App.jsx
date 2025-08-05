@@ -98,6 +98,7 @@ const MerchantsMorning = () => {
     sortRecipesByRarityAndCraftability,
     sortByMatchQualityAndRarity,
     getTopMaterials,
+    getSaleInfo,
   } = useCrafting(gameState, setGameState, addEvent, addNotification);
 
   const filterInventoryByType = useCallback(
@@ -274,6 +275,7 @@ const MerchantsMorning = () => {
             sortByMatchQualityAndRarity={sortByMatchQualityAndRarity}
             serveCustomer={serveCustomer}
             getRarityColor={getRarityColor}
+            getSaleInfo={getSaleInfo}
           />
         )}
 

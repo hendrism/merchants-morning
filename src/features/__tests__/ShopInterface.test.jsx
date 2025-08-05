@@ -7,6 +7,7 @@ describe('ShopInterface', () => {
     const customer = {
       id: 'c1',
       name: 'Alice',
+      profession: 'knight',
       requestType: 'weapon',
       requestRarity: 'common',
       offerPrice: 10,
@@ -26,6 +27,7 @@ describe('ShopInterface', () => {
       sortByMatchQualityAndRarity: jest.fn(items => items),
       serveCustomer: jest.fn(),
       getRarityColor: jest.fn(() => 'border-gray-200'),
+      getSaleInfo: jest.fn(() => ({ payment: 10, status: 'perfect', exactMatch: true, canAfford: true, isPreferred: false })),
     };
 
     const { rerender } = render(<ShopInterface {...props} />);
