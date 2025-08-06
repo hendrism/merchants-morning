@@ -43,7 +43,7 @@ A fantasy shopkeeping Progressive Web App where you craft items from materials a
 
 ### Morning Phase
 - Buy supply boxes with gold
-- Bronze/Silver/Gold/Mythic boxes give different material rarities
+- Bronze/Silver/Gold/Platinum/Diamond/Mythic boxes give different material rarities
 - Higher tier boxes cost more but give better materials
 
 ### Crafting Phase

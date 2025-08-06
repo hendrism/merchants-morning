@@ -17,6 +17,18 @@ export const BOX_TYPES = {
     materialCount: [6, 8],
     rarityWeights: { common: 25, uncommon: 60, rare: 15 },
   },
+  platinum: {
+    name: 'Platinum Box',
+    cost: 140,
+    materialCount: [7, 10],
+    rarityWeights: { common: 15, uncommon: 55, rare: 30 },
+  },
+  diamond: {
+    name: 'Diamond Box',
+    cost: 200,
+    materialCount: [8, 11],
+    rarityWeights: { common: 10, uncommon: 50, rare: 40 },
+  },
   mythic: {
     name: 'Mythic Box',
     cost: 300,
