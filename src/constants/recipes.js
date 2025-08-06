@@ -76,6 +76,14 @@ const BASE_RECIPES = [
     rarity: 'rare',
   },
   {
+    id: 'fur_cloak',
+    name: 'Fur Cloak',
+    ingredients: { fur: 2 },
+    type: 'armor',
+    subcategory: 'light',
+    rarity: 'common',
+  },
+  {
     id: 'cloth_robe',
     name: 'Cloth Robe',
     ingredients: { cloth: 3, fur: 1 },
@@ -146,6 +154,14 @@ const BASE_RECIPES = [
     type: 'armor',
     subcategory: 'heavy',
     rarity: 'rare',
+  },
+  {
+    id: 'wooden_trinket',
+    name: 'Wooden Trinket',
+    ingredients: { wood: 1 },
+    type: 'trinket',
+    subcategory: 'charm',
+    rarity: 'common',
   },
   {
     id: 'bone_charm',
@@ -219,6 +235,14 @@ const BASE_RECIPES = [
     subcategory: 'orb',
     rarity: 'rare',
   },
+  {
+    id: 'herb_bundle',
+    name: 'Herb Bundle',
+    ingredients: { herbs: 1 },
+    type: 'potion',
+    subcategory: 'healing',
+    rarity: 'common',
+  },
   // Potions
   {
     id: 'basic_healing_potion',
@@ -267,6 +291,14 @@ const BASE_RECIPES = [
     type: 'potion',
     subcategory: 'elixir',
     rarity: 'rare',
+  },
+  {
+    id: 'simple_tool',
+    name: 'Simple Tool',
+    ingredients: { iron: 1 },
+    type: 'tool',
+    subcategory: 'crafting',
+    rarity: 'common',
   },
   // Tools
   {
