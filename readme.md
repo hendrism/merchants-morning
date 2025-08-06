@@ -7,6 +7,7 @@ A fantasy shopkeeping Progressive Web App where you craft items from materials a
 - **Daily Loop Gameplay**: Buy supplies → Craft items → Serve customers → Earn gold
 - **Progressive Difficulty**: Customers want more valuable items as days progress
 - **Smart Crafting System**: Tabbed interface with rarity-based sorting
+- **Expanded Crafting**: Weapons, armor, trinkets, potions, and tools
 - **Strategic Selling**: Match customer requests and earn bonuses for upgrades
 - **PWA Ready**: Install on mobile/desktop, works offline
 
@@ -47,7 +48,7 @@ A fantasy shopkeeping Progressive Web App where you craft items from materials a
 - Higher tier boxes cost more but give better materials
 
 ### Crafting Phase
-- Use materials to craft weapons, armor, and trinkets
+- Use materials to craft weapons, armor, trinkets, potions, and tools
 - Items sorted by rarity: Legendary → Rare → Uncommon → Common
 - Craftable items highlighted in green
 

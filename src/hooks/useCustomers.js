@@ -24,12 +24,21 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
         weapon: 1 + (gameState.marketBias?.weapon || 0),
         armor: 1 + (gameState.marketBias?.armor || 0),
         trinket: 1 + (gameState.marketBias?.trinket || 0),
+        potion: 1 + (gameState.marketBias?.potion || 0),
+        tool: 1 + (gameState.marketBias?.tool || 0),
       };
-      const total = weights.weapon + weights.armor + weights.trinket;
+      const total =
+        weights.weapon +
+        weights.armor +
+        weights.trinket +
+        weights.potion +
+        weights.tool;
       const roll = random() * total;
       if (roll < weights.weapon) return 'weapon';
       if (roll < weights.weapon + weights.armor) return 'armor';
-      return 'trinket';
+      if (roll < weights.weapon + weights.armor + weights.trinket) return 'trinket';
+      if (roll < weights.weapon + weights.armor + weights.trinket + weights.potion) return 'potion';
+      return 'tool';
     };
 
     const getRandomRarity = (weights) => {
@@ -103,7 +112,7 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       });
     }
     // Ensure at least one customer requests each biased item type
-    const biasedTypes = ['weapon', 'armor', 'trinket'].filter(
+    const biasedTypes = ['weapon', 'armor', 'trinket', 'potion', 'tool'].filter(
       type => (gameState.marketBias?.[type] || 0) > 0
     );
     const available = customers.map((_, idx) => idx);

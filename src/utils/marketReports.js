@@ -19,7 +19,7 @@ export const generateMarketReports = () => {
   const reportCount = Math.floor(random() * 3); // 0-2 reports
   const pool = [...REPORTS];
   const reports = [];
-  const bias = { weapon: 0, armor: 0, trinket: 0, rare: 0 };
+  const bias = { weapon: 0, armor: 0, trinket: 0, potion: 0, tool: 0, rare: 0 };
 
   for (let i = 0; i < reportCount; i++) {
     if (pool.length === 0) break;
