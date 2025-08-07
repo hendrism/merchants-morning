@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Coins, AlertCircle, Sun, Moon, Menu, BookOpen, Settings, HelpCircle } from 'lucide-react';
 import { PHASES, MATERIALS, BOX_TYPES, RECIPES } from './constants';
 import { Card, CardHeader, CardContent } from './components/Card';
-import { getDefaultCardStatesForPhase } from './utils/cardContext';
 import Workshop from './features/Workshop';
 import InventoryPanel from './features/InventoryPanel';
 import EventLog from './components/EventLog';
@@ -13,9 +12,66 @@ import useCustomers from './hooks/useCustomers';
 import useGameState from './hooks/useGameState';
 import ShopInterface from './features/ShopInterface';
 import EndOfDaySummary from './features/EndOfDaySummary';
+import useCardIntelligence from './hooks/useCardIntelligence';
 
 const MerchantsMorning = () => {
   const [gameState, setGameState, resetGame] = useGameState();
+
+  // NEW: Replace all individual card state with smart management
+  const cardIntelligence = useCardIntelligence(gameState, {
+    // Load user preferences from localStorage
+    preferredExpansions: (() => {
+      try {
+        const stored = window.localStorage.getItem('userCardPreferences');
+        return stored ? JSON.parse(stored).preferredExpansions : {};
+      } catch {
+        return {};
+      }
+    })(),
+    preferredCollapsed: (() => {
+      try {
+        const stored = window.localStorage.getItem('userCardPreferences');
+        return stored ? JSON.parse(stored).preferredCollapsed : {};
+      } catch {
+        return {};
+      }
+    })()
+  });
+
+  const {
+    getCardState,
+    updateCardState,
+    trackCardUsage,
+    getCardStatus
+  } = cardIntelligence;
+
+  // Helper function to handle card toggles
+  const handleCardToggle = useCallback((cardId) => {
+    const currentState = getCardState(cardId);
+    const newExpanded = !currentState.expanded;
+    updateCardState(cardId, { expanded: newExpanded });
+    trackCardUsage(cardId, newExpanded ? 'expand' : 'collapse');
+
+    // Save preferences
+    try {
+      const prefs = JSON.parse(window.localStorage.getItem('userCardPreferences') || '{}');
+      if (!prefs.preferredExpansions) prefs.preferredExpansions = {};
+      if (!prefs.preferredCollapsed) prefs.preferredCollapsed = {};
+
+      if (newExpanded) {
+        if (!prefs.preferredExpansions[gameState.phase]) {
+          prefs.preferredExpansions[gameState.phase] = [];
+        }
+        if (!prefs.preferredExpansions[gameState.phase].includes(cardId)) {
+          prefs.preferredExpansions[gameState.phase].push(cardId);
+        }
+      }
+
+      window.localStorage.setItem('userCardPreferences', JSON.stringify(prefs));
+    } catch (e) {
+      console.error('Failed to save card preferences', e);
+    }
+  }, [getCardState, updateCardState, trackCardUsage, gameState.phase]);
 
   const [eventLog, setEventLog] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -36,41 +92,6 @@ const MerchantsMorning = () => {
   });
   const [menuOpen, setMenuOpen] = useState(false);
   const notificationTimers = useRef([]);
-
-  // Intelligent card handling
-  const [cardStates, setCardStates] = useState({});
-  const [cardPreferences, setCardPreferences] = useState({});
-  const [animatingCards, setAnimatingCards] = useState(new Set());
-
-  const getInitialCardState = (key) => {
-    if (typeof window === 'undefined') return false;
-    try {
-      const stored = window.localStorage.getItem('cardStates');
-      const parsed = stored ? JSON.parse(stored) : {};
-      return parsed[key] || false;
-    } catch {
-      return false;
-    }
-  };
-
-  const [marketNewsExpanded, setMarketNewsExpanded] = useState(() => getInitialCardState('marketNews'));
-  const [supplyBoxesExpanded, setSupplyBoxesExpanded] = useState(() => getInitialCardState('supplyBoxes'));
-  const [materialsExpanded, setMaterialsExpanded] = useState(() => getInitialCardState('materials'));
-  const [workshopExpanded, setWorkshopExpanded] = useState(() => getInitialCardState('workshop'));
-  const [inventoryExpanded, setInventoryExpanded] = useState(() => getInitialCardState('inventory'));
-  const [customersExpanded, setCustomersExpanded] = useState(() => getInitialCardState('customers'));
-
-  const updateCardStatesForPhase = useCallback(
-    (phase) => {
-      const newStates = getDefaultCardStatesForPhase(phase, gameState, cardPreferences);
-      setCardStates(prev => ({ ...prev, ...newStates }));
-    },
-    [gameState, cardPreferences]
-  );
-
-  useEffect(() => {
-    updateCardStatesForPhase(gameState.phase);
-  }, [gameState.phase, updateCardStatesForPhase]);
 
   useEffect(() => {
     if (selectedCustomer) {
@@ -94,30 +115,6 @@ const MerchantsMorning = () => {
       notificationTimers.current.forEach(clearTimeout);
     };
   }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const states = {
-      marketNews: marketNewsExpanded,
-      supplyBoxes: supplyBoxesExpanded,
-      materials: materialsExpanded,
-      workshop: workshopExpanded,
-      inventory: inventoryExpanded,
-      customers: customersExpanded,
-    };
-    try {
-      window.localStorage.setItem('cardStates', JSON.stringify(states));
-    } catch (e) {
-      console.error('Failed to save card states', e);
-    }
-  }, [
-    marketNewsExpanded,
-    supplyBoxesExpanded,
-    materialsExpanded,
-    workshopExpanded,
-    inventoryExpanded,
-    customersExpanded,
-  ]);
 
   const addEvent = (message, type = 'info') => {
     const event = {
@@ -188,28 +185,6 @@ const MerchantsMorning = () => {
   const { openShop, serveCustomer, endDay, startNewDay } =
     useCustomers(gameState, setGameState, addEvent, addNotification, setSelectedCustomer);
 
-  const totalMaterials = Object.values(gameState.materials).reduce((sum, c) => sum + c, 0);
-  const topMaterialPreview = Object.entries(gameState.materials)
-    .filter(([, c]) => c > 0)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 4)
-    .map(([id, count]) => `${MATERIALS[id].icon}${count}`)
-    .join(' ');
-
-  const boxEntries = Object.entries(BOX_TYPES).sort((a, b) => a[1].cost - b[1].cost);
-  const affordableBox = boxEntries.find(([, box]) => gameState.gold >= box.cost);
-  const cheapestCost = boxEntries[0][1].cost;
-  const supplySubtitle = affordableBox
-    ? `${affordableBox[1].name} ${affordableBox[1].cost}g available`
-    : `Need ${cheapestCost}g`;
-  const supplySubtitleClass = affordableBox ? '' : 'text-red-600';
-
-  const totalInventoryItems = Object.values(gameState.inventory).reduce(
-    (sum, c) => sum + c,
-    0
-  );
-
-  const waitingCustomers = gameState.customers.filter(c => !c.satisfied).length;
   const totalRecipes = RECIPES.length;
   const craftableRecipes = RECIPES.filter(canCraft).length;
 
@@ -295,16 +270,13 @@ const MerchantsMorning = () => {
             <CardHeader
               icon="📈"
               title="Market News"
-              subtitle={
-                gameState.marketReports.length > 0
-                  ? `${gameState.marketReports.length} report${gameState.marketReports.length !== 1 ? 's' : ''}`
-                  : 'No reports today'
-              }
-              expanded={marketNewsExpanded}
-              onToggle={() => setMarketNewsExpanded(!marketNewsExpanded)}
+              subtitle={getCardStatus('marketNews', gameState).subtitle}
+              subtitleClassName={getCardStatus('marketNews', gameState).status === 'locked' ? 'text-red-600' : ''}
+              expanded={getCardState('marketNews').expanded}
+              onToggle={() => handleCardToggle('marketNews')}
               isEmpty={gameState.marketReports.length === 0}
             />
-            {marketNewsExpanded && (
+            {getCardState('marketNews').expanded && (
               <CardContent>
                 {gameState.marketReports.length > 0 ? (
                   <ul className="list-disc pl-5 space-y-1 text-sm">
@@ -328,12 +300,12 @@ const MerchantsMorning = () => {
               <CardHeader
                 icon="🛍️"
                 title="Supply Boxes"
-                subtitle={supplySubtitle}
-                subtitleClassName={supplySubtitleClass}
-                expanded={supplyBoxesExpanded}
-                onToggle={() => setSupplyBoxesExpanded(!supplyBoxesExpanded)}
+                subtitle={getCardStatus('supplyBoxes', gameState).subtitle}
+                subtitleClassName={getCardStatus('supplyBoxes', gameState).status === 'locked' ? 'text-red-600' : ''}
+                expanded={getCardState('supplyBoxes').expanded}
+                onToggle={() => handleCardToggle('supplyBoxes')}
               />
-              {supplyBoxesExpanded && (
+              {getCardState('supplyBoxes').expanded && (
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {Object.entries(BOX_TYPES).map(([type, box]) => (
@@ -360,16 +332,13 @@ const MerchantsMorning = () => {
               <CardHeader
                 icon="🧰"
                 title="Materials"
-                subtitle={
-                  totalMaterials > 0
-                    ? `${totalMaterials} items ${topMaterialPreview}`
-                    : 'No materials'
-                }
-                expanded={materialsExpanded}
-                onToggle={() => setMaterialsExpanded(!materialsExpanded)}
-                isEmpty={totalMaterials === 0}
+                subtitle={getCardStatus('materials', gameState).subtitle}
+                subtitleClassName={getCardStatus('materials', gameState).status === 'locked' ? 'text-red-600' : ''}
+                expanded={getCardState('materials').expanded}
+                onToggle={() => handleCardToggle('materials')}
+                isEmpty={getCardStatus('materials', gameState).badge === 0}
               />
-              {materialsExpanded && (
+              {getCardState('materials').expanded && (
                 <CardContent>
                   {Object.keys(materialsByType).length > 0 ? (
                     Object.entries(materialsByType).map(([type, mats]) => (
@@ -399,11 +368,12 @@ const MerchantsMorning = () => {
             <CardHeader
               icon="🔨"
               title="Workshop"
-              subtitle={`${craftableRecipes}/${totalRecipes} craftable`}
-              expanded={workshopExpanded}
-              onToggle={() => setWorkshopExpanded(!workshopExpanded)}
+              subtitle={getCardStatus('workshop', { ...gameState, craftableCount: craftableRecipes, totalRecipeCount: totalRecipes }).subtitle}
+              subtitleClassName={getCardStatus('workshop', { ...gameState, craftableCount: craftableRecipes, totalRecipeCount: totalRecipes }).status === 'locked' ? 'text-red-600' : ''}
+              expanded={getCardState('workshop').expanded}
+              onToggle={() => handleCardToggle('workshop')}
             />
-            {workshopExpanded && (
+            {getCardState('workshop').expanded && (
               <CardContent>
                 <Workshop
                   gameState={gameState}
@@ -425,12 +395,13 @@ const MerchantsMorning = () => {
             <CardHeader
               icon="📦"
               title="Inventory"
-              subtitle={`${totalInventoryItems} items`}
-              expanded={inventoryExpanded}
-              onToggle={() => setInventoryExpanded(!inventoryExpanded)}
-              isEmpty={totalInventoryItems === 0}
+              subtitle={getCardStatus('inventory', gameState).subtitle}
+              subtitleClassName={getCardStatus('inventory', gameState).status === 'locked' ? 'text-red-600' : ''}
+              expanded={getCardState('inventory').expanded}
+              onToggle={() => handleCardToggle('inventory')}
+              isEmpty={getCardStatus('inventory', gameState).badge === 0}
             />
-            {inventoryExpanded && (
+            {getCardState('inventory').expanded && (
               <CardContent>
                 <InventoryPanel
                   gameState={gameState}
@@ -449,12 +420,13 @@ const MerchantsMorning = () => {
             <CardHeader
               icon="👥"
               title="Customers"
-              subtitle={`${waitingCustomers} waiting`}
-              expanded={customersExpanded}
-              onToggle={() => setCustomersExpanded(!customersExpanded)}
-              isEmpty={waitingCustomers === 0}
+              subtitle={getCardStatus('customerQueue', gameState).subtitle}
+              subtitleClassName={getCardStatus('customerQueue', gameState).status === 'locked' ? 'text-red-600' : ''}
+              expanded={getCardState('customerQueue').expanded}
+              onToggle={() => handleCardToggle('customerQueue')}
+              isEmpty={getCardStatus('customerQueue', gameState).badge === 0}
             />
-            {customersExpanded && (
+            {getCardState('customerQueue').expanded && (
               <CardContent>
                 <ShopInterface
                   gameState={gameState}
