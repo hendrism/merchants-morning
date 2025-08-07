@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Package, Coins, AlertCircle, Sun, Moon, Menu, BookOpen, Settings, HelpCircle } from 'lucide-react';
-import { PHASES, MATERIALS, BOX_TYPES } from './constants';
+import { Coins, AlertCircle, Sun, Moon, Menu, BookOpen, Settings, HelpCircle } from 'lucide-react';
+import { PHASES, MATERIALS, BOX_TYPES, RECIPES } from './constants';
+import { Card, CardHeader, CardContent } from './components/Card';
+import Workshop from './features/Workshop';
+import InventoryPanel from './features/InventoryPanel';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
 import Button from './components/Button';
 import useCrafting from './hooks/useCrafting';
 import useCustomers from './hooks/useCustomers';
 import useGameState from './hooks/useGameState';
-import CraftingPanel from './features/CraftingPanel';
 import ShopInterface from './features/ShopInterface';
 import EndOfDaySummary from './features/EndOfDaySummary';
 
@@ -34,6 +36,24 @@ const MerchantsMorning = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const notificationTimers = useRef([]);
 
+  const getInitialCardState = (key) => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const stored = window.localStorage.getItem('cardStates');
+      const parsed = stored ? JSON.parse(stored) : {};
+      return parsed[key] || false;
+    } catch {
+      return false;
+    }
+  };
+
+  const [marketNewsExpanded, setMarketNewsExpanded] = useState(() => getInitialCardState('marketNews'));
+  const [supplyBoxesExpanded, setSupplyBoxesExpanded] = useState(() => getInitialCardState('supplyBoxes'));
+  const [materialsExpanded, setMaterialsExpanded] = useState(() => getInitialCardState('materials'));
+  const [workshopExpanded, setWorkshopExpanded] = useState(() => getInitialCardState('workshop'));
+  const [inventoryExpanded, setInventoryExpanded] = useState(() => getInitialCardState('inventory'));
+  const [customersExpanded, setCustomersExpanded] = useState(() => getInitialCardState('customers'));
+
   useEffect(() => {
     if (selectedCustomer) {
       setSellingTab(selectedCustomer.requestType);
@@ -56,6 +76,30 @@ const MerchantsMorning = () => {
       notificationTimers.current.forEach(clearTimeout);
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const states = {
+      marketNews: marketNewsExpanded,
+      supplyBoxes: supplyBoxesExpanded,
+      materials: materialsExpanded,
+      workshop: workshopExpanded,
+      inventory: inventoryExpanded,
+      customers: customersExpanded,
+    };
+    try {
+      window.localStorage.setItem('cardStates', JSON.stringify(states));
+    } catch (e) {
+      console.error('Failed to save card states', e);
+    }
+  }, [
+    marketNewsExpanded,
+    supplyBoxesExpanded,
+    materialsExpanded,
+    workshopExpanded,
+    inventoryExpanded,
+    customersExpanded,
+  ]);
 
   const addEvent = (message, type = 'info') => {
     const event = {
@@ -125,6 +169,31 @@ const MerchantsMorning = () => {
 
   const { openShop, serveCustomer, endDay, startNewDay } =
     useCustomers(gameState, setGameState, addEvent, addNotification, setSelectedCustomer);
+
+  const totalMaterials = Object.values(gameState.materials).reduce((sum, c) => sum + c, 0);
+  const topMaterialPreview = Object.entries(gameState.materials)
+    .filter(([, c]) => c > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([id, count]) => `${MATERIALS[id].icon}${count}`)
+    .join(' ');
+
+  const boxEntries = Object.entries(BOX_TYPES).sort((a, b) => a[1].cost - b[1].cost);
+  const affordableBox = boxEntries.find(([, box]) => gameState.gold >= box.cost);
+  const cheapestCost = boxEntries[0][1].cost;
+  const supplySubtitle = affordableBox
+    ? `${affordableBox[1].name} ${affordableBox[1].cost}g available`
+    : `Need ${cheapestCost}g`;
+  const supplySubtitleClass = affordableBox ? '' : 'text-red-600';
+
+  const totalInventoryItems = Object.values(gameState.inventory).reduce(
+    (sum, c) => sum + c,
+    0
+  );
+
+  const waitingCustomers = gameState.customers.filter(c => !c.satisfied).length;
+  const totalRecipes = RECIPES.length;
+  const craftableRecipes = RECIPES.filter(canCraft).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-20 pb-safe dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
@@ -204,103 +273,186 @@ const MerchantsMorning = () => {
           </div>
         )}
         {[PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
-          <div className="bg-white rounded-lg shadow-lg p-4 mb-3 dark:bg-gray-800">
-            <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Morning Gazette
-            </h2>
-            {gameState.marketReports.length > 0 ? (
-              <ul className="list-disc pl-5 space-y-1 text-sm">
-                {gameState.marketReports.map((report, idx) => (
-                  <li key={idx}>{report}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm italic text-gray-600 dark:text-gray-300">
-                The market is quiet today.
-              </p>
+          <Card>
+            <CardHeader
+              icon="📈"
+              title="Market News"
+              subtitle={
+                gameState.marketReports.length > 0
+                  ? `${gameState.marketReports.length} report${gameState.marketReports.length !== 1 ? 's' : ''}`
+                  : 'No reports today'
+              }
+              expanded={marketNewsExpanded}
+              onToggle={() => setMarketNewsExpanded(!marketNewsExpanded)}
+              isEmpty={gameState.marketReports.length === 0}
+            />
+            {marketNewsExpanded && (
+              <CardContent>
+                {gameState.marketReports.length > 0 ? (
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    {gameState.marketReports.map((report, idx) => (
+                      <li key={idx}>{report}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm italic text-gray-600 dark:text-gray-300">
+                    The market is quiet today.
+                  </p>
+                )}
+              </CardContent>
             )}
-          </div>
+          </Card>
         )}
 
         {gameState.phase === PHASES.MORNING && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
-              <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
-                <Package className="w-4 h-4" />
-                Supply Boxes
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                {Object.entries(BOX_TYPES).map(([type, box]) => (
-                  <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
-                    <h3 className="font-bold capitalize text-sm mb-1">{box.name}</h3>
-                    <p className="text-sm sm:text-xs text-gray-600 mb-2 dark:text-gray-300">
-                      {box.materialCount[0]}-{box.materialCount[1]} materials
-                    </p>
-                    <button
-                      onClick={() => openBox(type)}
-                      disabled={gameState.gold < box.cost}
-                      className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 text-white px-3 py-2 rounded font-bold text-sm"
-                    >
-                      {box.cost} Gold
-                    </button>
+          <>
+            <Card>
+              <CardHeader
+                icon="🛍️"
+                title="Supply Boxes"
+                subtitle={supplySubtitle}
+                subtitleClassName={supplySubtitleClass}
+                expanded={supplyBoxesExpanded}
+                onToggle={() => setSupplyBoxesExpanded(!supplyBoxesExpanded)}
+              />
+              {supplyBoxesExpanded && (
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {Object.entries(BOX_TYPES).map(([type, box]) => (
+                      <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
+                        <h3 className="font-bold capitalize text-sm mb-1">{box.name}</h3>
+                        <p className="text-sm sm:text-xs text-gray-600 mb-2 dark:text-gray-300">
+                          {box.materialCount[0]}-{box.materialCount[1]} materials
+                        </p>
+                        <button
+                          onClick={() => openBox(type)}
+                          disabled={gameState.gold < box.cost}
+                          className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 text-white px-3 py-2 rounded font-bold text-sm"
+                        >
+                          {box.cost} Gold
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg p-4 dark:bg-gray-800">
-              <h3 className="text-lg font-bold mb-3">Materials</h3>
-              {Object.keys(materialsByType).length > 0 ? (
-                Object.entries(materialsByType).map(([type, mats]) => (
-                  <div key={type} className="mb-2">
-                    <h4 className="font-semibold text-sm mb-1 capitalize">{type}</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {mats.map(({ id, count, material }) => (
-                        <div key={id} className={`p-2 rounded text-sm sm:text-xs ${getRarityColor(material.rarity)}`}>
-                          <span className="mr-1">{material.icon}</span>
-                          {material.name}: {count}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-600 dark:text-gray-300">No materials</p>
+                </CardContent>
               )}
-            </div>
-          </div>
+            </Card>
+
+            <Card>
+              <CardHeader
+                icon="🧰"
+                title="Materials"
+                subtitle={
+                  totalMaterials > 0
+                    ? `${totalMaterials} items ${topMaterialPreview}`
+                    : 'No materials'
+                }
+                expanded={materialsExpanded}
+                onToggle={() => setMaterialsExpanded(!materialsExpanded)}
+                isEmpty={totalMaterials === 0}
+              />
+              {materialsExpanded && (
+                <CardContent>
+                  {Object.keys(materialsByType).length > 0 ? (
+                    Object.entries(materialsByType).map(([type, mats]) => (
+                      <div key={type} className="mb-2">
+                        <h4 className="font-semibold text-sm mb-1 capitalize">{type}</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {mats.map(({ id, count, material }) => (
+                            <div key={id} className={`p-2 rounded text-sm sm:text-xs ${getRarityColor(material.rarity)}`}>
+                              <span className="mr-1">{material.icon}</span>
+                              {material.name}: {count}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-600 dark:text-gray-300">No materials</p>
+                  )}
+                </CardContent>
+              )}
+            </Card>
+          </>
+        )}
+
+        {[PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
+          <Card>
+            <CardHeader
+              icon="🔨"
+              title="Workshop"
+              subtitle={`${craftableRecipes}/${totalRecipes} craftable`}
+              expanded={workshopExpanded}
+              onToggle={() => setWorkshopExpanded(!workshopExpanded)}
+            />
+            {workshopExpanded && (
+              <CardContent>
+                <Workshop
+                  gameState={gameState}
+                  craftingTab={craftingTab}
+                  setCraftingTab={setCraftingTab}
+                  canCraft={canCraft}
+                  craftItem={craftItem}
+                  filterRecipesByType={filterRecipesByType}
+                  sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
+                  getRarityColor={getRarityColor}
+                />
+              </CardContent>
+            )}
+          </Card>
         )}
 
         {gameState.phase === PHASES.CRAFTING && (
-          <CraftingPanel
-            gameState={gameState}
-            craftingTab={craftingTab}
-            setCraftingTab={setCraftingTab}
-            inventoryTab={inventoryTab}
-            setInventoryTab={setInventoryTab}
-            canCraft={canCraft}
-            craftItem={craftItem}
-            filterRecipesByType={filterRecipesByType}
-            sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
-            filterInventoryByType={filterInventoryByType}
-            getRarityColor={getRarityColor}
-          />
+          <Card>
+            <CardHeader
+              icon="📦"
+              title="Inventory"
+              subtitle={`${totalInventoryItems} items`}
+              expanded={inventoryExpanded}
+              onToggle={() => setInventoryExpanded(!inventoryExpanded)}
+              isEmpty={totalInventoryItems === 0}
+            />
+            {inventoryExpanded && (
+              <CardContent>
+                <InventoryPanel
+                  gameState={gameState}
+                  inventoryTab={inventoryTab}
+                  setInventoryTab={setInventoryTab}
+                  filterInventoryByType={filterInventoryByType}
+                  getRarityColor={getRarityColor}
+                />
+              </CardContent>
+            )}
+          </Card>
         )}
 
         {gameState.phase === PHASES.SHOPPING && (
-          <ShopInterface
-            gameState={gameState}
-            selectedCustomer={selectedCustomer}
-            setSelectedCustomer={setSelectedCustomer}
-            sellingTab={sellingTab}
-            setSellingTab={setSellingTab}
-            filterInventoryByType={filterInventoryByType}
-            sortByMatchQualityAndRarity={sortByMatchQualityAndRarity}
-            serveCustomer={serveCustomer}
-            getRarityColor={getRarityColor}
-            getSaleInfo={getSaleInfo}
-          />
+          <Card>
+            <CardHeader
+              icon="👥"
+              title="Customers"
+              subtitle={`${waitingCustomers} waiting`}
+              expanded={customersExpanded}
+              onToggle={() => setCustomersExpanded(!customersExpanded)}
+              isEmpty={waitingCustomers === 0}
+            />
+            {customersExpanded && (
+              <CardContent>
+                <ShopInterface
+                  gameState={gameState}
+                  selectedCustomer={selectedCustomer}
+                  setSelectedCustomer={setSelectedCustomer}
+                  sellingTab={sellingTab}
+                  setSellingTab={setSellingTab}
+                  filterInventoryByType={filterInventoryByType}
+                  sortByMatchQualityAndRarity={sortByMatchQualityAndRarity}
+                  serveCustomer={serveCustomer}
+                  getRarityColor={getRarityColor}
+                  getSaleInfo={getSaleInfo}
+                />
+              </CardContent>
+            )}
+          </Card>
         )}
 
         {gameState.phase === PHASES.END_DAY && (
