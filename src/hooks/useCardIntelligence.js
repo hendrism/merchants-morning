@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { getDefaultCardStatesForPhase, getCardRelevanceScore } from '../utils/cardContext';
 import { BOX_TYPES } from '../constants';
 
@@ -9,6 +9,56 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
   );
   const [usage, setUsage] = useState({});
 
+  // Auto-update card states when phase or relevant data changes
+  useEffect(() => {
+    const newStates = getDefaultCardStatesForPhase(
+      gameState.phase,
+      gameState,
+      userPreferences
+    );
+
+    setCardStates((prev) => {
+      const merged = { ...prev };
+      Object.entries(newStates).forEach(([cardId, newState]) => {
+        const userOverride = userPreferences.preferredExpansions?.[gameState.phase]?.includes(
+          cardId
+        );
+        if (!userOverride) {
+          merged[cardId] = { ...merged[cardId], ...newState };
+        }
+      });
+      return merged;
+    });
+  }, [
+    gameState.phase,
+    gameState.marketReports?.length,
+    gameState.customers?.length,
+    userPreferences,
+  ]);
+
+  // Auto-expand materials card when new materials are received
+  useEffect(() => {
+    if (gameState.newMaterialsReceived) {
+      updateCardState('materials', { expanded: true });
+      setTimeout(() => {
+        const current = getCardState('materials');
+        if (current.expanded && !current.userModified) {
+          updateCardState('materials', { expanded: false });
+        }
+      }, 3000);
+    }
+  }, [gameState.newMaterialsReceived]);
+
+  // Auto-expand customer queue when VIP customers arrive during shopping
+  useEffect(() => {
+    const vipCustomers = (gameState.customers || []).filter(
+      (c) => c.budgetTier === 'wealthy'
+    );
+    if (vipCustomers.length > 0 && gameState.phase === 'shopping') {
+      updateCardState('customerQueue', { expanded: true });
+    }
+  }, [gameState.customers, gameState.phase]);
+
   const getCardState = useCallback(
     (id) => cardStates[id] || { expanded: false, hidden: false },
     [cardStates]
@@ -17,7 +67,7 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
   const updateCardState = useCallback((id, updates) => {
     setCardStates((prev) => ({
       ...prev,
-      [id]: { ...getCardState(id), ...updates },
+      [id]: { ...getCardState(id), ...updates, userModified: true },
     }));
   }, [getCardState]);
 
