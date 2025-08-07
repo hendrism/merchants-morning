@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { getDefaultCardStatesForPhase, getCardRelevanceScore } from '../utils/cardContext';
 import { BOX_TYPES } from '../constants';
 
@@ -8,13 +8,6 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
     getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences)
   );
   const [usage, setUsage] = useState({});
-
-  useEffect(() => {
-    setCardStates((prev) => ({
-      ...prev,
-      ...getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences),
-    }));
-  }, [gameState.phase, gameState, userPreferences]);
 
   const getCardState = useCallback(
     (id) => cardStates[id] || { expanded: false, hidden: false },
@@ -80,16 +73,6 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
 
   const getCardStatus = useCallback((cardType, gs = gameState) => {
     switch (cardType) {
-      case 'marketNews': {
-        const reports = gs.marketReports || [];
-        return {
-          subtitle: reports.length > 0
-            ? `${reports.length} report${reports.length !== 1 ? 's' : ''}`
-            : 'No reports today',
-          status: reports.length > 0 ? 'normal' : 'locked',
-          badge: reports.length,
-        };
-      }
       case 'supplyBoxes': {
         const affordable = Object.entries(BOX_TYPES).filter(([, box]) => (gs.gold || 0) >= box.cost);
         return {
@@ -116,14 +99,6 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
           subtitle: `${craftable}/${totalRecipes} craftable`,
           status: craftable > 0 ? 'ready' : 'waiting',
           badge: craftable,
-        };
-      }
-      case 'inventory': {
-        const total = Object.values(gs.inventory || {}).reduce((s, c) => s + c, 0);
-        return {
-          subtitle: `${total} items`,
-          status: 'normal',
-          badge: total,
         };
       }
       case 'customerQueue': {
