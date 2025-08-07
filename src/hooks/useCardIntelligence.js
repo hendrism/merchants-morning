@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { getDefaultCardStatesForPhase, getCardRelevanceScore } from '../utils/cardContext';
 import { BOX_TYPES } from '../constants';
 
@@ -7,6 +7,47 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
   const [cardStates, setCardStates] = useState(() =>
     getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences)
   );
+
+  // Auto-update card states when phase changes
+  useEffect(() => {
+    const newStates = getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences);
+    setCardStates(prev => {
+      // Merge with existing states, prioritizing context-aware defaults
+      const merged = { ...prev };
+      Object.entries(newStates).forEach(([cardId, newState]) => {
+        // Only override if the card isn't manually set by user
+        const userOverride = userPreferences.preferredExpansions?.[gameState.phase]?.includes(cardId);
+        if (!userOverride) {
+          merged[cardId] = { ...merged[cardId], ...newState };
+        }
+      });
+      return merged;
+    });
+  }, [gameState.phase, gameState.marketReports?.length, gameState.customers?.length, userPreferences]);
+
+  // Auto-expand based on game events
+  useEffect(() => {
+    // Auto-expand materials card when new materials received
+    if (gameState.newMaterialsReceived) {
+      updateCardState('materials', { expanded: true, userModified: false });
+      // Auto-collapse after 3 seconds if user hasn't interacted
+      setTimeout(() => {
+        const current = getCardState('materials');
+        if (current.expanded && !current.userModified) {
+          updateCardState('materials', { expanded: false, userModified: false });
+        }
+      }, 3000);
+    }
+  }, [gameState.newMaterialsReceived]);
+
+  // Auto-expand when customer VIPs arrive
+  useEffect(() => {
+    const vipCustomers = (gameState.customers || []).filter(c => c.budgetTier === 'wealthy');
+    if (vipCustomers.length > 0 && gameState.phase === 'shopping') {
+      updateCardState('customerQueue', { expanded: true, userModified: false });
+    }
+  }, [gameState.customers, gameState.phase]);
+
   const [usage, setUsage] = useState({});
 
   const getCardState = useCallback(
@@ -17,7 +58,7 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
   const updateCardState = useCallback((id, updates) => {
     setCardStates((prev) => ({
       ...prev,
-      [id]: { ...getCardState(id), ...updates },
+      [id]: { ...getCardState(id), ...updates, userModified: updates.userModified ?? true },
     }));
   }, [getCardState]);
 

@@ -1,6 +1,5 @@
 import { PHASES, BOX_TYPES } from '../constants';
 
-// Determine default card states based on game phase and user prefs
 export const getDefaultCardStatesForPhase = (phase, gameState = {}, userPrefs = {}) => {
   const states = {
     supplyBoxes: { expanded: false, hidden: false },
@@ -9,80 +8,78 @@ export const getDefaultCardStatesForPhase = (phase, gameState = {}, userPrefs = 
     workshop: { expanded: false, hidden: false },
     inventory: { expanded: false, hidden: false },
     customerQueue: { expanded: false, hidden: false },
-    endOfDay: { expanded: false, hidden: false },
   };
 
+  // Base phase logic
   switch (phase) {
-    case PHASES.MORNING:
+    case PHASES.MORNING: {
       states.supplyBoxes.expanded = true;
       states.marketNews.expanded = (gameState.marketReports || []).length > 0;
-      states.materials.expanded = false;
-      states.workshop.expanded = false;
-      states.inventory.expanded = false;
       states.customerQueue.hidden = true;
+
+      // Smart logic: If player has lots of gold, expand materials to show what they have
+      if ((gameState.gold || 0) > 200) {
+        states.materials.expanded = true;
+      }
       break;
-    case PHASES.CRAFTING:
+    }
+    case PHASES.CRAFTING: {
       states.supplyBoxes.expanded = false;
       states.marketNews.expanded = false;
       states.materials.expanded = true;
       states.workshop.expanded = true;
-      states.inventory.expanded = false;
       states.customerQueue.hidden = true;
+
+      // Smart logic: If inventory is getting full, show it
+      const totalInventory = Object.values(gameState.inventory || {}).reduce((s, c) => s + c, 0);
+      if (totalInventory > 5) {
+        states.inventory.expanded = true;
+      }
       break;
-    case PHASES.SHOPPING:
+    }
+    case PHASES.SHOPPING: {
       states.supplyBoxes.hidden = true;
       states.marketNews.hidden = true;
-      states.materials.expanded = false;
       states.workshop.hidden = true;
       states.inventory.expanded = true;
       states.customerQueue.expanded = true;
+
+      // Smart logic: If materials are low, collapse materials card
+      const totalMaterials = Object.values(gameState.materials || {}).reduce((s, c) => s + c, 0);
+      if (totalMaterials < 5) {
+        states.materials.expanded = false;
+      }
       break;
-    case PHASES.END_DAY:
-      Object.keys(states).forEach(k => { states[k].expanded = false; });
+    }
+    case PHASES.END_DAY: {
+      // Collapse everything except end of day summary
+      Object.keys(states).forEach(k => {
+        states[k].expanded = false;
+        states[k].hidden = false; // Show all for review
+      });
       break;
-    default:
-      break;
+    }
   }
 
-  const exp = userPrefs?.preferredExpansions?.[phase] || [];
-  exp.forEach(card => {
-    if (states[card]) {
-      states[card].expanded = true;
-      states[card].hidden = false;
+  // Apply user preferences (these override smart defaults)
+  const preferredExpansions = userPrefs?.preferredExpansions?.[phase] || [];
+  preferredExpansions.forEach(cardId => {
+    if (states[cardId] && !states[cardId].hidden) {
+      states[cardId].expanded = true;
     }
   });
 
-  const col = userPrefs?.preferredCollapsed?.[phase] || [];
-  col.forEach(card => {
-    if (states[card]) {
-      states[card].expanded = false;
+  const preferredCollapsed = userPrefs?.preferredCollapsed?.[phase] || [];
+  preferredCollapsed.forEach(cardId => {
+    if (states[cardId]) {
+      states[cardId].expanded = false;
     }
   });
 
   return states;
 };
 
-// Determine if a card should auto-expand based on context
-export const shouldAutoExpand = (cardType, gameState = {}, userActivity = {}) => {
-  if (cardType === 'marketNews') {
-    return (gameState.marketReports || []).length > 0;
-  }
-  if (cardType === 'materials') {
-    return !!userActivity.newMaterialsReceived;
-  }
-  if (cardType === 'supplyBoxes') {
-    const goldCost = BOX_TYPES?.gold?.cost || Infinity;
-    return gameState.gold >= goldCost && !userActivity.hasSeenGoldBox;
-  }
-  if (cardType === 'workshop') {
-    const current = userActivity.craftableRecipeCount || 0;
-    const prev = userActivity.previousCraftableCount || 0;
-    return current > prev;
-  }
-  return false;
-};
-
-// Calculate a relevance score used for ordering
+// Enhanced relevance scoring
 export const getCardRelevanceScore = (cardType, gameState = {}) => {
   const basePriority = {
     marketNews: 1,
@@ -95,28 +92,32 @@ export const getCardRelevanceScore = (cardType, gameState = {}) => {
 
   let priority = basePriority[cardType] ?? 99;
 
-  if (cardType === 'supplyBoxes' && gameState.gold >= (BOX_TYPES.platinum?.cost || Infinity)) {
-    priority -= 2;
+  // Phase-specific adjustments
+  switch (gameState.phase) {
+    case PHASES.MORNING:
+      if (cardType === 'supplyBoxes') priority -= 2;
+      if (cardType === 'marketNews' && (gameState.marketReports || []).length > 0) priority -= 1;
+      break;
+    case PHASES.CRAFTING:
+      if (cardType === 'workshop') priority -= 2;
+      if (cardType === 'materials') priority -= 1;
+      break;
+    case PHASES.SHOPPING:
+      if (cardType === 'customerQueue') priority -= 2;
+      if (cardType === 'inventory') priority -= 1;
+      break;
   }
 
-  if (cardType === 'workshop' && (gameState.craftableCount || 0) > 5) {
-    priority -= 1;
+  // Content-based adjustments
+  if (cardType === 'supplyBoxes' && (gameState.gold || 0) >= (BOX_TYPES.platinum?.cost || 140)) {
+    priority -= 1; // High gold = more relevant
   }
 
-  if (cardType === 'customerQueue' && gameState.hasVIPCustomers) {
-    priority -= 3;
-  }
-
-  if (typeof gameState.isCardEmpty === 'function' && gameState.isCardEmpty(cardType)) {
-    priority += 10;
+  if (cardType === 'customerQueue') {
+    const vipCount = (gameState.customers || []).filter(c => c.budgetTier === 'wealthy').length;
+    if (vipCount > 0) priority -= 2;
   }
 
   return priority;
-};
-
-export default {
-  getDefaultCardStatesForPhase,
-  shouldAutoExpand,
-  getCardRelevanceScore,
 };
 
