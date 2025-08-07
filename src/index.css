@@ -186,3 +186,78 @@ textarea:focus {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Smart card animations */
+.card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top center;
+}
+
+.card.expanding {
+  animation: cardExpand 0.3s ease-out;
+}
+
+.card.collapsing {
+  animation: cardCollapse 0.25s ease-in;
+}
+
+@keyframes cardExpand {
+  0% {
+    transform: scaleY(0.3);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes cardCollapse {
+  0% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(0.3);
+    opacity: 0.7;
+  }
+}
+
+/* Card header status indicators */
+.card-header.status-available {
+  border-left: 4px solid #10b981;
+}
+
+.card-header.status-locked {
+  border-left: 4px solid #ef4444;
+  opacity: 0.7;
+}
+
+.card-header.status-updated {
+  border-left: 4px solid #3b82f6;
+  animation: newContentPulse 2s ease-in-out;
+}
+
+.card-header.status-vip {
+  border-left: 4px solid #f59e0b;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.1), transparent);
+}
+
+@keyframes newContentPulse {
+  0%, 100% { border-left-color: #3b82f6; }
+  50% { border-left-color: #60a5fa; }
+}
+
+/* Content fade-in */
+.card-content {
+  opacity: 0;
+  transition: opacity 0.15s ease-in;
+}
+.card-content.visible {
+  opacity: 1;
+}
+
+/* Success glow animation */
+.success-glow {
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.5);
+}
