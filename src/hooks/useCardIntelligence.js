@@ -73,6 +73,14 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
 
   const getCardStatus = useCallback((cardType, gs = gameState) => {
     switch (cardType) {
+      case 'marketNews': {
+        const count = (gs.marketReports || []).length;
+        return {
+          subtitle: count > 0 ? `${count} report${count !== 1 ? 's' : ''}` : 'No reports today',
+          status: count > 0 ? 'updated' : 'locked',
+          badge: count,
+        };
+      }
       case 'supplyBoxes': {
         const affordable = Object.entries(BOX_TYPES).filter(([, box]) => (gs.gold || 0) >= box.cost);
         return {
@@ -99,6 +107,14 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
           subtitle: `${craftable}/${totalRecipes} craftable`,
           status: craftable > 0 ? 'ready' : 'waiting',
           badge: craftable,
+        };
+      }
+      case 'inventory': {
+        const total = Object.values(gs.inventory || {}).reduce((s, c) => s + c, 0);
+        return {
+          subtitle: `${total} items`,
+          status: total > 0 ? 'normal' : 'locked',
+          badge: total,
         };
       }
       case 'customerQueue': {
