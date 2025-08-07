@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Coins, AlertCircle, Sun, Moon, Menu, BookOpen, Settings, HelpCircle } from 'lucide-react';
 import { PHASES, MATERIALS, BOX_TYPES, RECIPES } from './constants';
 import { Card, CardHeader, CardContent } from './components/Card';
+import { getDefaultCardStatesForPhase } from './utils/cardContext';
 import Workshop from './features/Workshop';
 import InventoryPanel from './features/InventoryPanel';
 import EventLog from './components/EventLog';
@@ -36,6 +37,11 @@ const MerchantsMorning = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const notificationTimers = useRef([]);
 
+  // Intelligent card handling
+  const [cardStates, setCardStates] = useState({});
+  const [cardPreferences, setCardPreferences] = useState({});
+  const [animatingCards, setAnimatingCards] = useState(new Set());
+
   const getInitialCardState = (key) => {
     if (typeof window === 'undefined') return false;
     try {
@@ -53,6 +59,18 @@ const MerchantsMorning = () => {
   const [workshopExpanded, setWorkshopExpanded] = useState(() => getInitialCardState('workshop'));
   const [inventoryExpanded, setInventoryExpanded] = useState(() => getInitialCardState('inventory'));
   const [customersExpanded, setCustomersExpanded] = useState(() => getInitialCardState('customers'));
+
+  const updateCardStatesForPhase = useCallback(
+    (phase) => {
+      const newStates = getDefaultCardStatesForPhase(phase, gameState, cardPreferences);
+      setCardStates(prev => ({ ...prev, ...newStates }));
+    },
+    [gameState, cardPreferences]
+  );
+
+  useEffect(() => {
+    updateCardStatesForPhase(gameState.phase);
+  }, [gameState.phase, updateCardStatesForPhase]);
 
   useEffect(() => {
     if (selectedCustomer) {
