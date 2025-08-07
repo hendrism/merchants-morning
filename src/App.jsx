@@ -188,6 +188,13 @@ const MerchantsMorning = () => {
   const totalRecipes = RECIPES.length;
   const craftableRecipes = RECIPES.filter(canCraft).length;
 
+  const marketNewsStatus = getCardStatus('marketNews', gameState);
+  const supplyBoxesStatus = getCardStatus('supplyBoxes', gameState);
+  const materialsStatus = getCardStatus('materials', gameState);
+  const workshopStatus = getCardStatus('workshop', { ...gameState, craftableCount: craftableRecipes, totalRecipeCount: totalRecipes });
+  const inventoryStatus = getCardStatus('inventory', gameState);
+  const customerQueueStatus = getCardStatus('customerQueue', gameState);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-20 pb-safe dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
@@ -270,14 +277,16 @@ const MerchantsMorning = () => {
             <CardHeader
               icon="📈"
               title="Market News"
-              subtitle={getCardStatus('marketNews', gameState).subtitle}
-              subtitleClassName={getCardStatus('marketNews', gameState).status === 'locked' ? 'text-red-600' : ''}
+              subtitle={marketNewsStatus.subtitle}
+              subtitleClassName={marketNewsStatus.status === 'locked' ? 'text-red-600' : ''}
               expanded={getCardState('marketNews').expanded}
               onToggle={() => handleCardToggle('marketNews')}
               isEmpty={gameState.marketReports.length === 0}
+              status={marketNewsStatus.status}
+              badge={marketNewsStatus.badge}
             />
             {getCardState('marketNews').expanded && (
-              <CardContent>
+              <CardContent expanded={getCardState('marketNews').expanded}>
                 {gameState.marketReports.length > 0 ? (
                   <ul className="list-disc pl-5 space-y-1 text-sm">
                     {gameState.marketReports.map((report, idx) => (
@@ -300,13 +309,15 @@ const MerchantsMorning = () => {
               <CardHeader
                 icon="🛍️"
                 title="Supply Boxes"
-                subtitle={getCardStatus('supplyBoxes', gameState).subtitle}
-                subtitleClassName={getCardStatus('supplyBoxes', gameState).status === 'locked' ? 'text-red-600' : ''}
+                subtitle={supplyBoxesStatus.subtitle}
+                subtitleClassName={supplyBoxesStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('supplyBoxes').expanded}
                 onToggle={() => handleCardToggle('supplyBoxes')}
+                status={supplyBoxesStatus.status}
+                badge={supplyBoxesStatus.badge}
               />
               {getCardState('supplyBoxes').expanded && (
-                <CardContent>
+                <CardContent expanded={getCardState('supplyBoxes').expanded}>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {Object.entries(BOX_TYPES).map(([type, box]) => (
                       <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
@@ -332,14 +343,16 @@ const MerchantsMorning = () => {
               <CardHeader
                 icon="🧰"
                 title="Materials"
-                subtitle={getCardStatus('materials', gameState).subtitle}
-                subtitleClassName={getCardStatus('materials', gameState).status === 'locked' ? 'text-red-600' : ''}
+                subtitle={materialsStatus.subtitle}
+                subtitleClassName={materialsStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('materials').expanded}
                 onToggle={() => handleCardToggle('materials')}
-                isEmpty={getCardStatus('materials', gameState).badge === 0}
+                isEmpty={materialsStatus.badge === 0}
+                status={materialsStatus.status}
+                badge={materialsStatus.badge}
               />
               {getCardState('materials').expanded && (
-                <CardContent>
+                <CardContent expanded={getCardState('materials').expanded}>
                   {Object.keys(materialsByType).length > 0 ? (
                     Object.entries(materialsByType).map(([type, mats]) => (
                       <div key={type} className="mb-2">
@@ -368,13 +381,15 @@ const MerchantsMorning = () => {
             <CardHeader
               icon="🔨"
               title="Workshop"
-              subtitle={getCardStatus('workshop', { ...gameState, craftableCount: craftableRecipes, totalRecipeCount: totalRecipes }).subtitle}
-              subtitleClassName={getCardStatus('workshop', { ...gameState, craftableCount: craftableRecipes, totalRecipeCount: totalRecipes }).status === 'locked' ? 'text-red-600' : ''}
+              subtitle={workshopStatus.subtitle}
+              subtitleClassName={workshopStatus.status === 'locked' ? 'text-red-600' : ''}
               expanded={getCardState('workshop').expanded}
               onToggle={() => handleCardToggle('workshop')}
+              status={workshopStatus.status}
+              badge={workshopStatus.badge}
             />
             {getCardState('workshop').expanded && (
-              <CardContent>
+              <CardContent expanded={getCardState('workshop').expanded}>
                 <Workshop
                   gameState={gameState}
                   craftingTab={craftingTab}
@@ -395,14 +410,16 @@ const MerchantsMorning = () => {
             <CardHeader
               icon="📦"
               title="Inventory"
-              subtitle={getCardStatus('inventory', gameState).subtitle}
-              subtitleClassName={getCardStatus('inventory', gameState).status === 'locked' ? 'text-red-600' : ''}
+              subtitle={inventoryStatus.subtitle}
+              subtitleClassName={inventoryStatus.status === 'locked' ? 'text-red-600' : ''}
               expanded={getCardState('inventory').expanded}
               onToggle={() => handleCardToggle('inventory')}
-              isEmpty={getCardStatus('inventory', gameState).badge === 0}
+              isEmpty={inventoryStatus.badge === 0}
+              status={inventoryStatus.status}
+              badge={inventoryStatus.badge}
             />
             {getCardState('inventory').expanded && (
-              <CardContent>
+              <CardContent expanded={getCardState('inventory').expanded}>
                 <InventoryPanel
                   gameState={gameState}
                   inventoryTab={inventoryTab}
@@ -420,14 +437,16 @@ const MerchantsMorning = () => {
             <CardHeader
               icon="👥"
               title="Customers"
-              subtitle={getCardStatus('customerQueue', gameState).subtitle}
-              subtitleClassName={getCardStatus('customerQueue', gameState).status === 'locked' ? 'text-red-600' : ''}
+              subtitle={customerQueueStatus.subtitle}
+              subtitleClassName={customerQueueStatus.status === 'locked' ? 'text-red-600' : ''}
               expanded={getCardState('customerQueue').expanded}
               onToggle={() => handleCardToggle('customerQueue')}
-              isEmpty={getCardStatus('customerQueue', gameState).badge === 0}
+              isEmpty={customerQueueStatus.badge === 0}
+              status={customerQueueStatus.status}
+              badge={customerQueueStatus.badge}
             />
             {getCardState('customerQueue').expanded && (
-              <CardContent>
+              <CardContent expanded={getCardState('customerQueue').expanded}>
                 <ShopInterface
                   gameState={gameState}
                   selectedCustomer={selectedCustomer}
