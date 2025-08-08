@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Store } from 'lucide-react';
 import TabButton from '../components/TabButton';
-import { ITEM_TYPES, RECIPES, PROFESSIONS, MATERIALS } from '../constants';
+import { ITEM_TYPES, RECIPES, PROFESSIONS, MATERIALS, ITEM_TYPE_ICONS } from '../constants';
 
 const ShopInterface = ({
   gameState,
@@ -127,8 +127,9 @@ const ShopInterface = ({
               active={sellingTab === type}
               onClick={() => setSellingTab(type)}
               count={count}
+              aria-label={type.charAt(0).toUpperCase() + type.slice(1)}
             >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
+              {ITEM_TYPE_ICONS[type]}
             </TabButton>
           );
         })}

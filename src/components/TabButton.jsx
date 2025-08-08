@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const TabButton = ({ active, onClick, children, count }) => (
+const TabButton = ({ active, onClick, children, count, ...props }) => (
   <button
     onClick={onClick}
     className={`relative flex-1 flex items-center justify-center px-4 py-3 rounded-lg min-h-[48px] text-sm font-medium text-center whitespace-nowrap ${
@@ -9,6 +9,7 @@ const TabButton = ({ active, onClick, children, count }) => (
         ? 'bg-blue-500 text-white'
         : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
     }`}
+    {...props}
   >
     {children}
     {count !== undefined && count !== null && (
