@@ -7,6 +7,7 @@ import InventoryPanel from './features/InventoryPanel';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
 import Button from './components/Button';
+import GestureHandler from './components/GestureHandler';
 import useCrafting from './hooks/useCrafting';
 import useCustomers from './hooks/useCustomers';
 import useGameState from './hooks/useGameState';
@@ -195,10 +196,79 @@ const MerchantsMorning = () => {
   const inventoryStatus = getCardStatus('inventory', gameState);
   const customerQueueStatus = getCardStatus('customerQueue', gameState);
 
+  // NEW: Gesture handlers
+  const handleSwipeGesture = useCallback((direction) => {
+    if (direction === 'left') {
+      // Advance to next phase
+      switch (gameState.phase) {
+        case PHASES.MORNING:
+          setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }));
+          addNotification('⚒️ Swiped to Crafting', 'info');
+          break;
+        case PHASES.CRAFTING:
+          openShop();
+          break;
+        case PHASES.SHOPPING:
+          endDay();
+          break;
+        case PHASES.END_DAY:
+          startNewDay();
+          break;
+        default:
+          break;
+      }
+    } else if (direction === 'right') {
+      // Go to previous phase (limited)
+      switch (gameState.phase) {
+        case PHASES.CRAFTING:
+          setGameState(prev => ({ ...prev, phase: PHASES.MORNING }));
+          addNotification('🌅 Swiped back to Morning', 'info');
+          break;
+        case PHASES.SHOPPING:
+          setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }));
+          addNotification('⚒️ Swiped back to Crafting', 'info');
+          break;
+        default:
+          break;
+      }
+    }
+  }, [gameState.phase, setGameState, addNotification, openShop, endDay, startNewDay]);
+
+  const handleCardSwipe = useCallback((direction, cardId) => {
+    if (direction === 'left') {
+      updateCardState(cardId, { hidden: true });
+      addNotification(`Hidden ${cardId} card`, 'info');
+    } else if (direction === 'right') {
+      updateCardState(cardId, { expanded: true });
+      trackCardUsage(cardId, 'expand');
+    }
+  }, [updateCardState, trackCardUsage, addNotification]);
+
+  const handleLongPress = useCallback((event) => {
+    const target = event.target.closest('[data-card-id]');
+    if (target) {
+      const cardId = target.dataset.cardId;
+      // Placeholder for future context menu
+      // eslint-disable-next-line no-console
+      console.log(`Long press on card: ${cardId}`);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-20 pb-safe dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
-      <div className="max-w-6xl mx-auto p-3">
+      <GestureHandler
+        onSwipe={(direction, e) => {
+          const card = e.target.closest('[data-card-id]');
+          if (card) {
+            handleCardSwipe(direction, card.dataset.cardId);
+          } else {
+            handleSwipeGesture(direction);
+          }
+        }}
+        onLongPress={handleLongPress}
+        className="max-w-6xl mx-auto p-3"
+      >
         <div className="bg-white rounded-lg shadow-lg p-3 mb-3 dark:bg-gray-800">
           <div className="flex items-start justify-between">
             <div>
@@ -268,11 +338,12 @@ const MerchantsMorning = () => {
         </div>
 
         {showEventLog && (
-          <div className="bg-white rounded-lg shadow-lg p-3 mb-3 dark:bg-gray-800">
+          <div className="bg-white rounded-lg shadow-lg p-3 mb-3 dark:bg-gray-800" data-card-id="eventLog">
             <EventLog events={eventLog} />
           </div>
         )}
         {[PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
+          <div data-card-id="marketNews">
           <Card>
             <CardHeader
               icon="📈"
@@ -301,10 +372,12 @@ const MerchantsMorning = () => {
               </CardContent>
             )}
           </Card>
+          </div>
         )}
 
         {gameState.phase === PHASES.MORNING && (
           <>
+            <div data-card-id="supplyBoxes">
             <Card>
               <CardHeader
                 icon="🛍️"
@@ -338,7 +411,9 @@ const MerchantsMorning = () => {
                 </CardContent>
               )}
             </Card>
+            </div>
 
+            <div data-card-id="materials">
             <Card>
               <CardHeader
                 icon="🧰"
@@ -373,10 +448,12 @@ const MerchantsMorning = () => {
                 </CardContent>
               )}
             </Card>
+            </div>
           </>
         )}
 
         {[PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
+          <div data-card-id="workshop">
           <Card>
             <CardHeader
               icon="🔨"
@@ -403,9 +480,11 @@ const MerchantsMorning = () => {
               </CardContent>
             )}
           </Card>
+          </div>
         )}
 
         {gameState.phase === PHASES.CRAFTING && (
+          <div data-card-id="inventory">
           <Card>
             <CardHeader
               icon="📦"
@@ -430,9 +509,11 @@ const MerchantsMorning = () => {
               </CardContent>
             )}
           </Card>
+          </div>
         )}
 
         {gameState.phase === PHASES.SHOPPING && (
+          <div data-card-id="customerQueue">
           <Card>
             <CardHeader
               icon="👥"
@@ -462,12 +543,13 @@ const MerchantsMorning = () => {
               </CardContent>
             )}
           </Card>
+          </div>
         )}
 
         {gameState.phase === PHASES.END_DAY && (
           <EndOfDaySummary gameState={gameState} />
         )}
-      </div>
+      </GestureHandler>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg pb-safe dark:bg-gray-800 dark:border-gray-700">
         <div className="max-w-6xl mx-auto flex items-center h-[70px]">
