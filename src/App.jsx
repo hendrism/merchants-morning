@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Coins, AlertCircle, Sun, Moon, Menu, BookOpen, Settings, HelpCircle } from 'lucide-react';
-import { PHASES, MATERIALS, BOX_TYPES, RECIPES } from './constants';
+import { PHASES, BOX_TYPES, RECIPES } from './constants';
 import { Card, CardHeader, CardContent } from './components/Card';
 import Workshop from './features/Workshop';
 import InventoryPanel from './features/InventoryPanel';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
 import Button from './components/Button';
-import MaterialCard from './components/MaterialCard';
+import MaterialStallsPanel from './features/MaterialStallsPanel';
 import GestureHandler from './components/GestureHandler';
 import useCrafting from './hooks/useCrafting';
 import useCustomers from './hooks/useCustomers';
@@ -179,43 +179,16 @@ const MerchantsMorning = () => {
       default: return 'text-gray-600 bg-gray-100 border-gray-200';
     }
   };
-  const getCategoryIcon = (type) => {
-    const icons = {
-      metal: '⛓️',
-      wood: '🪵',
-      cloth: '🧵',
-      gem: '💎',
-      leather: '🪶',
-      other: '📦',
-    };
-    return icons[type] || '📦';
-  };
-
-  const {
-    openBox,
-    craftItem,
-    canCraft,
-    filterRecipesByType,
-    filterInventoryByType: rawFilterInventoryByType,
-    sortRecipesByRarityAndCraftability,
-    sortByMatchQualityAndRarity,
-    getTopMaterials,
-    getSaleInfo,
-  } = useCrafting(gameState, setGameState, addEvent, addNotification);
-
-  const materialsByType = useMemo(
-    () =>
-      Object.entries(gameState.materials)
-        .filter(([, count]) => count > 0)
-        .reduce((acc, [id, count]) => {
-          const material = MATERIALS[id];
-          const type = material.type || 'other';
-          if (!acc[type]) acc[type] = [];
-          acc[type].push({ id, count, material });
-          return acc;
-        }, {}),
-    [gameState.materials]
-  );
+    const {
+      openBox,
+      craftItem,
+      canCraft,
+      filterRecipesByType,
+      filterInventoryByType: rawFilterInventoryByType,
+      sortRecipesByRarityAndCraftability,
+      sortByMatchQualityAndRarity,
+      getSaleInfo,
+    } = useCrafting(gameState, setGameState, addEvent, addNotification);
 
   const filterInventoryByType = useCallback(
     (type) => rawFilterInventoryByType(type),
@@ -448,46 +421,31 @@ const MerchantsMorning = () => {
               </div>
             )}
 
-            {!getCardState('materials').hidden && (
-              <div data-card-id="materials">
-                <Card>
-                  <CardHeader
-                    icon="🧰"
-                    title="Materials"
-                    subtitle={materialsStatus.subtitle}
-                    subtitleClassName={materialsStatus.status === 'locked' ? 'text-red-600' : ''}
-                    expanded={getCardState('materials').expanded}
-                    onToggle={() => handleCardToggle('materials')}
-                    isEmpty={materialsStatus.badge === 0}
-                    status={materialsStatus.status}
-                    badge={materialsStatus.badge}
-                  />
-                  {getCardState('materials').expanded && (
-                    <CardContent expanded={getCardState('materials').expanded}>
-            {Object.keys(materialsByType).length > 0 ? (
-              <div className="material-categories space-y-4">
-                {Object.entries(materialsByType).map(([type, mats]) => (
-                  <div key={type} className="category-group">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg">{getCategoryIcon(type)}</span>
-                      <span className="capitalize font-medium">{type}</span>
-                    </div>
-                    <div className="materials-row flex flex-wrap gap-2">
-                      {mats.map(({ id, count, material }) => (
-                        <MaterialCard key={id} material={material} count={count} />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-600 dark:text-gray-300">No materials</p>
-            )}
-                    </CardContent>
-                  )}
-                </Card>
-              </div>
-            )}
+              {!getCardState('materials').hidden && [PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
+                <div data-card-id="materials">
+                  <Card>
+                    <CardHeader
+                      icon="🏪"
+                      title="Material Storage"
+                      subtitle={materialsStatus.subtitle}
+                      subtitleClassName={materialsStatus.status === 'locked' ? 'text-red-600' : ''}
+                      expanded={getCardState('materials').expanded}
+                      onToggle={() => handleCardToggle('materials')}
+                      isEmpty={materialsStatus.badge === 0}
+                      status={materialsStatus.status}
+                      badge={materialsStatus.badge}
+                    />
+                    {getCardState('materials').expanded && (
+                      <CardContent expanded={getCardState('materials').expanded}>
+                        <MaterialStallsPanel
+                          gameState={gameState}
+                          getRarityColor={getRarityColor}
+                        />
+                      </CardContent>
+                    )}
+                  </Card>
+                </div>
+              )}
           </>
         )}
 
@@ -585,66 +543,12 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-        {gameState.phase === PHASES.END_DAY && (
-          <EndOfDaySummary gameState={gameState} />
-        )}
-              </GestureHandler>
-
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg pb-safe dark:bg-gray-800 dark:border-gray-700">
-                <div className="max-w-6xl mx-auto flex items-center h-[70px]">
-                    <div className="resource-summary-text flex items-center gap-3 overflow-x-auto flex-[7] px-4 min-w-0">
-                      {getTopMaterials().map(([materialId, count]) => (
-                        <span key={materialId} className="resource-chip flex items-center gap-1 text-lg whitespace-nowrap flex-shrink-0">
-                          {MATERIALS[materialId].icon} {count}
-                        </span>
-                      ))}
-                    </div>
-                  <div className="flex-[3] px-4 border-l border-gray-400/30 dark:border-white/20 flex items-center">
-                    {gameState.phase === PHASES.MORNING && (
-                      <Button
-                        onClick={() => {
-                          setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }));
-                          addEvent('Crafting phase started', 'info');
-                          addNotification('⚒️ Crafting phase started', 'info');
-                        }}
-                        className="w-full h-12 rounded-lg font-bold text-white bg-green-500 hover:bg-green-600 shadow"
-                        aria-label="Start Crafting"
-                      >
-                        ⚒️
-                      </Button>
-                    )}
-                    {gameState.phase === PHASES.CRAFTING && (
-                      <Button
-                        onClick={openShop}
-                        className="w-full h-12 rounded-lg font-bold text-white bg-blue-500 hover:bg-blue-600 shadow"
-                        aria-label="Open Shop"
-                      >
-                        🏪
-                      </Button>
-                    )}
-                    {gameState.phase === PHASES.SHOPPING && (
-                      <Button
-                        onClick={endDay}
-                        className="w-full h-12 rounded-lg font-bold text-white bg-purple-500 hover:bg-purple-600 shadow"
-                        aria-label="Close Shop"
-                      >
-                        🔒
-                      </Button>
-                    )}
-                    {gameState.phase === PHASES.END_DAY && (
-                      <Button
-                        onClick={startNewDay}
-                        className="w-full h-12 rounded-lg font-bold text-white bg-amber-500 hover:bg-amber-600 shadow"
-                        aria-label="New Day"
-                      >
-                        🌅
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-            );
+          {gameState.phase === PHASES.END_DAY && (
+            <EndOfDaySummary gameState={gameState} />
+          )}
+        </GestureHandler>
+      </div>
+  );
 };
 
-            export default MerchantsMorning;
+export default MerchantsMorning;
