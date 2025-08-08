@@ -264,13 +264,12 @@ const MerchantsMorning = () => {
 
   const handleCardSwipe = useCallback((direction, cardId) => {
     if (direction === 'left') {
-      updateCardState(cardId, { hidden: true });
-      addNotification(`Hidden ${cardId} card`, 'info');
+      updateCardState(cardId, { expanded: false });
     } else if (direction === 'right') {
       updateCardState(cardId, { expanded: true });
       trackCardUsage(cardId, 'expand');
     }
-  }, [updateCardState, trackCardUsage, addNotification]);
+  }, [updateCardState, trackCardUsage]);
 
 
 
@@ -601,11 +600,11 @@ const MerchantsMorning = () => {
 
               <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg pb-safe dark:bg-gray-800 dark:border-gray-700">
                 <div className="max-w-6xl mx-auto flex items-center h-[70px]">
-                  <div className="flex items-center gap-3 overflow-x-auto flex-[7] px-4">
+                  <div className="flex items-center gap-3 overflow-x-auto flex-[7] px-4 min-w-0">
                     {getTopMaterials().map(([materialId, count]) => {
                       const material = MATERIALS[materialId];
                       return (
-                        <div key={materialId} className="flex items-center gap-1 text-lg whitespace-nowrap">
+                        <div key={materialId} className="flex items-center gap-1 text-lg whitespace-nowrap flex-shrink-0">
                           <span>{material.icon}</span>
                           <span className="font-medium">{count}</span>
                         </div>
