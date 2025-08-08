@@ -54,6 +54,7 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
     const myToken = materialsTokenRef.current;
 
     updateCardState('materials', { expanded: true, userModified: false });
+    setGameState(prev => ({ ...prev, newMaterialsReceived: false, newMaterialsCount: 0 }));
 
     materialsTimerRef.current = setTimeout(() => {
       setCardStates(current => {
@@ -77,7 +78,7 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
         materialsTimerRef.current = null;
       }
     };
-  }, [gameState.newMaterialsReceived, updateCardState, setCardStates]);
+  }, [gameState.newMaterialsReceived, updateCardState, setCardStates, setGameState]);
 
   // Auto-expand when customer VIPs arrive
   useEffect(() => {

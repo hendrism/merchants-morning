@@ -59,6 +59,7 @@ export const CardHeader = ({
 
   return (
     <button
+      type="button"
       onClick={onToggle}
       className={`w-full flex items-center justify-between p-4 text-left transition-all duration-200 ${getStatusClass()} ${
         isEmpty ? 'opacity-60' : ''
