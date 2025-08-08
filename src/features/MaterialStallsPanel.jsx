@@ -11,14 +11,14 @@ const MaterialStallsPanel = ({ gameState, getRarityColor }) => {
   const [activeStall, setActiveStall] = useState(activeStalls[0] || 'blacksmith');
   const [manualSelection, setManualSelection] = useState(false);
 
-  // Switch to first available stall if current one becomes empty, but allow manual selection of empty stalls
+  // Switch to first available stall if current one becomes empty, unless user manually selected an empty stall
   React.useEffect(() => {
-    if (manualSelection) {
-      setManualSelection(false);
-      return;
-    }
-    if (activeStalls.length > 0 && !activeStalls.includes(activeStall)) {
+    if (!manualSelection && activeStalls.length > 0 && !activeStalls.includes(activeStall)) {
       setActiveStall(activeStalls[0]);
+    }
+
+    if (activeStalls.includes(activeStall)) {
+      setManualSelection(false);
     }
   }, [activeStalls, activeStall, manualSelection]);
 
