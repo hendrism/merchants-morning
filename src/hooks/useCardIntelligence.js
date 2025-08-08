@@ -8,6 +8,18 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
     getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences)
   );
 
+  const getCardState = useCallback(
+    (id) => cardStates[id] || { expanded: false, hidden: false },
+    [cardStates]
+  );
+
+  const updateCardState = useCallback((id, updates) => {
+    setCardStates((prev) => ({
+      ...prev,
+      [id]: { ...getCardState(id), ...updates, userModified: updates.userModified ?? true },
+    }));
+  }, [getCardState]);
+
   // Auto-update card states when phase changes
   useEffect(() => {
     const newStates = getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences);
@@ -23,7 +35,7 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
       });
       return merged;
     });
-  }, [gameState.phase, gameState.marketReports?.length, gameState.customers?.length, userPreferences]);
+  }, [gameState, userPreferences]);
 
   // Auto-expand based on game events
   useEffect(() => {
@@ -53,7 +65,7 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
 
       return () => clearTimeout(timer);
     }
-  }, [gameState.newMaterialsReceived, setGameState]);
+  }, [gameState.newMaterialsReceived, updateCardState, setGameState]);
 
   // Auto-expand when customer VIPs arrive
   useEffect(() => {
@@ -61,21 +73,18 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
     if (vipCustomers.length > 0 && gameState.phase === 'shopping') {
       updateCardState('customerQueue', { expanded: true, userModified: false });
     }
-  }, [gameState.customers, gameState.phase]);
+  }, [gameState.customers, gameState.phase, updateCardState]);
 
-  const [usage, setUsage] = useState({});
+  const getStoredUsage = () => {
+    if (typeof window === 'undefined') return {};
+    try {
+      return JSON.parse(window.localStorage.getItem('cardUsage') || '{}');
+    } catch {
+      return {};
+    }
+  };
 
-  const getCardState = useCallback(
-    (id) => cardStates[id] || { expanded: false, hidden: false },
-    [cardStates]
-  );
-
-  const updateCardState = useCallback((id, updates) => {
-    setCardStates((prev) => ({
-      ...prev,
-      [id]: { ...getCardState(id), ...updates, userModified: updates.userModified ?? true },
-    }));
-  }, [getCardState]);
+  const [, setUsage] = useState(getStoredUsage);
 
   const getCardPriority = useCallback(
     (cardType, gs = gameState, userActivity = {}) =>
@@ -91,15 +100,6 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
     list.add(cardId);
     userPreferences.preferredExpansions[phase] = Array.from(list);
   }, [userPreferences]);
-
-  const getStoredUsage = () => {
-    if (typeof window === 'undefined') return {};
-    try {
-      return JSON.parse(window.localStorage.getItem('cardUsage') || '{}');
-    } catch {
-      return {};
-    }
-  };
 
   const storeUsage = (data) => {
     if (typeof window === 'undefined') return;
