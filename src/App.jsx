@@ -14,6 +14,7 @@ import useGameState from './hooks/useGameState';
 import ShopInterface from './features/ShopInterface';
 import EndOfDaySummary from './features/EndOfDaySummary';
 import useCardIntelligence from './hooks/useCardIntelligence';
+import generateId from './utils/id';
 
 const MerchantsMorning = () => {
   const [gameState, setGameState, resetGame] = useGameState();
@@ -138,7 +139,7 @@ const MerchantsMorning = () => {
 
   const addEvent = (message, type = 'info') => {
     const event = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       message,
       type,
       timestamp: new Date().toLocaleTimeString()
@@ -148,7 +149,7 @@ const MerchantsMorning = () => {
 
   const addNotification = (message, type = 'success') => {
     const notification = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       message,
       type
     };

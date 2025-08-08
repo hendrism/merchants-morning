@@ -3,6 +3,7 @@ import { random } from '../utils/random';
 import { getRarityRank } from '../utils/rarity';
 import { generateMarketReports } from '../utils/marketReports';
 import { getMaterialValue } from '../utils/materialValue';
+import generateId from '../utils/id';
 
 const useCustomers = (gameState, setGameState, addEvent, addNotification, setSelectedCustomer) => {
   const generateCustomers = () => {
@@ -96,7 +97,7 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       }
 
       customers.push({
-        id: crypto.randomUUID(),
+        id: generateId(),
         name: generateProfessionName(professionKey),
         profession: professionKey,
         requestType,
