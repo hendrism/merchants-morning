@@ -366,10 +366,9 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-        {gameState.phase === PHASES.MORNING && (
-          <>
-            <div data-card-id="supplyBoxes">
-            <Card>
+        {!getCardState('supplyBoxes').hidden && gameState.phase === PHASES.MORNING && (
+          <div data-card-id="supplyBoxes">
+          <Card>
               <CardHeader
                 icon="🛍️"
                 title="Supply Boxes"
@@ -402,10 +401,12 @@ const MerchantsMorning = () => {
                 </CardContent>
               )}
             </Card>
-            </div>
+          </div>
+        )}
 
-            <div data-card-id="materials">
-            <Card>
+        {!getCardState('materials').hidden && gameState.phase === PHASES.MORNING && (
+          <div data-card-id="materials">
+          <Card>
               <CardHeader
                 icon="🧰"
                 title="Materials"
@@ -438,12 +439,11 @@ const MerchantsMorning = () => {
                   )}
                 </CardContent>
               )}
-            </Card>
-            </div>
-          </>
+          </Card>
+          </div>
         )}
 
-        {[PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
+        {!getCardState('workshop').hidden && [PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
           <div data-card-id="workshop">
           <Card>
             <CardHeader
@@ -474,7 +474,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-        {gameState.phase === PHASES.CRAFTING && (
+        {!getCardState('inventory').hidden && gameState.phase === PHASES.CRAFTING && (
           <div data-card-id="inventory">
           <Card>
             <CardHeader
@@ -503,7 +503,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-        {gameState.phase === PHASES.SHOPPING && (
+        {!getCardState('customerQueue').hidden && gameState.phase === PHASES.SHOPPING && (
           <div data-card-id="customerQueue">
           <Card>
             <CardHeader
