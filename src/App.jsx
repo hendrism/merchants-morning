@@ -7,6 +7,7 @@ import InventoryPanel from './features/InventoryPanel';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
 import Button from './components/Button';
+import MaterialCard from './components/MaterialCard';
 import GestureHandler from './components/GestureHandler';
 import useCrafting from './hooks/useCrafting';
 import useCustomers from './hooks/useCustomers';
@@ -178,6 +179,17 @@ const MerchantsMorning = () => {
       case 'common':
       default: return 'text-gray-600 bg-gray-100 border-gray-200';
     }
+  };
+  const getCategoryIcon = (type) => {
+    const icons = {
+      metal: '⛓️',
+      wood: '🪵',
+      cloth: '🧵',
+      gem: '💎',
+      leather: '🪶',
+      other: '📦',
+    };
+    return icons[type] || '📦';
   };
 
   const {
@@ -462,35 +474,22 @@ const MerchantsMorning = () => {
                   />
                   {getCardState('materials').expanded && (
                     <CardContent expanded={getCardState('materials').expanded}>
-                      {Object.keys(materialsByType).length > 0 ? (
-                        Object.entries(materialsByType).map(([type, mats]) => (
-                          <div key={type} className="mb-2">
-                            <h4 className="font-semibold text-sm mb-1 capitalize">{type}</h4>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                              {mats.map(({ id, count, material }) => (
-                                <div
-                                  key={id}
-                                  className={`relative flex flex-col items-center justify-end h-16 border rounded ${getRarityColor(material.rarity)}`}
-                                >
-                                  <div className="flex flex-col-reverse items-center">
-                                    {Array.from({ length: Math.min(count, 5) }).map((_, i) => (
-                                      <span key={i} className="leading-none text-lg">
-                                        {material.icon}
-                                      </span>
-                                    ))}
-                                  </div>
-                                  {count > 5 && (
-                                    <span className="absolute top-1 right-1 text-xs">+{count - 5}</span>
-                                  )}
-                                  <span className="sr-only">{material.name}: {count}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-gray-600 dark:text-gray-300">No materials</p>
-                      )}
+            {Object.keys(materialsByType).length > 0 ? (
+              <div className="material-categories space-y-2">
+                {Object.entries(materialsByType).map(([type, mats]) => (
+                  <div key={type} className="category-row flex items-start gap-2">
+                    <div className="category-icon text-lg">{getCategoryIcon(type)}</div>
+                    <div className="materials-row flex flex-wrap gap-2">
+                      {mats.map(({ id, count, material }) => (
+                        <MaterialCard key={id} material={material} count={count} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-600 dark:text-gray-300">No materials</p>
+            )}
                     </CardContent>
                   )}
                 </Card>
@@ -600,17 +599,13 @@ const MerchantsMorning = () => {
 
               <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg pb-safe dark:bg-gray-800 dark:border-gray-700">
                 <div className="max-w-6xl mx-auto flex items-center h-[70px]">
-                  <div className="flex items-center gap-3 overflow-x-auto flex-[7] px-4 min-w-0">
-                    {getTopMaterials().map(([materialId, count]) => {
-                      const material = MATERIALS[materialId];
-                      return (
-                        <div key={materialId} className="flex items-center gap-1 text-lg whitespace-nowrap flex-shrink-0">
-                          <span>{material.icon}</span>
-                          <span className="font-medium">{count}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                    <div className="resource-summary-text flex items-center gap-3 overflow-x-auto flex-[7] px-4 min-w-0">
+                      {getTopMaterials().map(([materialId, count]) => (
+                        <span key={materialId} className="resource-chip flex items-center gap-1 text-lg whitespace-nowrap flex-shrink-0">
+                          {MATERIALS[materialId].icon} {count}
+                        </span>
+                      ))}
+                    </div>
                   <div className="flex-[3] px-4 border-l border-gray-400/30 dark:border-white/20 flex items-center">
                     {gameState.phase === PHASES.MORNING && (
                       <Button
