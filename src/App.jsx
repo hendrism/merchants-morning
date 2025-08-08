@@ -404,7 +404,7 @@ const MerchantsMorning = () => {
                       <div className="grid grid-cols-3 gap-3">
                         {Object.entries(BOX_TYPES).map(([type, box]) => (
                           <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
-                            <h3 className="font-bold capitalize text-sm mb-1">{box.name}</h3>
+                            <h3 className="font-bold capitalize text-sm mb-1 h-10 flex items-center justify-center">{box.name}</h3>
                             <p className="text-sm sm:text-xs text-gray-600 mb-2 dark:text-gray-300">
                               {box.materialCount[0]}-{box.materialCount[1]} materials
                             </p>
