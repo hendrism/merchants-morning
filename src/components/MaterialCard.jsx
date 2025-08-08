@@ -21,17 +21,12 @@ const MaterialCard = ({ material, count }) => (
       {count > 5 && <span className="more-indicator">...</span>}
     </div>
     <span className="quantity-badge">{count}</span>
-      <div className="material-info">
-        <span className="material-name">{material.name}</span>
-        <span className="quantity">{count}</span>
-      </div>
   </div>
 );
 
 MaterialCard.propTypes = {
   material: PropTypes.shape({
     icon: PropTypes.node,
-    name: PropTypes.string,
     rarity: PropTypes.string,
   }).isRequired,
   count: PropTypes.number.isRequired,
