@@ -20,7 +20,6 @@ import generateId from './utils/id';
 const MerchantsMorning = () => {
   const [gameState, setGameState, resetGame] = useGameState();
 
-  const PHASE_SEQUENCE = [PHASES.MORNING, PHASES.CRAFTING, PHASES.SHOPPING, PHASES.END_DAY];
   const PHASE_ICONS = {
     [PHASES.MORNING]: '🌅',
     [PHASES.CRAFTING]: '🔨',
@@ -300,21 +299,12 @@ const MerchantsMorning = () => {
         className="max-w-6xl mx-auto p-3"
       >
         <div className="bg-white rounded-lg shadow-lg p-3 mb-3 dark:bg-gray-800">
-          <div className="flex items-start justify-between">
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-amber-800 dark:text-amber-300">🏰 Merchant's Morning</h1>
-              <p className="text-sm sm:text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2">
-                <span>Day {gameState.day}</span>
-                <span className="flex items-center gap-1">
-                  {PHASE_SEQUENCE.map(phase => (
-                    <span
-                      key={phase}
-                      className={phase === gameState.phase ? 'text-base' : 'opacity-40'}
-                    >
-                      {PHASE_ICONS[phase]}
-                    </span>
-                  ))}
-                </span>
+              <p className="text-sm sm:text-xs text-amber-600 dark:text-amber-400">
+                Day {gameState.day} • {PHASE_ICONS[gameState.phase]}{' '}
+                {gameState.phase.charAt(0).toUpperCase() + gameState.phase.slice(1)}
               </p>
             </div>
             <div className="relative">
@@ -475,10 +465,13 @@ const MerchantsMorning = () => {
                   {getCardState('materials').expanded && (
                     <CardContent expanded={getCardState('materials').expanded}>
             {Object.keys(materialsByType).length > 0 ? (
-              <div className="material-categories space-y-2">
+              <div className="material-categories space-y-4">
                 {Object.entries(materialsByType).map(([type, mats]) => (
-                  <div key={type} className="category-row flex items-start gap-2">
-                    <div className="category-icon text-lg">{getCategoryIcon(type)}</div>
+                  <div key={type} className="category-group">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg">{getCategoryIcon(type)}</span>
+                      <span className="capitalize font-medium">{type}</span>
+                    </div>
                     <div className="materials-row flex flex-wrap gap-2">
                       {mats.map(({ id, count, material }) => (
                         <MaterialCard key={id} material={material} count={count} />
