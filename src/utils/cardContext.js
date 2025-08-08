@@ -42,6 +42,7 @@ export const getDefaultCardStatesForPhase = (phase, gameState = {}, userPrefs = 
       states.marketNews.hidden = true;
       states.workshop.hidden = true;
       states.inventory.expanded = true;
+      states.customerQueue.hidden = false;
       states.customerQueue.expanded = true;
 
       // Smart logic: If materials are low, collapse materials card
