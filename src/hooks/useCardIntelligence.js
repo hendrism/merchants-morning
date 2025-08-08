@@ -3,7 +3,7 @@ import { getDefaultCardStatesForPhase, getCardRelevanceScore } from '../utils/ca
 import { BOX_TYPES } from '../constants';
 
 // Hook to manage smart card behaviour
-const useCardIntelligence = (gameState, userPreferences = {}) => {
+const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
   const [cardStates, setCardStates] = useState(() =>
     getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences)
   );
@@ -27,18 +27,33 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
 
   // Auto-expand based on game events
   useEffect(() => {
-    // Auto-expand materials card when new materials received
     if (gameState.newMaterialsReceived) {
       updateCardState('materials', { expanded: true, userModified: false });
-      // Auto-collapse after 3 seconds if user hasn't interacted
-      setTimeout(() => {
-        const current = getCardState('materials');
-        if (current.expanded && !current.userModified) {
-          updateCardState('materials', { expanded: false, userModified: false });
+
+      const timer = setTimeout(() => {
+        setCardStates(current => {
+          const materialsState = current.materials || {};
+          if (materialsState.expanded && !materialsState.userModified) {
+            return {
+              ...current,
+              materials: { ...materialsState, expanded: false, userModified: false }
+            };
+          }
+          return current;
+        });
+
+        if (setGameState) {
+          setGameState(prev => ({
+            ...prev,
+            newMaterialsReceived: false,
+            newMaterialsCount: 0,
+          }));
         }
       }, 3000);
+
+      return () => clearTimeout(timer);
     }
-  }, [gameState.newMaterialsReceived]);
+  }, [gameState.newMaterialsReceived, setGameState]);
 
   // Auto-expand when customer VIPs arrive
   useEffect(() => {

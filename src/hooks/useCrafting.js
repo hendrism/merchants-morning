@@ -88,6 +88,8 @@ const useCrafting = (gameState, setGameState, addEvent, addNotification) => {
         ...prev,
         gold: prev.gold - box.cost,
         materials: newMaterials,
+        newMaterialsReceived: materialCount > 0,
+        newMaterialsCount: materialCount,
       };
     });
     if (materialCount > 0) {

@@ -37,7 +37,7 @@ const MerchantsMorning = () => {
         return {};
       }
     })()
-  });
+  }, setGameState);
 
   const {
     getCardState,
@@ -244,29 +244,20 @@ const MerchantsMorning = () => {
     }
   }, [updateCardState, trackCardUsage, addNotification]);
 
-  const handleLongPress = useCallback((event) => {
-    const target = event.target.closest('[data-card-id]');
-    if (target) {
-      const cardId = target.dataset.cardId;
-      // Placeholder for future context menu
-      // eslint-disable-next-line no-console
-      console.log(`Long press on card: ${cardId}`);
-    }
-  }, []);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-20 pb-safe dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
       <GestureHandler
-        onSwipe={(direction, e) => {
-          const card = e.target.closest('[data-card-id]');
+        onSwipe={(direction, e, startEl) => {
+          const card = (startEl || e.target).closest('[data-card-id]');
           if (card) {
             handleCardSwipe(direction, card.dataset.cardId);
           } else {
             handleSwipeGesture(direction);
           }
         }}
-        onLongPress={handleLongPress}
         className="max-w-6xl mx-auto p-3"
       >
         <div className="bg-white rounded-lg shadow-lg p-3 mb-3 dark:bg-gray-800">
@@ -342,7 +333,7 @@ const MerchantsMorning = () => {
             <EventLog events={eventLog} />
           </div>
         )}
-        {[PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
+        {!getCardState('marketNews').hidden && [PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
           <div data-card-id="marketNews">
           <Card>
             <CardHeader

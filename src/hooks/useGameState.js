@@ -26,6 +26,8 @@ const createInitialState = () => {
     shopLevel: 1,
     marketReports: reports,
     marketBias: bias,
+    newMaterialsReceived: false,
+    newMaterialsCount: 0,
   };
 };
 
