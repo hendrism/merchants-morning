@@ -366,84 +366,84 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-        {gameState.phase === PHASES.MORNING && (
-          <>
-            <div data-card-id="supplyBoxes">
-            <Card>
-              <CardHeader
-                icon="🛍️"
-                title="Supply Boxes"
-                subtitle={supplyBoxesStatus.subtitle}
-                subtitleClassName={supplyBoxesStatus.status === 'locked' ? 'text-red-600' : ''}
-                expanded={getCardState('supplyBoxes').expanded}
-                onToggle={() => handleCardToggle('supplyBoxes')}
-                status={supplyBoxesStatus.status}
-                badge={supplyBoxesStatus.badge}
-              />
-              {getCardState('supplyBoxes').expanded && (
-                <CardContent expanded={getCardState('supplyBoxes').expanded}>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {Object.entries(BOX_TYPES).map(([type, box]) => (
-                      <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
-                        <h3 className="font-bold capitalize text-sm mb-1">{box.name}</h3>
-                        <p className="text-sm sm:text-xs text-gray-600 mb-2 dark:text-gray-300">
-                          {box.materialCount[0]}-{box.materialCount[1]} materials
-                        </p>
-                        <button
-                          onClick={() => openBox(type)}
-                          disabled={gameState.gold < box.cost}
-                          className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 text-white px-3 py-2 rounded font-bold text-sm"
-                        >
-                          {box.cost} Gold
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              )}
-            </Card>
-            </div>
-
-            <div data-card-id="materials">
-            <Card>
-              <CardHeader
-                icon="🧰"
-                title="Materials"
-                subtitle={materialsStatus.subtitle}
-                subtitleClassName={materialsStatus.status === 'locked' ? 'text-red-600' : ''}
-                expanded={getCardState('materials').expanded}
-                onToggle={() => handleCardToggle('materials')}
-                isEmpty={materialsStatus.badge === 0}
-                status={materialsStatus.status}
-                badge={materialsStatus.badge}
-              />
-              {getCardState('materials').expanded && (
-                <CardContent expanded={getCardState('materials').expanded}>
-                  {Object.keys(materialsByType).length > 0 ? (
-                    Object.entries(materialsByType).map(([type, mats]) => (
-                      <div key={type} className="mb-2">
-                        <h4 className="font-semibold text-sm mb-1 capitalize">{type}</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {mats.map(({ id, count, material }) => (
-                            <div key={id} className={`p-2 rounded text-sm sm:text-xs ${getRarityColor(material.rarity)}`}>
-                              <span className="mr-1">{material.icon}</span>
-                              {material.name}: {count}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-gray-600 dark:text-gray-300">No materials</p>
-                  )}
-                </CardContent>
-              )}
-            </Card>
-            </div>
-          </>
+        {!getCardState('supplyBoxes').hidden && gameState.phase === PHASES.MORNING && (
+          <div data-card-id="supplyBoxes">
+          <Card>
+            <CardHeader
+              icon="🛍️"
+              title="Supply Boxes"
+              subtitle={supplyBoxesStatus.subtitle}
+              subtitleClassName={supplyBoxesStatus.status === 'locked' ? 'text-red-600' : ''}
+              expanded={getCardState('supplyBoxes').expanded}
+              onToggle={() => handleCardToggle('supplyBoxes')}
+              status={supplyBoxesStatus.status}
+              badge={supplyBoxesStatus.badge}
+            />
+            {getCardState('supplyBoxes').expanded && (
+              <CardContent expanded={getCardState('supplyBoxes').expanded}>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {Object.entries(BOX_TYPES).map(([type, box]) => (
+                    <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
+                      <h3 className="font-bold capitalize text-sm mb-1">{box.name}</h3>
+                      <p className="text-sm sm:text-xs text-gray-600 mb-2 dark:text-gray-300">
+                        {box.materialCount[0]}-{box.materialCount[1]} materials
+                      </p>
+                      <button
+                        onClick={() => openBox(type)}
+                        disabled={gameState.gold < box.cost}
+                        className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 text-white px-3 py-2 rounded font-bold text-sm"
+                      >
+                        {box.cost} Gold
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            )}
+          </Card>
+          </div>
         )}
 
-        {[PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
+        {!getCardState('materials').hidden && gameState.phase === PHASES.MORNING && (
+          <div data-card-id="materials">
+          <Card>
+            <CardHeader
+              icon="🧰"
+              title="Materials"
+              subtitle={materialsStatus.subtitle}
+              subtitleClassName={materialsStatus.status === 'locked' ? 'text-red-600' : ''}
+              expanded={getCardState('materials').expanded}
+              onToggle={() => handleCardToggle('materials')}
+              isEmpty={materialsStatus.badge === 0}
+              status={materialsStatus.status}
+              badge={materialsStatus.badge}
+            />
+            {getCardState('materials').expanded && (
+              <CardContent expanded={getCardState('materials').expanded}>
+                {Object.keys(materialsByType).length > 0 ? (
+                  Object.entries(materialsByType).map(([type, mats]) => (
+                    <div key={type} className="mb-2">
+                      <h4 className="font-semibold text-sm mb-1 capitalize">{type}</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {mats.map(({ id, count, material }) => (
+                          <div key={id} className={`p-2 rounded text-sm sm:text-xs ${getRarityColor(material.rarity)}`}>
+                            <span className="mr-1">{material.icon}</span>
+                            {material.name}: {count}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-600 dark:text-gray-300">No materials</p>
+                )}
+              </CardContent>
+            )}
+          </Card>
+          </div>
+        )}
+
+        {!getCardState('workshop').hidden && [PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
           <div data-card-id="workshop">
           <Card>
             <CardHeader
@@ -474,7 +474,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-        {gameState.phase === PHASES.CRAFTING && (
+        {!getCardState('inventory').hidden && gameState.phase === PHASES.CRAFTING && (
           <div data-card-id="inventory">
           <Card>
             <CardHeader
@@ -503,7 +503,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-        {gameState.phase === PHASES.SHOPPING && (
+        {!getCardState('customerQueue').hidden && gameState.phase === PHASES.SHOPPING && (
           <div data-card-id="customerQueue">
           <Card>
             <CardHeader
