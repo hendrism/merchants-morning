@@ -12,12 +12,14 @@ const useGestures = (ref, options = {}) => {
     let startTime = 0;
     let longPressTimer = null;
     let isLongPress = false;
+    let startTarget = null;
 
     const handleTouchStart = (e) => {
       const touch = e.touches[0];
       startX = touch.clientX;
       startY = touch.clientY;
       startTime = Date.now();
+      startTarget = e.target;
       isLongPress = false;
 
       if (onLongPress) {
@@ -67,7 +69,7 @@ const useGestures = (ref, options = {}) => {
       if (dt < timeThreshold && Math.max(absDx, absDy) > threshold && onSwipe) {
         const direction =
           absDx > absDy ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
-        onSwipe(direction, e);
+        onSwipe(direction, e, startTarget);
         if (navigator.vibrate) {
           navigator.vibrate(25);
         }

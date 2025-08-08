@@ -46,7 +46,10 @@ export const CardHeader = ({
         <span className="text-lg" aria-hidden="true">{icon}</span>
         <span className="font-bold">{title}</span>
         {badge !== undefined && badge > 0 && (
-          <span className="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded-full">
+          <span
+            className="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded-full"
+            aria-label={`${badge} items`}
+          >
             {badge}
           </span>
         )}
