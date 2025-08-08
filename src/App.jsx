@@ -19,6 +19,14 @@ import generateId from './utils/id';
 const MerchantsMorning = () => {
   const [gameState, setGameState, resetGame] = useGameState();
 
+  const PHASE_SEQUENCE = [PHASES.MORNING, PHASES.CRAFTING, PHASES.SHOPPING, PHASES.END_DAY];
+  const PHASE_ICONS = {
+    [PHASES.MORNING]: '🌅',
+    [PHASES.CRAFTING]: '🔨',
+    [PHASES.SHOPPING]: '🏪',
+    [PHASES.END_DAY]: '🌙',
+  };
+
   // Stable user preferences loader
   const [prefsVersion, setPrefsVersion] = useState(0);
 
@@ -284,7 +292,19 @@ const MerchantsMorning = () => {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-amber-800 dark:text-amber-300">🏰 Merchant's Morning</h1>
-              <p className="text-sm sm:text-xs text-amber-600 dark:text-amber-400">Day {gameState.day} • {gameState.phase.replace('_', ' ').toUpperCase()}</p>
+              <p className="text-sm sm:text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                <span>Day {gameState.day}</span>
+                <span className="flex items-center gap-1">
+                  {PHASE_SEQUENCE.map(phase => (
+                    <span
+                      key={phase}
+                      className={phase === gameState.phase ? 'text-base' : 'opacity-40'}
+                    >
+                      {PHASE_ICONS[phase]}
+                    </span>
+                  ))}
+                </span>
+              </p>
             </div>
             <div className="relative">
               <button
@@ -447,11 +467,23 @@ const MerchantsMorning = () => {
                         Object.entries(materialsByType).map(([type, mats]) => (
                           <div key={type} className="mb-2">
                             <h4 className="font-semibold text-sm mb-1 capitalize">{type}</h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                               {mats.map(({ id, count, material }) => (
-                                <div key={id} className={`p-2 rounded text-sm sm:text-xs ${getRarityColor(material.rarity)}`}>
-                                  <span className="mr-1">{material.icon}</span>
-                                  {material.name}: {count}
+                                <div
+                                  key={id}
+                                  className={`relative flex flex-col items-center justify-end h-16 border rounded ${getRarityColor(material.rarity)}`}
+                                >
+                                  <div className="flex flex-col-reverse items-center">
+                                    {Array.from({ length: Math.min(count, 5) }).map((_, i) => (
+                                      <span key={i} className="leading-none text-lg">
+                                        {material.icon}
+                                      </span>
+                                    ))}
+                                  </div>
+                                  {count > 5 && (
+                                    <span className="absolute top-1 right-1 text-xs">+{count - 5}</span>
+                                  )}
+                                  <span className="sr-only">{material.name}: {count}</span>
                                 </div>
                               ))}
                             </div>
@@ -474,12 +506,12 @@ const MerchantsMorning = () => {
               <CardHeader
                 icon="🔨"
                 title="Workshop"
-                subtitle={workshopStatus.subtitle}
-                subtitleClassName={workshopStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('workshop').expanded}
                 onToggle={() => handleCardToggle('workshop')}
                 status={workshopStatus.status}
                 badge={workshopStatus.badge}
+                progress={{ current: craftableRecipes, total: totalRecipes }}
+                subtitle={workshopStatus.subtitle}
               />
               {getCardState('workshop').expanded && (
                 <CardContent expanded={getCardState('workshop').expanded}>

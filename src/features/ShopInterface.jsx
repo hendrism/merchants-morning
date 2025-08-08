@@ -4,6 +4,18 @@ import { Store } from 'lucide-react';
 import TabButton from '../components/TabButton';
 import { ITEM_TYPES, RECIPES, PROFESSIONS, MATERIALS, ITEM_TYPE_ICONS } from '../constants';
 
+const PROFESSION_STYLES = {
+  knight: { icon: '🛡️', border: 'border-gray-400' },
+  ranger: { icon: '🏹', border: 'border-green-400' },
+  mage: { icon: '🧙', border: 'border-purple-400' },
+  merchant: { icon: '💼', border: 'border-yellow-400' },
+  noble: { icon: '👑', border: 'border-pink-400' },
+  guard: { icon: '🛡️', border: 'border-blue-400' },
+};
+
+const RARITY_GEMS = { common: '⚪', uncommon: '🟢', rare: '💎', legendary: '🟡' };
+const BUDGET_HEIGHT = { wealthy: '100%', middle: '60%', budget: '30%' };
+
 const ShopInterface = ({
   gameState,
   selectedCustomer,
@@ -58,30 +70,40 @@ const ShopInterface = ({
         </select>
       </div>
 
-      <div className="hidden sm:flex gap-2 overflow-x-auto pb-2">
-        {gameState.customers.filter(c => !c.satisfied).map(customer => (
-          <button
-            key={customer.id}
-            onClick={() => {
-              setSelectedCustomer(customer);
-              setSellingTab(customer.requestType);
-            }}
-            className={`px-4 py-2 rounded-lg whitespace-nowrap font-medium transition-colors min-h-[44px] min-w-[44px] text-sm sm:text-xs ${
-              selectedCustomer?.id === customer.id
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
-            }`}
-          >
-            <div className="font-bold">
-              {customer.name}
-              {customer.budgetTier === 'wealthy' && <span className="ml-1">💰</span>}
-              {customer.budgetTier === 'budget' && <span className="ml-1">🪙</span>}
-            </div>
-            <div className="text-sm sm:text-xs opacity-80">
-              {customer.requestRarity} {customer.requestType} • Budget: {customer.maxBudget}g
-            </div>
-          </button>
-        ))}
+      <div className="hidden sm:flex gap-4 overflow-x-auto pb-2">
+        {gameState.customers.filter(c => !c.satisfied).map(customer => {
+          const prof = PROFESSION_STYLES[customer.profession] || {};
+          return (
+            <button
+              key={customer.id}
+              onClick={() => {
+                setSelectedCustomer(customer);
+                setSellingTab(customer.requestType);
+              }}
+              className={`relative p-2 rounded-lg flex flex-col items-center min-h-[64px] min-w-[64px] transition-colors ${
+                selectedCustomer?.id === customer.id
+                  ? 'ring-2 ring-blue-500'
+                  : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'
+              } ${prof.border || ''}`}
+            >
+              <div className="relative mb-1">
+                <span className="text-3xl" aria-hidden="true">{prof.icon || '🙂'}</span>
+                <div className="absolute -top-1 -right-1 bg-white border rounded px-1 text-xs">
+                  {ITEM_TYPE_ICONS[customer.requestType]} {RARITY_GEMS[customer.requestRarity]}
+                </div>
+              </div>
+              <div className="w-2 h-10 bg-yellow-200 rounded overflow-hidden mb-1">
+                <div
+                  className="bg-yellow-500 w-full"
+                  style={{ height: BUDGET_HEIGHT[customer.budgetTier] || '50%' }}
+                />
+              </div>
+              <div className="text-xs text-center font-bold">
+                {customer.name}
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {gameState.customers.filter(c => c.satisfied).length > 0 && (

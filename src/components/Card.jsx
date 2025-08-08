@@ -15,22 +15,45 @@ Card.propTypes = {
 export const CardHeader = ({ 
   icon, 
   title, 
-  subtitle, 
-  expanded, 
-  onToggle, 
-  isEmpty, 
+  subtitle,
+  expanded,
+  onToggle,
+  isEmpty,
   subtitleClassName = '',
   status = 'normal',
   badge,
-  animating = false
+  animating = false,
+  progress
 }) => {
   const getStatusClass = () => {
     switch (status) {
-      case 'available': return 'card-header status-available';
-      case 'locked': return 'card-header status-locked';
-      case 'updated': return 'card-header status-updated';
-      case 'vip': return 'card-header status-vip';
-      default: return 'card-header';
+      case 'available':
+      case 'ready':
+        return 'card-header status-available';
+      case 'locked':
+        return 'card-header status-locked';
+      case 'updated':
+        return 'card-header status-updated';
+      case 'vip':
+        return 'card-header status-vip';
+      default:
+        return 'card-header';
+    }
+  };
+
+  const statusDotColor = () => {
+    switch (status) {
+      case 'available':
+      case 'ready':
+        return 'bg-green-500';
+      case 'locked':
+        return 'bg-red-500';
+      case 'updated':
+        return 'bg-blue-500';
+      case 'vip':
+        return 'bg-purple-500';
+      default:
+        return 'bg-gray-400';
     }
   };
 
@@ -42,25 +65,30 @@ export const CardHeader = ({
       } ${animating ? 'animate-pulse' : ''}`}
       aria-expanded={expanded}
     >
-      <div className="flex items-center gap-2">
-        <span className="text-lg" aria-hidden="true">{icon}</span>
-        <span className="font-bold">{title}</span>
+      <div className="flex items-center gap-3">
+        <span className="text-2xl" aria-hidden="true">{icon}</span>
+        <span className="sr-only">{title}</span>
         {badge !== undefined && badge > 0 && (
           <span
-            className="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded-full"
+            className="px-2 py-1 text-xs bg-blue-500 text-white rounded-full"
             aria-label={`${badge} items`}
           >
             {badge}
           </span>
         )}
-      </div>
-      <div className="flex items-center gap-2">
-        {subtitle && (
-          <span className={`text-sm ${subtitleClassName}`}>{subtitle}</span>
+        {progress && (
+          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-green-500"
+              style={{ width: `${(progress.current / progress.total) * 100}%` }}
+            />
+          </div>
         )}
-        <span className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}>
-          ▼
-        </span>
+      </div>
+      <div className="flex items-center gap-3">
+        {subtitle && <span className="sr-only">{subtitle}</span>}
+        <span className={`w-3 h-3 rounded-full ${statusDotColor()}`}></span>
+        <span className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}>▼</span>
       </div>
     </button>
   );
@@ -74,9 +102,13 @@ CardHeader.propTypes = {
   onToggle: PropTypes.func.isRequired,
   isEmpty: PropTypes.bool,
   subtitleClassName: PropTypes.string,
-  status: PropTypes.oneOf(['normal', 'available', 'locked', 'updated', 'vip']),
+  status: PropTypes.oneOf(['normal', 'available', 'locked', 'updated', 'vip', 'ready', 'waiting']),
   badge: PropTypes.number,
   animating: PropTypes.bool,
+  progress: PropTypes.shape({
+    current: PropTypes.number.isRequired,
+    total: PropTypes.number.isRequired,
+  }),
 };
 
 export const CardContent = ({ children, expanded = true }) => (
