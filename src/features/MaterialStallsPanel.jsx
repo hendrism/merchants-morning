@@ -9,13 +9,18 @@ const MaterialStallsPanel = ({ gameState, getRarityColor }) => {
   const { materialsByStall, getStallMaterialCount, getActiveStalls } = useMaterialStalls(gameState.materials);
   const activeStalls = getActiveStalls();
   const [activeStall, setActiveStall] = useState(activeStalls[0] || 'blacksmith');
+  const [manualSelection, setManualSelection] = useState(false);
 
-  // Switch to first available stall if current one becomes empty
+  // Switch to first available stall if current one becomes empty, but allow manual selection of empty stalls
   React.useEffect(() => {
+    if (manualSelection) {
+      setManualSelection(false);
+      return;
+    }
     if (activeStalls.length > 0 && !activeStalls.includes(activeStall)) {
       setActiveStall(activeStalls[0]);
     }
-  }, [activeStalls, activeStall]);
+  }, [activeStalls, activeStall, manualSelection]);
 
   const activeStallData = MERCHANT_STALLS[activeStall];
   const activeMaterials = materialsByStall[activeStall] || [];
@@ -32,7 +37,10 @@ const MaterialStallsPanel = ({ gameState, getRarityColor }) => {
               stall={stall}
               isActive={activeStall === stallId}
               materialCount={materialCount}
-              onClick={() => setActiveStall(stallId)}
+              onClick={() => {
+                setActiveStall(stallId);
+                setManualSelection(true);
+              }}
             />
           );
         })}
