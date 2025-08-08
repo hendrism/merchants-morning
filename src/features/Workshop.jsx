@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import TabButton from '../components/TabButton';
-import { MATERIALS, RECIPES, ITEM_TYPES } from '../constants';
+import { MATERIALS, RECIPES, ITEM_TYPES, ITEM_TYPE_ICONS } from '../constants';
 
 const Workshop = ({
   gameState,
@@ -31,8 +31,9 @@ const Workshop = ({
               active={craftingTab === type}
               onClick={() => setCraftingTab(type)}
               count={`${craftableCount}/${totalCount}`}
+              aria-label={type.charAt(0).toUpperCase() + type.slice(1)}
             >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
+              {ITEM_TYPE_ICONS[type]}
             </TabButton>
           );
         })}

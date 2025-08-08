@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import TabButton from '../components/TabButton';
-import { RECIPES, ITEM_TYPES } from '../constants';
+import { RECIPES, ITEM_TYPES, ITEM_TYPE_ICONS } from '../constants';
 
 const InventoryPanel = ({
   gameState,
@@ -33,8 +33,9 @@ const InventoryPanel = ({
               active={inventoryTab === type}
               onClick={() => setInventoryTab(type)}
               count={count}
+              aria-label={type.charAt(0).toUpperCase() + type.slice(1)}
             >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
+              {ITEM_TYPE_ICONS[type]}
             </TabButton>
           );
         })}

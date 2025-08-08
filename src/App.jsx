@@ -589,32 +589,36 @@ const MerchantsMorning = () => {
                           addNotification('⚒️ Crafting phase started', 'info');
                         }}
                         className="w-full h-12 rounded-lg font-bold text-white bg-green-500 hover:bg-green-600 shadow"
+                        aria-label="Start Crafting"
                       >
-                        START CRAFTING
+                        ⚒️
                       </Button>
                     )}
                     {gameState.phase === PHASES.CRAFTING && (
                       <Button
                         onClick={openShop}
                         className="w-full h-12 rounded-lg font-bold text-white bg-blue-500 hover:bg-blue-600 shadow"
+                        aria-label="Open Shop"
                       >
-                        OPEN SHOP
+                        🏪
                       </Button>
                     )}
                     {gameState.phase === PHASES.SHOPPING && (
                       <Button
                         onClick={endDay}
                         className="w-full h-12 rounded-lg font-bold text-white bg-purple-500 hover:bg-purple-600 shadow"
+                        aria-label="Close Shop"
                       >
-                        CLOSE SHOP
+                        🔒
                       </Button>
                     )}
                     {gameState.phase === PHASES.END_DAY && (
                       <Button
                         onClick={startNewDay}
                         className="w-full h-12 rounded-lg font-bold text-white bg-amber-500 hover:bg-amber-600 shadow"
+                        aria-label="New Day"
                       >
-                        NEW DAY
+                        🌅
                       </Button>
                     )}
                   </div>
