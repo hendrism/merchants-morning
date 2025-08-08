@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Coins, AlertCircle, Sun, Moon, Menu, BookOpen, Settings, HelpCircle } from 'lucide-react';
+import { Coins, AlertCircle, Sun, Moon, Menu, BookOpen, Settings, HelpCircle, ArrowRight } from 'lucide-react';
 import { PHASES, BOX_TYPES, RECIPES } from './constants';
 import { Card, CardHeader, CardContent } from './components/Card';
 import Workshop from './features/Workshop';
@@ -208,27 +208,30 @@ const MerchantsMorning = () => {
   const inventoryStatus = getCardStatus('inventory', gameState);
   const customerQueueStatus = getCardStatus('customerQueue', gameState);
 
+  const advancePhase = useCallback(() => {
+    switch (gameState.phase) {
+      case PHASES.MORNING:
+        setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }));
+        addNotification('⚒️ Advanced to Crafting', 'info');
+        break;
+      case PHASES.CRAFTING:
+        openShop();
+        break;
+      case PHASES.SHOPPING:
+        endDay();
+        break;
+      case PHASES.END_DAY:
+        startNewDay();
+        break;
+      default:
+        break;
+    }
+  }, [gameState.phase, setGameState, addNotification, openShop, endDay, startNewDay]);
+
   // NEW: Gesture handlers
   const handleSwipeGesture = useCallback((direction) => {
     if (direction === 'left') {
-      // Advance to next phase
-      switch (gameState.phase) {
-        case PHASES.MORNING:
-          setGameState(prev => ({ ...prev, phase: PHASES.CRAFTING }));
-          addNotification('⚒️ Swiped to Crafting', 'info');
-          break;
-        case PHASES.CRAFTING:
-          openShop();
-          break;
-        case PHASES.SHOPPING:
-          endDay();
-          break;
-        case PHASES.END_DAY:
-          startNewDay();
-          break;
-        default:
-          break;
-      }
+      advancePhase();
     } else if (direction === 'right') {
       // Go to previous phase (limited)
       switch (gameState.phase) {
@@ -244,7 +247,7 @@ const MerchantsMorning = () => {
           break;
       }
     }
-  }, [gameState.phase, setGameState, addNotification, openShop, endDay, startNewDay]);
+  }, [advancePhase, gameState.phase, setGameState, addNotification]);
 
   const handleCardSwipe = useCallback((direction, cardId) => {
     if (direction === 'left') {
@@ -398,7 +401,7 @@ const MerchantsMorning = () => {
                   />
                   {getCardState('supplyBoxes').expanded && (
                     <CardContent expanded={getCardState('supplyBoxes').expanded}>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-3 gap-3">
                         {Object.entries(BOX_TYPES).map(([type, box]) => (
                           <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
                             <h3 className="font-bold capitalize text-sm mb-1">{box.name}</h3>
@@ -547,6 +550,13 @@ const MerchantsMorning = () => {
             <EndOfDaySummary gameState={gameState} />
           )}
         </GestureHandler>
+        <button
+          onClick={advancePhase}
+          className="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg"
+          aria-label="Advance to next phase"
+        >
+          <ArrowRight className="w-5 h-5" />
+        </button>
       </div>
   );
 };
