@@ -8,22 +8,47 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
     getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences)
   );
 
-  // Auto-update card states when phase changes
+  // Auto-update card states when phase or game data changes
   useEffect(() => {
-    const newStates = getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences);
-    setCardStates(prev => {
+    const newStates = getDefaultCardStatesForPhase(
+      gameState.phase,
+      gameState,
+      userPreferences
+    );
+    setCardStates((prev) => {
       // Merge with existing states, prioritizing context-aware defaults
       const merged = { ...prev };
       Object.entries(newStates).forEach(([cardId, newState]) => {
         // Only override if the card isn't manually set by user
-        const userOverride = userPreferences.preferredExpansions?.[gameState.phase]?.includes(cardId);
+        const userOverride = userPreferences.preferredExpansions?.[gameState.phase]?.includes(
+          cardId
+        );
         if (!userOverride) {
           merged[cardId] = { ...merged[cardId], ...newState };
         }
       });
       return merged;
     });
-  }, [gameState.phase, gameState.marketReports?.length, gameState.customers?.length, userPreferences]);
+  }, [gameState, userPreferences]);
+
+  const getCardState = useCallback(
+    (id) => cardStates[id] || { expanded: false, hidden: false },
+    [cardStates]
+  );
+
+  const updateCardState = useCallback(
+    (id, updates) => {
+      setCardStates((prev) => ({
+        ...prev,
+        [id]: {
+          ...getCardState(id),
+          ...updates,
+          userModified: updates.userModified ?? true,
+        },
+      }));
+    },
+    [getCardState]
+  );
 
   // Auto-expand based on game events
   useEffect(() => {
@@ -53,7 +78,7 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
 
       return () => clearTimeout(timer);
     }
-  }, [gameState.newMaterialsReceived, setGameState]);
+  }, [gameState.newMaterialsReceived, setGameState, updateCardState]);
 
   // Auto-expand when customer VIPs arrive
   useEffect(() => {
@@ -61,21 +86,8 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
     if (vipCustomers.length > 0 && gameState.phase === 'shopping') {
       updateCardState('customerQueue', { expanded: true, userModified: false });
     }
-  }, [gameState.customers, gameState.phase]);
-
-  const [usage, setUsage] = useState({});
-
-  const getCardState = useCallback(
-    (id) => cardStates[id] || { expanded: false, hidden: false },
-    [cardStates]
-  );
-
-  const updateCardState = useCallback((id, updates) => {
-    setCardStates((prev) => ({
-      ...prev,
-      [id]: { ...getCardState(id), ...updates, userModified: updates.userModified ?? true },
-    }));
-  }, [getCardState]);
+  }, [gameState.customers, gameState.phase, updateCardState]);
+  const [, setUsage] = useState({});
 
   const getCardPriority = useCallback(
     (cardType, gs = gameState, userActivity = {}) =>
@@ -91,15 +103,6 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
     list.add(cardId);
     userPreferences.preferredExpansions[phase] = Array.from(list);
   }, [userPreferences]);
-
-  const getStoredUsage = () => {
-    if (typeof window === 'undefined') return {};
-    try {
-      return JSON.parse(window.localStorage.getItem('cardUsage') || '{}');
-    } catch {
-      return {};
-    }
-  };
 
   const storeUsage = (data) => {
     if (typeof window === 'undefined') return;

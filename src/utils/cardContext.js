@@ -59,6 +59,8 @@ export const getDefaultCardStatesForPhase = (phase, gameState = {}, userPrefs = 
       });
       break;
     }
+    default:
+      break;
   }
 
   // Apply user preferences (these override smart defaults)
@@ -105,6 +107,8 @@ export const getCardRelevanceScore = (cardType, gameState = {}) => {
     case PHASES.SHOPPING:
       if (cardType === 'customerQueue') priority -= 2;
       if (cardType === 'inventory') priority -= 1;
+      break;
+    default:
       break;
   }
 

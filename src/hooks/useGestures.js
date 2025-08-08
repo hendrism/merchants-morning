@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 const useGestures = (ref, options = {}) => {
-  const { onSwipe, onLongPress, onPinch, onMultiTouch } = options;
+  const { onSwipe, onLongPress, onMultiTouch } = options;
 
   useEffect(() => {
     const el = ref && 'current' in ref ? ref.current : ref;
@@ -76,12 +76,6 @@ const useGestures = (ref, options = {}) => {
       }
     };
 
-    const handleTouchStartPassive = (e) => {
-      if (e.touches.length > 1) {
-        e.preventDefault();
-      }
-    };
-
     el.addEventListener('touchstart', handleTouchStart, { passive: false });
     el.addEventListener('touchmove', handleTouchMove, { passive: true });
     el.addEventListener('touchend', handleTouchEnd, { passive: true });
@@ -91,7 +85,15 @@ const useGestures = (ref, options = {}) => {
       el.removeEventListener('touchmove', handleTouchMove);
       el.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [ref, onSwipe, onLongPress, onPinch, onMultiTouch, options.longPressDelay, options.swipeThreshold, options.swipeTimeLimit]);
+  }, [
+    ref,
+    onSwipe,
+    onLongPress,
+    onMultiTouch,
+    options.longPressDelay,
+    options.swipeThreshold,
+    options.swipeTimeLimit,
+  ]);
 };
 
 export default useGestures;
