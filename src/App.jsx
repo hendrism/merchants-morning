@@ -18,26 +18,34 @@ import useCardIntelligence from './hooks/useCardIntelligence';
 const MerchantsMorning = () => {
   const [gameState, setGameState, resetGame] = useGameState();
 
-  // NEW: Replace all individual card state with smart management
-  const cardIntelligence = useCardIntelligence(gameState, {
-    // Load user preferences from localStorage
-    preferredExpansions: (() => {
-      try {
-        const stored = window.localStorage.getItem('userCardPreferences');
-        return stored ? JSON.parse(stored).preferredExpansions : {};
-      } catch {
-        return {};
+  // Stable user preferences loader
+  const [prefsVersion, setPrefsVersion] = useState(0);
+
+  useEffect(() => {
+    // React to external tab/localStorage updates
+    const onStorage = (e) => {
+      if (e.key === 'userCardPreferences') {
+        setPrefsVersion(v => v + 1);
       }
-    })(),
-    preferredCollapsed: (() => {
-      try {
-        const stored = window.localStorage.getItem('userCardPreferences');
-        return stored ? JSON.parse(stored).preferredCollapsed : {};
-      } catch {
-        return {};
-      }
-    })()
-  }, setGameState);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const userPreferences = useMemo(() => {
+    try {
+      const stored = window.localStorage.getItem('userCardPreferences');
+      const parsed = stored ? JSON.parse(stored) : {};
+      return {
+        preferredExpansions: parsed.preferredExpansions || {},
+        preferredCollapsed: parsed.preferredCollapsed || {},
+      };
+    } catch {
+      return { preferredExpansions: {}, preferredCollapsed: {} };
+    }
+  }, [prefsVersion]);
+
+  const cardIntelligence = useCardIntelligence(gameState, userPreferences, setGameState);
 
   const {
     getCardState,
@@ -56,19 +64,30 @@ const MerchantsMorning = () => {
     // Save preferences
     try {
       const prefs = JSON.parse(window.localStorage.getItem('userCardPreferences') || '{}');
-      if (!prefs.preferredExpansions) prefs.preferredExpansions = {};
-      if (!prefs.preferredCollapsed) prefs.preferredCollapsed = {};
+      const phase = gameState.phase;
+
+      // Ensure containers exist
+      prefs.preferredExpansions = prefs.preferredExpansions || {};
+      prefs.preferredCollapsed = prefs.preferredCollapsed || {};
+      prefs.preferredExpansions[phase] = prefs.preferredExpansions[phase] || [];
+      prefs.preferredCollapsed[phase] = prefs.preferredCollapsed[phase] || [];
 
       if (newExpanded) {
-        if (!prefs.preferredExpansions[gameState.phase]) {
-          prefs.preferredExpansions[gameState.phase] = [];
+        // Record expansion and un-record collapse
+        if (!prefs.preferredExpansions[phase].includes(cardId)) {
+          prefs.preferredExpansions[phase].push(cardId);
         }
-        if (!prefs.preferredExpansions[gameState.phase].includes(cardId)) {
-          prefs.preferredExpansions[gameState.phase].push(cardId);
+        prefs.preferredCollapsed[phase] = prefs.preferredCollapsed[phase].filter(id => id !== cardId);
+      } else {
+        // Record collapse and un-record expansion
+        if (!prefs.preferredCollapsed[phase].includes(cardId)) {
+          prefs.preferredCollapsed[phase].push(cardId);
         }
+        prefs.preferredExpansions[phase] = prefs.preferredExpansions[phase].filter(id => id !== cardId);
       }
 
       window.localStorage.setItem('userCardPreferences', JSON.stringify(prefs));
+      setPrefsVersion(v => v + 1);
     } catch (e) {
       console.error('Failed to save card preferences', e);
     }

@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { getDefaultCardStatesForPhase, getCardRelevanceScore } from '../utils/cardContext';
 import { BOX_TYPES } from '../constants';
 
@@ -7,6 +7,9 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
   const [cardStates, setCardStates] = useState(() =>
     getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences)
   );
+
+  const materialsTimerRef = useRef(null);
+  const materialsTokenRef = useRef(0);
 
   const getCardState = useCallback(
     (id) => cardStates[id] || { expanded: false, hidden: false },
@@ -24,56 +27,69 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
   useEffect(() => {
     const newStates = getDefaultCardStatesForPhase(gameState.phase, gameState, userPreferences);
     setCardStates(prev => {
-      // Merge with existing states, prioritizing context-aware defaults
       const merged = { ...prev };
       Object.entries(newStates).forEach(([cardId, newState]) => {
-        // Only override if the card isn't manually set by user
         const userOverride = userPreferences.preferredExpansions?.[gameState.phase]?.includes(cardId);
-        if (!userOverride) {
+        const userModified = prev[cardId]?.userModified === true;
+        if (!userOverride && !userModified) {
           merged[cardId] = { ...merged[cardId], ...newState };
         }
       });
       return merged;
     });
-  }, [gameState, userPreferences]);
+  }, [gameState.phase, userPreferences]);
 
   // Auto-expand based on game events
   useEffect(() => {
-    if (gameState.newMaterialsReceived) {
-      updateCardState('materials', { expanded: true, userModified: false });
+    if (!gameState.newMaterialsReceived) return;
 
-      const timer = setTimeout(() => {
-        setCardStates(current => {
-          const materialsState = current.materials || {};
-          if (materialsState.expanded && !materialsState.userModified) {
-            return {
-              ...current,
-              materials: { ...materialsState, expanded: false, userModified: false }
-            };
-          }
-          return current;
-        });
-
-        if (setGameState) {
-          setGameState(prev => ({
-            ...prev,
-            newMaterialsReceived: false,
-            newMaterialsCount: 0,
-          }));
-        }
-      }, 3000);
-
-      return () => clearTimeout(timer);
+    // Clear any existing timer before starting a new cycle
+    if (materialsTimerRef.current) {
+      clearTimeout(materialsTimerRef.current);
+      materialsTimerRef.current = null;
     }
-  }, [gameState.newMaterialsReceived, updateCardState, setGameState]);
+
+    // Mark an auto expansion with a fresh token
+    materialsTokenRef.current += 1;
+    const myToken = materialsTokenRef.current;
+
+    updateCardState('materials', { expanded: true, userModified: false });
+
+    materialsTimerRef.current = setTimeout(() => {
+      setCardStates(current => {
+        // Only collapse if this effect instance is still the latest
+        if (materialsTokenRef.current !== myToken) return current;
+        const materialsState = current.materials || {};
+        if (materialsState.expanded && !materialsState.userModified) {
+          return {
+            ...current,
+            materials: { ...materialsState, expanded: false, userModified: false }
+          };
+        }
+        return current;
+      });
+      materialsTimerRef.current = null;
+    }, 3000);
+
+    return () => {
+      if (materialsTimerRef.current) {
+        clearTimeout(materialsTimerRef.current);
+        materialsTimerRef.current = null;
+      }
+    };
+  }, [gameState.newMaterialsReceived, updateCardState, setCardStates]);
 
   // Auto-expand when customer VIPs arrive
   useEffect(() => {
     const vipCustomers = (gameState.customers || []).filter(c => c.budgetTier === 'wealthy');
-    if (vipCustomers.length > 0 && gameState.phase === 'shopping') {
+    if (vipCustomers.length === 0 || gameState.phase !== 'shopping') return;
+
+    const cq = getCardState('customerQueue');
+    // Only auto-expand if not already expanded and not explicitly user-modified
+    if (!cq.expanded && !cq.userModified) {
       updateCardState('customerQueue', { expanded: true, userModified: false });
     }
-  }, [gameState.customers, gameState.phase, updateCardState]);
+  }, [gameState.customers, gameState.phase, updateCardState, getCardState]);
 
   const getStoredUsage = () => {
     if (typeof window === 'undefined') return {};
@@ -197,4 +213,3 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
 };
 
 export default useCardIntelligence;
-
