@@ -117,6 +117,19 @@ const MerchantsMorning = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (gameState.newMaterialsReceived) {
+      const timer = setTimeout(() => {
+        setGameState(prev => ({
+          ...prev,
+          newMaterialsReceived: false,
+          newMaterialsCount: 0,
+        }));
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState.newMaterialsReceived, setGameState]);
+
   const addEvent = (message, type = 'info') => {
     const event = {
         id: crypto.randomUUID(),
@@ -244,29 +257,18 @@ const MerchantsMorning = () => {
     }
   }, [updateCardState, trackCardUsage, addNotification]);
 
-  const handleLongPress = useCallback((event) => {
-    const target = event.target.closest('[data-card-id]');
-    if (target) {
-      const cardId = target.dataset.cardId;
-      // Placeholder for future context menu
-      // eslint-disable-next-line no-console
-      console.log(`Long press on card: ${cardId}`);
-    }
-  }, []);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-20 pb-safe dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
       <GestureHandler
-        onSwipe={(direction, e) => {
-          const card = e.target.closest('[data-card-id]');
+        onSwipe={(direction, e, startEl) => {
+          const card = (startEl || e.target).closest('[data-card-id]');
           if (card) {
             handleCardSwipe(direction, card.dataset.cardId);
           } else {
             handleSwipeGesture(direction);
           }
         }}
-        onLongPress={handleLongPress}
         className="max-w-6xl mx-auto p-3"
       >
         <div className="bg-white rounded-lg shadow-lg p-3 mb-3 dark:bg-gray-800">
@@ -337,12 +339,12 @@ const MerchantsMorning = () => {
           </div>
         </div>
 
-        {showEventLog && (
+        {showEventLog && !getCardState('eventLog').hidden && (
           <div className="bg-white rounded-lg shadow-lg p-3 mb-3 dark:bg-gray-800" data-card-id="eventLog">
             <EventLog events={eventLog} />
           </div>
         )}
-        {[PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
+        {!getCardState('marketNews').hidden && [PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
           <div data-card-id="marketNews">
           <Card>
             <CardHeader
@@ -377,6 +379,7 @@ const MerchantsMorning = () => {
 
         {gameState.phase === PHASES.MORNING && (
           <>
+            {!getCardState('supplyBoxes').hidden && (
             <div data-card-id="supplyBoxes">
             <Card>
               <CardHeader
@@ -412,7 +415,9 @@ const MerchantsMorning = () => {
               )}
             </Card>
             </div>
+            )}
 
+            {!getCardState('materials').hidden && (
             <div data-card-id="materials">
             <Card>
               <CardHeader
@@ -449,10 +454,11 @@ const MerchantsMorning = () => {
               )}
             </Card>
             </div>
+            )}
           </>
         )}
 
-        {[PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
+        {!getCardState('workshop').hidden && [PHASES.MORNING, PHASES.CRAFTING].includes(gameState.phase) && (
           <div data-card-id="workshop">
           <Card>
             <CardHeader
@@ -483,7 +489,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-        {gameState.phase === PHASES.CRAFTING && (
+        {!getCardState('inventory').hidden && gameState.phase === PHASES.CRAFTING && (
           <div data-card-id="inventory">
           <Card>
             <CardHeader
@@ -512,7 +518,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-        {gameState.phase === PHASES.SHOPPING && (
+        {!getCardState('customerQueue').hidden && gameState.phase === PHASES.SHOPPING && (
           <div data-card-id="customerQueue">
           <Card>
             <CardHeader

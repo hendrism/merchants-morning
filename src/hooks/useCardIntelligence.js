@@ -30,15 +30,23 @@ const useCardIntelligence = (gameState, userPreferences = {}) => {
     // Auto-expand materials card when new materials received
     if (gameState.newMaterialsReceived) {
       updateCardState('materials', { expanded: true, userModified: false });
-      // Auto-collapse after 3 seconds if user hasn't interacted
-      setTimeout(() => {
-        const current = getCardState('materials');
-        if (current.expanded && !current.userModified) {
-          updateCardState('materials', { expanded: false, userModified: false });
-        }
+
+      const timer = setTimeout(() => {
+        setCardStates(current => {
+          const materialsState = current.materials || {};
+          if (materialsState.expanded && !materialsState.userModified) {
+            return {
+              ...current,
+              materials: { ...materialsState, expanded: false, userModified: false }
+            };
+          }
+          return current;
+        });
       }, 3000);
+
+      return () => clearTimeout(timer);
     }
-  }, [gameState.newMaterialsReceived]);
+  }, [gameState.newMaterialsReceived, updateCardState, setCardStates]);
 
   // Auto-expand when customer VIPs arrive
   useEffect(() => {
