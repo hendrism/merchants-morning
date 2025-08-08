@@ -166,9 +166,11 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
       case 'materials': {
         const total = Object.values(gs.materials || {}).reduce((s, c) => s + c, 0);
         const newMaterials = gs.newMaterialsCount || 0;
+        const uniqueTypes = Object.keys(gs.materials || {}).filter(id => (gs.materials[id] || 0) > 0).length;
+        
         return {
-          subtitle: `${total} items${newMaterials > 0 ? ` • ${newMaterials} new` : ''}`,
-          status: newMaterials > 0 ? 'updated' : 'normal',
+          subtitle: `${uniqueTypes} types • ${total} total${newMaterials > 0 ? ` • ${newMaterials} new` : ''}`,
+          status: newMaterials > 0 ? 'updated' : total > 0 ? 'normal' : 'locked',
           badge: total,
         };
       }

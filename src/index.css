@@ -323,3 +323,274 @@ textarea:focus {
   background: linear-gradient(135deg, #e2d9f3 0%, #d1c4e9 100%);
   box-shadow: 0 2px 8px rgba(111, 66, 193, 0.2);
 }
+
+/* Material Stalls Styling */
+.material-stalls-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stall-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+.stall-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.stall-tab:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.stall-tab.active.blacksmith {
+  background: linear-gradient(135deg, #34495e, #2c3e50);
+  border-color: #95a5a6;
+}
+
+.stall-tab.active.woodsman {
+  background: linear-gradient(135deg, #27ae60, #1e7e34);
+  border-color: #2ecc71;
+}
+
+.stall-tab.active.trader {
+  background: linear-gradient(135deg, #8e44ad, #6a1b99);
+  border-color: #9b59b6;
+}
+
+.stall-tab.active.tailor {
+  background: linear-gradient(135deg, #e67e22, #d35400);
+  border-color: #f39c12;
+}
+
+.tab-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.tab-name {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.tab-count {
+  font-size: 11px;
+  opacity: 0.8;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.stall-content {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 3px solid transparent;
+}
+
+.stall-content.stall-blacksmith {
+  background: linear-gradient(135deg, #34495e, #2c3e50);
+  border-color: #95a5a6;
+}
+
+.stall-content.stall-woodsman {
+  background: linear-gradient(135deg, #27ae60, #1e7e34);
+  border-color: #2ecc71;
+}
+
+.stall-content.stall-trader {
+  background: linear-gradient(135deg, #8e44ad, #6a1b99);
+  border-color: #9b59b6;
+}
+
+.stall-content.stall-tailor {
+  background: linear-gradient(135deg, #e67e22, #d35400);
+  border-color: #f39c12;
+}
+
+.stall-header {
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.stall-keeper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.keeper-icon {
+  font-size: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.keeper-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: white;
+}
+
+.keeper-greeting {
+  font-size: 14px;
+  opacity: 0.9;
+  font-style: italic;
+  color: white;
+}
+
+.materials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 20px;
+}
+
+.material-stall-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  border: 2px solid;
+  transition: all 0.2s ease;
+  color: #2c3e50;
+}
+
+.material-stall-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.material-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.material-name {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.rarity-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.rarity-badge.rarity-common {
+  background: #6c757d;
+  color: white;
+}
+
+.rarity-badge.rarity-uncommon {
+  background: #28a745;
+  color: white;
+}
+
+.rarity-badge.rarity-rare {
+  background: #6f42c1;
+  color: white;
+}
+
+.rarity-badge.rarity-legendary {
+  background: #ffc107;
+  color: #212529;
+}
+
+.material-visual {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stack-container {
+  position: relative;
+  height: 30px;
+  width: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.stack-item {
+  position: absolute;
+  font-size: 24px;
+}
+
+.overflow-indicator {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.count-display {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.empty-stall {
+  text-align: center;
+  padding: 40px 20px;
+  color: white;
+  opacity: 0.8;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-text {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.empty-subtitle {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+  .materials-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  
+  .stall-tabs {
+    gap: 6px;
+  }
+  
+  .stall-tab {
+    min-width: 70px;
+    padding: 10px 12px;
+  }
+  
+  .tab-icon {
+    font-size: 20px;
+  }
+}
