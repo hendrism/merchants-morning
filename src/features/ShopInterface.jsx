@@ -23,7 +23,6 @@ const ShopInterface = ({
     [
       sellingTab,
       selectedCustomer,
-      gameState.inventory,
       filterInventoryByType,
       sortByMatchQualityAndRarity,
     ]

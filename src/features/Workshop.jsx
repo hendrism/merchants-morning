@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import TabButton from '../components/TabButton';
-import { MATERIALS, RECIPES, ITEM_TYPES } from '../constants';
+import { MATERIALS, ITEM_TYPES } from '../constants';
 
 const Workshop = ({
   gameState,
@@ -15,7 +15,7 @@ const Workshop = ({
 }) => {
   const sortedRecipes = useMemo(
     () => sortRecipesByRarityAndCraftability(filterRecipesByType(craftingTab)),
-    [craftingTab, gameState.materials, filterRecipesByType, sortRecipesByRarityAndCraftability]
+    [craftingTab, filterRecipesByType, sortRecipesByRarityAndCraftability]
   );
 
   return (

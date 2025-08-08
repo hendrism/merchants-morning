@@ -19,7 +19,7 @@ const InventoryPanel = ({
           const recipeB = RECIPES.find(r => r.id === itemIdB);
           return recipeB.rarity.localeCompare(recipeA.rarity);
         }),
-    [inventoryTab, gameState.inventory, filterInventoryByType]
+    [inventoryTab, filterInventoryByType]
   );
 
   return (

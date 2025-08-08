@@ -76,12 +76,6 @@ const useGestures = (ref, options = {}) => {
       }
     };
 
-    const handleTouchStartPassive = (e) => {
-      if (e.touches.length > 1) {
-        e.preventDefault();
-      }
-    };
-
     el.addEventListener('touchstart', handleTouchStart, { passive: false });
     el.addEventListener('touchmove', handleTouchMove, { passive: true });
     el.addEventListener('touchend', handleTouchEnd, { passive: true });

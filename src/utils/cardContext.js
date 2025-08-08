@@ -11,7 +11,7 @@ export const getDefaultCardStatesForPhase = (phase, gameState = {}, userPrefs = 
   };
 
   // Base phase logic
-  switch (phase) {
+    switch (phase) {
     case PHASES.MORNING: {
       states.supplyBoxes.expanded = true;
       states.marketNews.expanded = (gameState.marketReports || []).length > 0;
@@ -51,15 +51,17 @@ export const getDefaultCardStatesForPhase = (phase, gameState = {}, userPrefs = 
       }
       break;
     }
-    case PHASES.END_DAY: {
-      // Collapse everything except end of day summary
-      Object.keys(states).forEach(k => {
-        states[k].expanded = false;
-        states[k].hidden = false; // Show all for review
-      });
-      break;
+      case PHASES.END_DAY: {
+        // Collapse everything except end of day summary
+        Object.keys(states).forEach(k => {
+          states[k].expanded = false;
+          states[k].hidden = false; // Show all for review
+        });
+        break;
+      }
+      default:
+        break;
     }
-  }
 
   // Apply user preferences (these override smart defaults)
   const preferredExpansions = userPrefs?.preferredExpansions?.[phase] || [];
@@ -93,7 +95,7 @@ export const getCardRelevanceScore = (cardType, gameState = {}) => {
   let priority = basePriority[cardType] ?? 99;
 
   // Phase-specific adjustments
-  switch (gameState.phase) {
+    switch (gameState.phase) {
     case PHASES.MORNING:
       if (cardType === 'supplyBoxes') priority -= 2;
       if (cardType === 'marketNews' && (gameState.marketReports || []).length > 0) priority -= 1;
@@ -102,11 +104,13 @@ export const getCardRelevanceScore = (cardType, gameState = {}) => {
       if (cardType === 'workshop') priority -= 2;
       if (cardType === 'materials') priority -= 1;
       break;
-    case PHASES.SHOPPING:
-      if (cardType === 'customerQueue') priority -= 2;
-      if (cardType === 'inventory') priority -= 1;
-      break;
-  }
+      case PHASES.SHOPPING:
+        if (cardType === 'customerQueue') priority -= 2;
+        if (cardType === 'inventory') priority -= 1;
+        break;
+      default:
+        break;
+    }
 
   // Content-based adjustments
   if (cardType === 'supplyBoxes' && (gameState.gold || 0) >= (BOX_TYPES.platinum?.cost || 140)) {

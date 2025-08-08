@@ -127,7 +127,7 @@ const MerchantsMorning = () => {
     setEventLog(prev => [event, ...prev.slice(0, 9)]);
   };
 
-  const addNotification = (message, type = 'success') => {
+  const addNotification = useCallback((message, type = 'success') => {
     const notification = {
       id: crypto.randomUUID(),
       message,
@@ -139,7 +139,7 @@ const MerchantsMorning = () => {
       notificationTimers.current = notificationTimers.current.filter(t => t !== timer);
     }, 3000);
     notificationTimers.current.push(timer);
-  };
+  }, []);
 
   const getRarityColor = (rarity) => {
     switch (rarity) {
@@ -180,7 +180,7 @@ const MerchantsMorning = () => {
 
   const filterInventoryByType = useCallback(
     (type) => rawFilterInventoryByType(type),
-    [gameState.inventory]
+    [rawFilterInventoryByType]
   );
 
   const { openShop, serveCustomer, endDay, startNewDay } =
