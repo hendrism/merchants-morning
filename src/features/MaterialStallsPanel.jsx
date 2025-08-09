@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { MERCHANT_STALLS } from '../constants';
-import StallTab from '../components/StallTab';
+import TabButton from '../components/TabButton';
 import MaterialStallCard from '../components/MaterialStallCard';
 import useMaterialStalls from '../hooks/useMaterialStalls';
 
@@ -28,20 +28,24 @@ const MaterialStallsPanel = ({ gameState, getRarityColor }) => {
   return (
     <div className="material-stalls-panel">
       {/* Stall Tabs */}
-      <div className="stall-tabs">
+      <div className="flex gap-2 overflow-x-auto pb-2">
         {Object.entries(MERCHANT_STALLS).map(([stallId, stall]) => {
           const materialCount = getStallMaterialCount(stallId);
           return (
-            <StallTab
+            <TabButton
               key={stallId}
-              stall={stall}
-              isActive={activeStall === stallId}
-              materialCount={materialCount}
+              active={activeStall === stallId}
               onClick={() => {
                 setActiveStall(stallId);
                 setManualSelection(true);
               }}
-            />
+              count={materialCount}
+              theme={stall.theme}
+              aria-label={stall.name}
+            >
+              <div className="tab-icon">{stall.icon}</div>
+              <div className="tab-name">{stall.name}</div>
+            </TabButton>
           );
         })}
       </div>
