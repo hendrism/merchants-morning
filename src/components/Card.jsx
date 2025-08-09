@@ -61,7 +61,7 @@ export const CardHeader = ({
     <button
       type="button"
       onClick={onToggle}
-      className={`w-full flex items-center justify-between p-4 text-left transition-all duration-200 ${getStatusClass()} ${
+      className={`w-full flex items-center justify-between text-left transition-all duration-200 ${getStatusClass()} ${
         isEmpty ? 'opacity-60' : ''
       } ${animating ? 'animate-pulse' : ''}`}
       aria-expanded={expanded}

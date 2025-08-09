@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import TabButton from '../components/TabButton';
+import InventoryItemCard from '../components/InventoryItemCard';
 import { RECIPES, ITEM_TYPES, ITEM_TYPE_ICONS } from '../constants';
 
 const InventoryPanel = ({
@@ -45,24 +46,18 @@ const InventoryPanel = ({
         {sortedInventory.map(([itemId, count]) => {
           const recipe = RECIPES.find(r => r.id === itemId);
           return (
-            <div
+            <InventoryItemCard
               key={itemId}
-              className={`relative flex flex-col items-center justify-end h-20 border rounded ${getRarityColor(recipe.rarity)}`}
-            >
-              <div className="flex flex-col-reverse items-center">
-                {Array.from({ length: Math.min(count, 5) }).map((_, i) => (
-                  <span key={i} className="text-xl leading-none">
-                    {ITEM_TYPE_ICONS[recipe.type]}
-                  </span>
-                ))}
-              </div>
-              {count > 5 && <span className="absolute top-1 right-1 text-xs">+{count - 5}</span>}
-              <span className="sr-only">{recipe.name} x{count}</span>
-            </div>
+              recipe={recipe}
+              count={count}
+              getRarityColor={getRarityColor}
+            />
           );
         })}
         {sortedInventory.length === 0 && (
-          <p className="text-sm sm:text-xs text-gray-500 italic dark:text-gray-400 col-span-full">No {inventoryTab}s crafted yet</p>
+          <p className="text-sm sm:text-xs text-gray-500 italic dark:text-gray-400 col-span-full">
+            No {inventoryTab}s crafted yet
+          </p>
         )}
       </div>
     </div>

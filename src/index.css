@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 /* Reset and base styles */
+:root {
+  --card-padding: 16px;
+  --card-gap: 12px;
+  --card-border-radius: 12px;
+  --header-height: 64px;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -221,6 +228,12 @@ textarea:focus {
     transform: scaleY(0.3);
     opacity: 0.7;
   }
+}
+
+/* Card header styling */
+.card-header {
+  min-height: var(--header-height);
+  padding: var(--card-padding);
 }
 
 /* Card header status indicators */
@@ -527,6 +540,97 @@ textarea:focus {
 .empty-subtitle {
   font-size: 14px;
   opacity: 0.7;
+}
+
+.inventory-item-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  border: 2px solid;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-name {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.item-visual {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stack-indicator {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.item-value {
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.item-icon {
+  font-size: 32px;
+}
+
+.negotiation-panel {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #6c757d;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 16px 0;
+}
+
+.trade-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.negotiation-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 @media (max-width: 600px) {
