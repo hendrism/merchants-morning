@@ -135,7 +135,8 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
     setGameState(prev => ({
       ...prev,
       phase: PHASES.SHOPPING,
-      customers
+      customers,
+      forceCustomerQueueUpdate: true // Add this flag
     }));
     addEvent(`Shop opened with ${customers.length} customers waiting`, 'info');
     addNotification('🛒 Shop opened', 'info');

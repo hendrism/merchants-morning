@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { getDefaultCardStatesForPhase, getCardRelevanceScore } from '../utils/cardContext';
-import { BOX_TYPES } from '../constants';
+import { BOX_TYPES, PHASES } from '../constants';
 
 // Hook to manage smart card behaviour
 const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
@@ -38,6 +38,14 @@ const useCardIntelligence = (gameState, userPreferences = {}, setGameState) => {
       return merged;
     });
   }, [gameState.phase, userPreferences]);
+
+  // Forced customer queue updates when shop opens
+  useEffect(() => {
+    if (gameState.forceCustomerQueueUpdate && gameState.phase === PHASES.SHOPPING) {
+      updateCardState('customerQueue', { expanded: true, hidden: false });
+      setGameState(prev => ({ ...prev, forceCustomerQueueUpdate: false }));
+    }
+  }, [gameState.forceCustomerQueueUpdate, gameState.phase, updateCardState, setGameState]);
 
   // Auto-expand based on game events
   useEffect(() => {
