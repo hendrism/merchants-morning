@@ -24,7 +24,7 @@ const InventoryPanel = ({
 
   return (
     <div>
-      <div className="flex gap-1 mb-3 overflow-x-auto pb-1">
+      <div className="flex gap-2 overflow-x-auto pb-2">
         {ITEM_TYPES.map(type => {
           const count = filterInventoryByType(type).length;
           return (
@@ -35,7 +35,8 @@ const InventoryPanel = ({
               count={count}
               aria-label={type.charAt(0).toUpperCase() + type.slice(1)}
             >
-              {ITEM_TYPE_ICONS[type]}
+              <div className="tab-icon">{ITEM_TYPE_ICONS[type]}</div>
+              <div className="tab-name capitalize">{type}</div>
             </TabButton>
           );
         })}

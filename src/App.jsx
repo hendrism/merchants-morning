@@ -251,9 +251,7 @@ const MerchantsMorning = () => {
   }, [advancePhase, gameState.phase, setGameState, addNotification]);
 
   const handleCardSwipe = useCallback((direction, cardId) => {
-    if (direction === 'left') {
-      updateCardState(cardId, { expanded: false });
-    } else if (direction === 'right') {
+    if (direction === 'right') {
       updateCardState(cardId, { expanded: true });
       trackCardUsage(cardId, 'expand');
     }
