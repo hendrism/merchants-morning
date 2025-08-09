@@ -13,9 +13,13 @@ const useGestures = (ref, options = {}) => {
     let longPressTimer = null;
     let isLongPress = false;
     let startTarget = null;
+    let edgeSwipe = false;
 
     const handleTouchStart = (e) => {
       const touch = e.touches[0];
+      const isEdgeSwipe = touch.clientX < 50 || touch.clientX > window.innerWidth - 50;
+      if (!isEdgeSwipe) return;
+      edgeSwipe = true;
       startX = touch.clientX;
       startY = touch.clientY;
       startTime = Date.now();
@@ -55,7 +59,7 @@ const useGestures = (ref, options = {}) => {
         clearTimeout(longPressTimer);
       }
 
-      if (isLongPress) return;
+      if (isLongPress || !edgeSwipe) return;
 
       const touch = e.changedTouches[0];
       const dx = touch.clientX - startX;
@@ -66,14 +70,14 @@ const useGestures = (ref, options = {}) => {
       const threshold = options.swipeThreshold || 50;
       const timeThreshold = options.swipeTimeLimit || 300;
 
-      if (dt < timeThreshold && Math.max(absDx, absDy) > threshold && onSwipe) {
-        const direction =
-          absDx > absDy ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+      if (dt < timeThreshold && absDx > absDy && absDx > threshold && onSwipe) {
+        const direction = dx > 0 ? 'right' : 'left';
         onSwipe(direction, e, startTarget);
         if (navigator.vibrate) {
           navigator.vibrate(25);
         }
       }
+      edgeSwipe = false;
     };
 
     el.addEventListener('touchstart', handleTouchStart, { passive: false });
