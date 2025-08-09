@@ -97,3 +97,13 @@ All game data is in `src/App.js`:
 - Optimized for mobile performance
 
 Built with React 18 and modern PWA standards.
+## 🔄 PWA Updates
+
+The app checks for service worker updates on load and whenever it returns to the foreground. If a new version is available, an **Update available** toast appears. Tap **Update** to activate the fresh service worker and reload without losing saved data.
+
+### Testing on iOS
+1. Install the app via **Add to Home Screen**.
+2. Deploy a new version.
+3. Open the installed app, background it, then return to trigger an update check.
+4. When the toast appears, tap **Update** and confirm your progress persists.
+

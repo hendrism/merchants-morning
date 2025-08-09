@@ -16,6 +16,7 @@ import ShopInterface from './features/ShopInterface';
 import EndOfDaySummary from './features/EndOfDaySummary';
 import useCardIntelligence from './hooks/useCardIntelligence';
 import generateId from './utils/id';
+import UpdateToast from './components/UpdateToast';
 
 const MerchantsMorning = () => {
   const [gameState, setGameState, resetGame] = useGameState();
@@ -553,6 +554,7 @@ const MerchantsMorning = () => {
         >
           <ArrowRight className="w-5 h-5" />
         </button>
+          <UpdateToast />
       </div>
   );
 };
