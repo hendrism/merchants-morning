@@ -250,29 +250,13 @@ const MerchantsMorning = () => {
     }
   }, [advancePhase, gameState.phase, setGameState, addNotification]);
 
-  const handleCardSwipe = useCallback((direction, cardId) => {
-    if (direction === 'left') {
-      updateCardState(cardId, { expanded: false });
-    } else if (direction === 'right') {
-      updateCardState(cardId, { expanded: true });
-      trackCardUsage(cardId, 'expand');
-    }
-  }, [updateCardState, trackCardUsage]);
-
 
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-20 pb-safe dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
       <GestureHandler
-        onSwipe={(direction, e, startEl) => {
-          const card = (startEl || e.target).closest('[data-card-id]');
-          if (card) {
-            handleCardSwipe(direction, card.dataset.cardId);
-          } else {
-            handleSwipeGesture(direction);
-          }
-        }}
+        onSwipe={handleSwipeGesture}
         className="max-w-6xl mx-auto p-3"
       >
         <div className="bg-white rounded-lg shadow-lg p-3 mb-3 dark:bg-gray-800">
