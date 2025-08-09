@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Store } from 'lucide-react';
 import TabButton from '../components/TabButton';
-import { ITEM_TYPES, RECIPES, PROFESSIONS, MATERIALS, ITEM_TYPE_ICONS } from '../constants';
+import { ITEM_TYPES, RECIPES, PROFESSIONS, ITEM_TYPE_ICONS } from '../constants';
+import NegotiationPanel from '../components/NegotiationPanel';
 
 const PROFESSION_STYLES = {
   knight: { icon: '🛡️', border: 'border-gray-400' },
@@ -225,86 +226,58 @@ const ShopInterface = ({
                 </div>
               )}
 
-              {selectedCustomer && saleInfo && saleInfo.status === 'cant_afford' ? (
-                negotiatingItem === itemId ? (
-                  <div className="space-y-2">
-                    <p className="text-sm">{selectedCustomer.name} offers:</p>
-                    <ul className="text-sm pl-4 list-disc">
-                      {(selectedCustomer.materials || []).map((m, i) => (
-                        <li key={i}>
-                          {MATERIALS[m.id].icon} {MATERIALS[m.id].name} (~{m.value}g)
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="text-sm font-bold">
-                      Total value: {selectedCustomer.maxBudget}g + materials worth ~
-                      {(selectedCustomer.materials || []).reduce((sum, m) => sum + m.value, 0)}g
-                      = {selectedCustomer.maxBudget + (selectedCustomer.materials || []).reduce((sum, m) => sum + m.value, 0)}g
-                    </p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          serveCustomer(selectedCustomer.id, itemId, 'barter');
-                          setNegotiatingItem(null);
-                        }}
-                        className="flex-1 bg-green-500 hover:bg-green-600 text-white py-1 rounded text-sm"
-                      >
-                        Accept Deal
-                      </button>
-                      <button
-                        onClick={() => setNegotiatingItem(null)}
-                        className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 rounded text-sm dark:bg-gray-600 dark:text-gray-200"
-                      >
-                        Back
-                      </button>
-                      <button
-                        onClick={() => setNegotiatingItem(null)}
-                        className="flex-1 bg-red-200 hover:bg-red-300 text-red-700 py-1 rounded text-sm dark:bg-red-700 dark:text-red-200"
-                      >
-                        Decline
-                      </button>
+                {selectedCustomer && saleInfo && saleInfo.status === 'cant_afford' ? (
+                  negotiatingItem === itemId ? (
+                    <NegotiationPanel
+                      customer={selectedCustomer}
+                      item={recipe}
+                      onAccept={() => {
+                        serveCustomer(selectedCustomer.id, itemId, 'barter');
+                        setNegotiatingItem(null);
+                      }}
+                      onDecline={() => setNegotiatingItem(null)}
+                      onBack={() => setNegotiatingItem(null)}
+                    />
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-sm text-red-600">
+                        Need {saleInfo.payment - selectedCustomer.maxBudget}g more
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => serveCustomer(selectedCustomer.id, itemId, 'accept_lower')}
+                          className="flex-1 btn-primary"
+                        >
+                          Accept {selectedCustomer.maxBudget}g Only
+                        </button>
+                        <button
+                          onClick={() => setNegotiatingItem(itemId)}
+                          className="flex-1 btn-secondary"
+                        >
+                          Negotiate Trade
+                        </button>
+                        <button
+                          onClick={() => setNegotiatingItem(null)}
+                          className="flex-1 btn-danger"
+                        >
+                          Decline
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )
                 ) : (
-                  <div className="space-y-2">
-                    <p className="text-sm text-red-600">
-                      Need {saleInfo.payment - selectedCustomer.maxBudget}g more
-                    </p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => serveCustomer(selectedCustomer.id, itemId, 'accept_lower')}
-                        className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-1 rounded text-sm"
-                      >
-                        Accept {selectedCustomer.maxBudget}g Only
-                      </button>
-                      <button
-                        onClick={() => setNegotiatingItem(itemId)}
-                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-1 rounded text-sm"
-                      >
-                        Negotiate Trade
-                      </button>
-                      <button
-                        onClick={() => setNegotiatingItem(null)}
-                        className="flex-1 bg-red-200 hover:bg-red-300 text-red-700 py-1 rounded text-sm dark:bg-red-700 dark:text-red-200"
-                      >
-                        Decline
-                      </button>
-                    </div>
-                  </div>
-                )
-              ) : (
-                <button
-                  onClick={() => selectedCustomer && serveCustomer(selectedCustomer.id, itemId)}
-                  disabled={!selectedCustomer}
-                  className={`w-full py-2 rounded text-sm font-bold transition-colors ${
-                    selectedCustomer
-                      ? 'bg-green-500 hover:bg-green-600 text-white'
-                      : 'bg-gray-300 text-gray-500 dark:bg-gray-600 dark:text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  {selectedCustomer ? `Sell to ${selectedCustomer.name}` : 'Select Customer First'}
-                </button>
-              )}
+                  <button
+                    onClick={() => selectedCustomer && serveCustomer(selectedCustomer.id, itemId)}
+                    disabled={!selectedCustomer}
+                    className={`w-full py-2 rounded text-sm font-bold transition-colors ${
+                      selectedCustomer
+                        ? 'btn-primary'
+                        : 'bg-gray-300 text-gray-500 dark:bg-gray-600 dark:text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    {selectedCustomer ? `Sell to ${selectedCustomer.name}` : 'Select Customer First'}
+                  </button>
+                )}
             </div>
           );
         })}

@@ -29,15 +29,15 @@ export const CardHeader = ({
     switch (status) {
       case 'available':
       case 'ready':
-        return 'card-header status-available';
+        return 'status-available';
       case 'locked':
-        return 'card-header status-locked';
+        return 'status-locked';
       case 'updated':
-        return 'card-header status-updated';
+        return 'status-updated';
       case 'vip':
-        return 'card-header status-vip';
+        return 'status-vip';
       default:
-        return 'card-header';
+        return '';
     }
   };
 
@@ -61,7 +61,7 @@ export const CardHeader = ({
     <button
       type="button"
       onClick={onToggle}
-      className={`w-full flex items-center justify-between p-4 text-left transition-all duration-200 ${getStatusClass()} ${
+      className={`w-full flex items-center justify-between text-left transition-all duration-200 card-header ${getStatusClass()} ${
         isEmpty ? 'opacity-60' : ''
       } ${animating ? 'animate-pulse' : ''}`}
       aria-expanded={expanded}
