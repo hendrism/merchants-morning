@@ -17,7 +17,7 @@ const useGestures = (ref, options = {}) => {
 
     const handleTouchStart = (e) => {
       const touch = e.touches[0];
-      const isEdgeSwipe = touch.clientX < 50 || touch.clientX > window.innerWidth - 50;
+      const isEdgeSwipe = touch.clientX < 80 || touch.clientX > window.innerWidth - 80;
       if (!isEdgeSwipe) return;
       edgeSwipe = true;
       startX = touch.clientX;
