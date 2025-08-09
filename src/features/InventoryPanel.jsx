@@ -42,7 +42,7 @@ const InventoryPanel = ({
         })}
       </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-80 overflow-y-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto">
           {sortedInventory.map(([itemId, count]) => {
             const recipe = RECIPES.find(r => r.id === itemId);
             return (
@@ -55,9 +55,17 @@ const InventoryPanel = ({
             );
           })}
           {sortedInventory.length === 0 && (
-            <p className="text-sm sm:text-xs text-gray-500 italic dark:text-gray-400 col-span-full">
-              No {inventoryTab}s crafted yet
-            </p>
+            <div className="col-span-full">
+              <div className="inventory-item-card border-dashed border-gray-300 bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center text-center py-8">
+                <div className="text-4xl mb-2">📦</div>
+                <p className="text-sm text-gray-500 italic dark:text-gray-400">
+                  No {inventoryTab}s crafted yet
+                </p>
+                <p className="text-xs text-gray-400 mt-1 dark:text-gray-500">
+                  Visit the workshop to craft items!
+                </p>
+              </div>
+            </div>
           )}
         </div>
       </div>
