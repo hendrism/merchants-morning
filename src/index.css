@@ -568,13 +568,14 @@ textarea:focus {
 
 .inventory-item-card {
   background: white;
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 8px;
+  padding: 12px;
   border: 2px solid;
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  min-height: 120px;
 }
 
 .item-header {
@@ -585,7 +586,8 @@ textarea:focus {
 
 .item-name {
   font-weight: bold;
-  font-size: 16px;
+  font-size: 14px;
+  line-height: 1.2;
 }
 
 .item-visual {
@@ -627,6 +629,23 @@ textarea:focus {
   grid-template-columns: 1fr 1fr 1fr;
   gap: 12px;
   margin-top: 20px;
+}
+
+@media (max-width: 640px) {
+  .inventory-item-card {
+    padding: 8px;
+    gap: 6px;
+    min-height: 100px;
+  }
+
+  .item-name {
+    font-size: 12px;
+  }
+
+  .negotiation-actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 }
 
 @media (max-width: 600px) {
