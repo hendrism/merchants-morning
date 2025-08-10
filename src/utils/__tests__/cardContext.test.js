@@ -6,5 +6,6 @@ describe('card context defaults', () => {
     const states = getDefaultCardStatesForPhase(PHASES.SHOPPING);
     expect(states.customerQueue.hidden).toBe(false);
     expect(states.customerQueue.expanded).toBe(true);
+    expect(states.customerQueue.semiExpanded).toBe(false);
   });
 });

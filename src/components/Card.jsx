@@ -12,11 +12,12 @@ Card.propTypes = {
   className: PropTypes.string,
 };
 
-export const CardHeader = ({ 
-  icon, 
-  title, 
+export const CardHeader = ({
+  icon,
+  title,
   subtitle,
   expanded,
+  semiExpanded,
   onToggle,
   isEmpty,
   subtitleClassName = '',
@@ -28,14 +29,11 @@ export const CardHeader = ({
   const getStatusClass = () => {
     switch (status) {
       case 'available':
-      case 'ready':
         return 'status-available';
       case 'locked':
         return 'status-locked';
       case 'updated':
         return 'status-updated';
-      case 'vip':
-        return 'status-vip';
       default:
         return '';
     }
@@ -44,14 +42,11 @@ export const CardHeader = ({
   const statusDotColor = () => {
     switch (status) {
       case 'available':
-      case 'ready':
         return 'bg-green-500';
       case 'locked':
         return 'bg-red-500';
       case 'updated':
         return 'bg-blue-500';
-      case 'vip':
-        return 'bg-purple-500';
       default:
         return 'bg-gray-400';
     }
@@ -64,7 +59,7 @@ export const CardHeader = ({
       className={`w-full flex items-center justify-between text-left transition-all duration-200 card-header ${getStatusClass()} ${
         isEmpty ? 'opacity-60' : ''
       } ${animating ? 'animate-pulse' : ''}`}
-      aria-expanded={expanded}
+      aria-expanded={expanded || semiExpanded}
     >
       <div className="flex items-center gap-3">
         <span className="text-2xl" aria-hidden="true">{icon}</span>
@@ -89,7 +84,9 @@ export const CardHeader = ({
       <div className="flex items-center gap-3">
         {subtitle && <span className="sr-only">{subtitle}</span>}
         <span className={`w-3 h-3 rounded-full ${statusDotColor()}`}></span>
-        <span className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}>▼</span>
+        <span className="transition-transform duration-200">
+          {expanded ? '▲' : semiExpanded ? '▼' : '▶'}
+        </span>
       </div>
     </button>
   );
@@ -100,10 +97,11 @@ CardHeader.propTypes = {
   title: PropTypes.string.isRequired,
   subtitle: PropTypes.string,
   expanded: PropTypes.bool,
+  semiExpanded: PropTypes.bool,
   onToggle: PropTypes.func.isRequired,
   isEmpty: PropTypes.bool,
   subtitleClassName: PropTypes.string,
-  status: PropTypes.oneOf(['normal', 'available', 'locked', 'updated', 'vip', 'ready', 'waiting']),
+  status: PropTypes.oneOf(['normal', 'available', 'locked', 'updated']),
   badge: PropTypes.number,
   animating: PropTypes.bool,
   progress: PropTypes.shape({
