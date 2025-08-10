@@ -996,3 +996,21 @@ textarea:focus {
   background: rgba(255, 255, 255, 0.2);
   color: white;
 }
+
+/* Rarity Colors */
+.rarity-common { @apply border-gray-300 bg-gray-50; }
+.rarity-uncommon { @apply border-green-300 bg-green-50; }
+.rarity-rare { @apply border-purple-300 bg-purple-50; }
+
+/* Match quality classes */
+.perfect-match { @apply border-green-600 bg-green-100; }
+.good-match { @apply border-blue-600 bg-blue-100; }
+.poor-match { @apply border-yellow-600 bg-yellow-100; }
+.wrong-type { @apply border-gray-400 bg-gray-100; }
+
+@media (max-width: 640px) {
+  .prep-tabs { overflow-x: auto; }
+  .supply-boxes { grid-template-columns: repeat(2, 1fr); }
+  .materials-grid { grid-template-columns: repeat(3, 1fr); }
+  .sale-items-grid { grid-template-columns: repeat(2, 1fr); }
+}
