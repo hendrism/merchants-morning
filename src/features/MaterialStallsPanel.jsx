@@ -1,15 +1,35 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { MERCHANT_STALLS } from '../constants';
+import { MERCHANT_STALLS, MATERIALS } from '../constants';
 import TabButton from '../components/TabButton';
 import MaterialStallCard from '../components/MaterialStallCard';
 import useMaterialStalls from '../hooks/useMaterialStalls';
 
 const MaterialStallsPanel = ({ gameState, getRarityColor, cardState, toggleCategory }) => {
-  const { materialsByStall, getStallMaterialCount, getActiveStalls } = useMaterialStalls(gameState.materials);
+  const { materialsByStall, getStallMaterialCount, getActiveStalls } = useMaterialStalls(
+    gameState.materials
+  );
   const activeStalls = getActiveStalls();
   const [activeStall, setActiveStall] = useState(activeStalls[0] || 'blacksmith');
   const [manualSelection, setManualSelection] = useState(false);
+
+  const totalMaterials = useMemo(
+    () => Object.values(gameState.materials || {}).reduce((s, c) => s + c, 0),
+    [gameState.materials]
+  );
+
+  const materialsByType = useMemo(() => {
+    const byType = {};
+    Object.entries(gameState.materials || {}).forEach(([id, count]) => {
+      if (count <= 0) return;
+      const mat = MATERIALS[id];
+      if (!mat) return;
+      const t = mat.type;
+      if (!byType[t]) byType[t] = [];
+      byType[t].push({ id, count, ...mat });
+    });
+    return byType;
+  }, [gameState.materials]);
 
   // Switch to first available stall if current one becomes empty, unless user manually selected an empty stall
   React.useEffect(() => {
@@ -24,6 +44,47 @@ const MaterialStallsPanel = ({ gameState, getRarityColor, cardState, toggleCateg
 
   const activeStallData = MERCHANT_STALLS[activeStall];
   const activeMaterials = materialsByStall[activeStall] || [];
+
+  if (!cardState.semiExpanded && !cardState.expanded) {
+    return <div className="material-stalls-panel">Materials: {totalMaterials} total</div>;
+  }
+
+  if (cardState.semiExpanded && !cardState.expanded) {
+    return (
+      <div className="material-stalls-panel space-y-2">
+        {Object.entries(materialsByType)
+          .sort((a, b) => a[0].localeCompare(b[0]))
+          .map(([type, mats]) => {
+            const count = mats.reduce((s, m) => s + m.count, 0);
+            return (
+              <div key={type} className="mb-1">
+                <div
+                  className="flex justify-between items-center cursor-pointer"
+                  onClick={() => toggleCategory('materials', type)}
+                >
+                  <span className="font-semibold">
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </span>
+                  <span className="text-sm">{count}</span>
+                </div>
+                {cardState.categoriesOpen?.[type] && (
+                  <div className="pl-4 mt-1 space-y-1">
+                    {mats.map(mat => (
+                      <div key={mat.id} className="flex justify-between text-sm">
+                        <span>
+                          {mat.icon} {mat.name}
+                        </span>
+                        <span>{mat.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+      </div>
+    );
+  }
 
   return (
     <div className="material-stalls-panel">
