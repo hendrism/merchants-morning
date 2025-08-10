@@ -3,14 +3,26 @@ import { getDefaultCardStatesForPhase } from '../utils/cardContext';
 import { BOX_TYPES } from '../constants';
 import { CardId, CardState } from '../types/ui';
 
+const applyPhaseDefaults = (
+  prev: Record<string, any>,
+  phase: string
+): Record<string, any> => {
+  const defaults = getDefaultCardStatesForPhase(phase);
+  const merged: Record<string, any> = {};
+  Object.keys(defaults).forEach((key) => {
+    merged[key] = { ...(prev[key] || {}), ...defaults[key] };
+  });
+  return merged;
+};
+
 const useCardIntelligence = (gameState: any) => {
   const [cardStates, setCardStates] = useState<Record<string, any>>(() =>
     getDefaultCardStatesForPhase(gameState.phase, gameState)
   );
 
   useEffect(() => {
-    setCardStates(getDefaultCardStatesForPhase(gameState.phase, gameState));
-  }, [gameState.phase, gameState]);
+    setCardStates((prev) => applyPhaseDefaults(prev, gameState.phase));
+  }, [gameState.phase]);
 
   const getCardState = useCallback(
     (id: CardId): CardState =>
