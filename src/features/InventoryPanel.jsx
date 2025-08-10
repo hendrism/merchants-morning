@@ -9,6 +9,7 @@ const InventoryPanel = ({
   inventoryTab,
   setInventoryTab,
   filterInventoryByType,
+  getRarityColor,
   cardState,
   toggleCategory,
 }) => {
@@ -50,29 +51,33 @@ const InventoryPanel = ({
 
     return (
       <div className="space-y-2">
-        {categories.map(({ type, items, count }) => (
-          <div key={type} className="mb-1">
-            <div
-              className="flex justify-between items-center cursor-pointer"
-              onClick={() => toggleCategory('inventory', type)}
-            >
-              <span className="font-semibold">
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </span>
-              <span className="text-sm">{count}</span>
-            </div>
-            {cardState.categoriesOpen?.[type] && (
-              <div className="pl-4 mt-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto">
-                {items.map(([itemId, c]) => {
-                  const recipe = RECIPES.find(r => r.id === itemId);
-                  return (
-                    <InventoryItemCard key={itemId} recipe={recipe} count={c} />
-                  );
-                })}
+        {categories.map(({ type, items, count }) => {
+          const isExpanded = cardState.expandedCategories?.includes(type);
+          
+          return (
+            <div key={type} className="mb-1">
+              <div
+                className="flex justify-between items-center cursor-pointer"
+                onClick={() => toggleCategory('inventory', type)}
+              >
+                <span className="font-semibold">
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </span>
+                <span className="text-sm">{count}</span>
               </div>
-            )}
-          </div>
-        ))}
+              {isExpanded && (
+                <div className="pl-4 mt-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto">
+                  {items.map(([itemId, c]) => {
+                    const recipe = RECIPES.find(r => r.id === itemId);
+                    return (
+                      <InventoryItemCard key={itemId} recipe={recipe} count={c} />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -128,10 +133,11 @@ InventoryPanel.propTypes = {
   inventoryTab: PropTypes.string.isRequired,
   setInventoryTab: PropTypes.func.isRequired,
   filterInventoryByType: PropTypes.func.isRequired,
+  getRarityColor: PropTypes.func.isRequired,
   cardState: PropTypes.shape({
     expanded: PropTypes.bool.isRequired,
     semiExpanded: PropTypes.bool.isRequired,
-    categoriesOpen: PropTypes.object.isRequired,
+    expandedCategories: PropTypes.arrayOf(PropTypes.string).isRequired,
   }).isRequired,
   toggleCategory: PropTypes.func.isRequired,
 };

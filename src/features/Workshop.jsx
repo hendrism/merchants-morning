@@ -22,7 +22,7 @@ const Workshop = ({
 
   const totalCraftable = useMemo(
     () => RECIPES.filter(canCraft).length,
-    [gameState.materials]
+    [gameState.materials, canCraft]
   );
   const totalRecipes = RECIPES.length;
 
@@ -106,28 +106,32 @@ const Workshop = ({
 
     return (
       <div className="space-y-2">
-        {categories.map(({ type, allRecipes, craftableCount, totalCount }) => (
-          <div key={type} className="mb-1">
-            <div
-              className="flex justify-between items-center cursor-pointer"
-              onClick={() => toggleCategory('workshop', type)}
-            >
-              <span className="font-semibold">
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </span>
-              <span className="text-sm">
-                {craftableCount}/{totalCount}
-              </span>
-            </div>
-            {cardState.categoriesOpen?.[type] && (
-              <div className="pl-4 mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto">
-                {sortRecipesByRarityAndCraftability(allRecipes).map(
-                  renderRecipeCard
-                )}
+        {categories.map(({ type, allRecipes, craftableCount, totalCount }) => {
+          const isExpanded = cardState.expandedCategories?.includes(type);
+          
+          return (
+            <div key={type} className="mb-1">
+              <div
+                className="flex justify-between items-center cursor-pointer"
+                onClick={() => toggleCategory('workshop', type)}
+              >
+                <span className="font-semibold">
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </span>
+                <span className="text-sm">
+                  {craftableCount}/{totalCount}
+                </span>
               </div>
-            )}
-          </div>
-        ))}
+              {isExpanded && (
+                <div className="pl-4 mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto">
+                  {sortRecipesByRarityAndCraftability(allRecipes).map(
+                    renderRecipeCard
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -174,7 +178,7 @@ Workshop.propTypes = {
   cardState: PropTypes.shape({
     expanded: PropTypes.bool.isRequired,
     semiExpanded: PropTypes.bool.isRequired,
-    categoriesOpen: PropTypes.object.isRequired,
+    expandedCategories: PropTypes.arrayOf(PropTypes.string).isRequired,
   }).isRequired,
   toggleCategory: PropTypes.func.isRequired,
 };

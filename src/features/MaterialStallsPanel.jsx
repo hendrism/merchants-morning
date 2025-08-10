@@ -66,6 +66,8 @@ const MaterialStallsPanel = ({ gameState, getRarityColor, cardState, toggleCateg
       <div className="material-stalls-panel space-y-2">
         {entries.map(([type, mats]) => {
           const count = mats.reduce((s, m) => s + m.count, 0);
+          const isExpanded = cardState.expandedCategories?.includes(type);
+          
           return (
             <div key={type} className="mb-1">
               <div
@@ -77,7 +79,7 @@ const MaterialStallsPanel = ({ gameState, getRarityColor, cardState, toggleCateg
                 </span>
                 <span className="text-sm">{count}</span>
               </div>
-              {cardState.categoriesOpen?.[type] && (
+              {isExpanded && (
                 <div className="pl-4 mt-1 space-y-1">
                   {mats.map(mat => (
                     <div key={mat.id} className="flex justify-between text-sm">
@@ -170,7 +172,7 @@ MaterialStallsPanel.propTypes = {
   cardState: PropTypes.shape({
     expanded: PropTypes.bool.isRequired,
     semiExpanded: PropTypes.bool.isRequired,
-    categoriesOpen: PropTypes.object.isRequired,
+    expandedCategories: PropTypes.arrayOf(PropTypes.string).isRequired,
   }).isRequired,
   toggleCategory: PropTypes.func.isRequired,
 };

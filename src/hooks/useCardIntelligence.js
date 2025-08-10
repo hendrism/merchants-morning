@@ -9,8 +9,7 @@ const applyPhaseDefaults = (prev, phase) => {
     merged[key] = {
       ...(prev[key] || {}),
       ...defaults[key],
-      categoriesOpen: {},
-      expandedCategories: [],
+      expandedCategories: [], // Reset expanded categories on phase change
     };
   });
   return merged;
@@ -32,7 +31,6 @@ const useCardIntelligence = (gameState) => {
         semiExpanded: false,
         hidden: false,
         expandedCategories: [],
-        categoriesOpen: {},
       },
     [cardStates]
   );
@@ -49,20 +47,23 @@ const useCardIntelligence = (gameState) => {
 
   const toggleCategory = useCallback((cardId, category) => {
     setCardStates(prev => {
-      const card =
-        prev[cardId] || {
-          expanded: false,
-          semiExpanded: false,
-          hidden: false,
-          categoriesOpen: {},
-          expandedCategories: [],
-        };
-      const open = card.categoriesOpen?.[category] ?? false;
+      const card = prev[cardId] || {
+        expanded: false,
+        semiExpanded: false,
+        hidden: false,
+        expandedCategories: [],
+      };
+      
+      const expandedCats = card.expandedCategories || [];
+      const isExpanded = expandedCats.includes(category);
+      
       return {
         ...prev,
         [cardId]: {
           ...card,
-          categoriesOpen: { ...card.categoriesOpen, [category]: !open },
+          expandedCategories: isExpanded 
+            ? expandedCats.filter(c => c !== category)
+            : [...expandedCats, category]
         },
       };
     });

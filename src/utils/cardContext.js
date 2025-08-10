@@ -69,4 +69,3 @@ export const getCardRelevanceScore = (cardType) => {
   };
   return basePriority[cardType] ?? 99;
 };
-
