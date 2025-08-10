@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Coins, AlertCircle, Sun, Moon, Menu, BookOpen, Settings, HelpCircle, ArrowRight } from 'lucide-react';
 import { PHASES, BOX_TYPES, RECIPES } from './constants';
 import { Card, CardHeader, CardContent } from './components/Card';
@@ -28,80 +28,21 @@ const MerchantsMorning = () => {
     [PHASES.END_DAY]: '🌙',
   };
 
-  // Stable user preferences loader
-  const [prefsVersion, setPrefsVersion] = useState(0);
+  const cardIntelligence = useCardIntelligence(gameState);
 
-  useEffect(() => {
-    // React to external tab/localStorage updates
-    const onStorage = (e) => {
-      if (e.key === 'userCardPreferences') {
-        setPrefsVersion(v => v + 1);
-      }
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
+  const { getCardState, updateCardState, toggleCategory, getCardStatus } = cardIntelligence;
 
-  const userPreferences = useMemo(() => {
-    try {
-      const stored = window.localStorage.getItem('userCardPreferences');
-      const parsed = stored ? JSON.parse(stored) : {};
-      return {
-        preferredExpansions: parsed.preferredExpansions || {},
-        preferredCollapsed: parsed.preferredCollapsed || {},
-      };
-    } catch {
-      return { preferredExpansions: {}, preferredCollapsed: {} };
-    }
-  }, [prefsVersion]);
-
-  const cardIntelligence = useCardIntelligence(gameState, userPreferences, setGameState);
-
-  const {
-    getCardState,
-    updateCardState,
-    trackCardUsage,
-    getCardStatus
-  } = cardIntelligence;
-
-  // Helper function to handle card toggles
+  // Helper function to handle card toggles for three states
   const handleCardToggle = useCallback((cardId) => {
-    const currentState = getCardState(cardId);
-    const newExpanded = !currentState.expanded;
-    updateCardState(cardId, { expanded: newExpanded });
-    trackCardUsage(cardId, newExpanded ? 'expand' : 'collapse');
-
-    // Save preferences
-    try {
-      const prefs = JSON.parse(window.localStorage.getItem('userCardPreferences') || '{}');
-      const phase = gameState.phase;
-
-      // Ensure containers exist
-      prefs.preferredExpansions = prefs.preferredExpansions || {};
-      prefs.preferredCollapsed = prefs.preferredCollapsed || {};
-      prefs.preferredExpansions[phase] = prefs.preferredExpansions[phase] || [];
-      prefs.preferredCollapsed[phase] = prefs.preferredCollapsed[phase] || [];
-
-      if (newExpanded) {
-        // Record expansion and un-record collapse
-        if (!prefs.preferredExpansions[phase].includes(cardId)) {
-          prefs.preferredExpansions[phase].push(cardId);
-        }
-        prefs.preferredCollapsed[phase] = prefs.preferredCollapsed[phase].filter(id => id !== cardId);
-      } else {
-        // Record collapse and un-record expansion
-        if (!prefs.preferredCollapsed[phase].includes(cardId)) {
-          prefs.preferredCollapsed[phase].push(cardId);
-        }
-        prefs.preferredExpansions[phase] = prefs.preferredExpansions[phase].filter(id => id !== cardId);
-      }
-
-      window.localStorage.setItem('userCardPreferences', JSON.stringify(prefs));
-      setPrefsVersion(v => v + 1);
-    } catch (e) {
-      console.error('Failed to save card preferences', e);
+    const current = getCardState(cardId);
+    if (!current.semiExpanded && !current.expanded) {
+      updateCardState(cardId, { semiExpanded: true });
+    } else if (current.semiExpanded && !current.expanded) {
+      updateCardState(cardId, { expanded: true });
+    } else {
+      updateCardState(cardId, { expanded: false, semiExpanded: false, expandedCategories: [] });
     }
-  }, [getCardState, updateCardState, trackCardUsage, gameState.phase]);
+  }, [getCardState, updateCardState]);
 
   const [eventLog, setEventLog] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -342,6 +283,7 @@ const MerchantsMorning = () => {
                 subtitle={marketNewsStatus.subtitle}
                 subtitleClassName={marketNewsStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('marketNews').expanded}
+                semiExpanded={getCardState('marketNews').semiExpanded}
                 onToggle={() => handleCardToggle('marketNews')}
                 isEmpty={gameState.marketReports.length === 0}
                 status={marketNewsStatus.status}
@@ -375,6 +317,7 @@ const MerchantsMorning = () => {
                 subtitle={supplyBoxesStatus.subtitle}
                 subtitleClassName={supplyBoxesStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('supplyBoxes').expanded}
+                semiExpanded={getCardState('supplyBoxes').semiExpanded}
                 onToggle={() => handleCardToggle('supplyBoxes')}
                 status={supplyBoxesStatus.status}
                 badge={supplyBoxesStatus.badge}
@@ -413,6 +356,7 @@ const MerchantsMorning = () => {
                 subtitle={materialsStatus.subtitle}
                 subtitleClassName={materialsStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('materials').expanded}
+                semiExpanded={getCardState('materials').semiExpanded}
                 onToggle={() => handleCardToggle('materials')}
                 isEmpty={materialsStatus.badge === 0}
                 status={materialsStatus.status}
@@ -437,6 +381,7 @@ const MerchantsMorning = () => {
                 icon="🔨"
                 title="Workshop"
                 expanded={getCardState('workshop').expanded}
+                semiExpanded={getCardState('workshop').semiExpanded}
                 onToggle={() => handleCardToggle('workshop')}
                 status={workshopStatus.status}
                 badge={workshopStatus.badge}
@@ -470,6 +415,7 @@ const MerchantsMorning = () => {
                 subtitle={inventoryStatus.subtitle}
                 subtitleClassName={inventoryStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('inventory').expanded}
+                semiExpanded={getCardState('inventory').semiExpanded}
                 onToggle={() => handleCardToggle('inventory')}
                 isEmpty={inventoryStatus.badge === 0}
                 status={inventoryStatus.status}
@@ -499,6 +445,7 @@ const MerchantsMorning = () => {
                 subtitle={customerQueueStatus.subtitle}
                 subtitleClassName={customerQueueStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('customerQueue').expanded}
+                semiExpanded={getCardState('customerQueue').semiExpanded}
                 onToggle={() => handleCardToggle('customerQueue')}
                 isEmpty={customerQueueStatus.badge === 0}
                 status={customerQueueStatus.status}
