@@ -12,6 +12,8 @@ const Workshop = ({
   filterRecipesByType,
   sortRecipesByRarityAndCraftability,
   getRarityColor,
+  cardState,
+  toggleCategory,
 }) => {
   const sortedRecipes = useMemo(
     () => sortRecipesByRarityAndCraftability(filterRecipesByType(craftingTab)),
@@ -97,6 +99,12 @@ Workshop.propTypes = {
   filterRecipesByType: PropTypes.func.isRequired,
   sortRecipesByRarityAndCraftability: PropTypes.func.isRequired,
   getRarityColor: PropTypes.func.isRequired,
+  cardState: PropTypes.shape({
+    expanded: PropTypes.bool.isRequired,
+    semiExpanded: PropTypes.bool.isRequired,
+    categoriesOpen: PropTypes.object.isRequired,
+  }).isRequired,
+  toggleCategory: PropTypes.func.isRequired,
 };
 
 export default Workshop;

@@ -10,6 +10,8 @@ const InventoryPanel = ({
   setInventoryTab,
   filterInventoryByType,
   getRarityColor,
+  cardState,
+  toggleCategory,
 }) => {
   const sortedInventory = useMemo(
     () =>
@@ -80,6 +82,12 @@ InventoryPanel.propTypes = {
   setInventoryTab: PropTypes.func.isRequired,
   filterInventoryByType: PropTypes.func.isRequired,
   getRarityColor: PropTypes.func.isRequired,
+  cardState: PropTypes.shape({
+    expanded: PropTypes.bool.isRequired,
+    semiExpanded: PropTypes.bool.isRequired,
+    categoriesOpen: PropTypes.object.isRequired,
+  }).isRequired,
+  toggleCategory: PropTypes.func.isRequired,
 };
 
 export default InventoryPanel;

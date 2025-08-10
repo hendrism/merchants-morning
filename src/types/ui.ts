@@ -6,3 +6,8 @@ export interface CardState {
   categoriesOpen: Record<string, boolean>;
 }
 export type CardStateMap = Record<CardId, CardState>;
+
+export type ThreeStateProps = {
+  cardState: CardState;
+  toggleCategory: (cardId: CardId, category: string) => void;
+};
