@@ -35,14 +35,29 @@ const MerchantsMorning = () => {
   // Helper function to handle card toggles for three states
   const handleCardToggle = useCallback((cardId) => {
     const current = getCardState(cardId);
-    if (!current.semiExpanded && !current.expanded) {
-      updateCardState(cardId, { semiExpanded: true });
-    } else if (current.semiExpanded && !current.expanded) {
-      updateCardState(cardId, { expanded: true });
+
+    // Cards that only need 2 states (collapsed, expanded)
+    const twoStateCards = ['marketNews', 'supplyBoxes', 'customerQueue'];
+
+    if (twoStateCards.includes(cardId)) {
+      // Toggle between collapsed and expanded only
+      if (!current.expanded) {
+        updateCardState(cardId, { expanded: true, semiExpanded: false });
+      } else {
+        updateCardState(cardId, { expanded: false, semiExpanded: false, expandedCategories: [] });
+      }
     } else {
-      updateCardState(cardId, { expanded: false, semiExpanded: false, expandedCategories: [] });
+      // Three-state cards (materials, workshop, inventory)
+      if (!current.semiExpanded && !current.expanded) {
+        updateCardState(cardId, { semiExpanded: true });
+      } else if (current.semiExpanded && !current.expanded) {
+        updateCardState(cardId, { expanded: true });
+      } else {
+        updateCardState(cardId, { expanded: false, semiExpanded: false, expandedCategories: [] });
+      }
     }
   }, [getCardState, updateCardState]);
+
 
   const [eventLog, setEventLog] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -121,16 +136,16 @@ const MerchantsMorning = () => {
       default: return 'text-gray-600 bg-gray-100 border-gray-200';
     }
   };
-    const {
-      openBox,
-      craftItem,
-      canCraft,
-      filterRecipesByType,
-      filterInventoryByType: rawFilterInventoryByType,
-      sortRecipesByRarityAndCraftability,
-      sortByMatchQualityAndRarity,
-      getSaleInfo,
-    } = useCrafting(gameState, setGameState, addEvent, addNotification);
+  const {
+    openBox,
+    craftItem,
+    canCraft,
+    filterRecipesByType,
+    filterInventoryByType: rawFilterInventoryByType,
+    sortRecipesByRarityAndCraftability,
+    sortByMatchQualityAndRarity,
+    getSaleInfo,
+  } = useCrafting(gameState, setGameState, addEvent, addNotification);
 
   const filterInventoryByType = useCallback(
     (type) => rawFilterInventoryByType(type),
@@ -283,14 +298,14 @@ const MerchantsMorning = () => {
                 subtitle={marketNewsStatus.subtitle}
                 subtitleClassName={marketNewsStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('marketNews').expanded}
-                semiExpanded={getCardState('marketNews').semiExpanded}
+                semiExpanded={false} // Force no semi-expanded state
                 onToggle={() => handleCardToggle('marketNews')}
                 isEmpty={gameState.marketReports.length === 0}
                 status={marketNewsStatus.status}
                 badge={marketNewsStatus.badge}
               />
               {getCardState('marketNews').expanded && (
-                <CardContent expanded={getCardState('marketNews').expanded}>
+                <CardContent expanded={true}>
                   {gameState.marketReports.length > 0 ? (
                     <ul className="list-disc pl-5 space-y-1 text-sm">
                       {gameState.marketReports.map((report, idx) => (
@@ -317,13 +332,13 @@ const MerchantsMorning = () => {
                 subtitle={supplyBoxesStatus.subtitle}
                 subtitleClassName={supplyBoxesStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('supplyBoxes').expanded}
-                semiExpanded={getCardState('supplyBoxes').semiExpanded}
+                semiExpanded={false} // Force no semi-expanded state
                 onToggle={() => handleCardToggle('supplyBoxes')}
                 status={supplyBoxesStatus.status}
                 badge={supplyBoxesStatus.badge}
               />
               {getCardState('supplyBoxes').expanded && (
-                <CardContent expanded={getCardState('supplyBoxes').expanded}>
+                <CardContent expanded={true}>
                   <div className="grid grid-cols-3 gap-3">
                     {Object.entries(BOX_TYPES).map(([type, box]) => (
                       <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
@@ -363,7 +378,7 @@ const MerchantsMorning = () => {
                 badge={materialsStatus.badge}
               />
               {(getCardState('materials').semiExpanded || getCardState('materials').expanded) && (
-                <CardContent expanded={getCardState('materials').expanded}>
+                <CardContent expanded={true}> {/* Always pass true to show content */}
                   <MaterialStallsPanel
                     gameState={gameState}
                     getRarityColor={getRarityColor}
@@ -376,6 +391,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
+        // Replace the Workshop section with this:
         {!getCardState('workshop').hidden && [PHASES.CRAFTING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="workshop">
             <Card>
@@ -391,7 +407,7 @@ const MerchantsMorning = () => {
                 subtitle={workshopStatus.subtitle}
               />
               {(getCardState('workshop').semiExpanded || getCardState('workshop').expanded) && (
-                <CardContent expanded={getCardState('workshop').expanded}>
+                <CardContent expanded={true}> {/* Always pass true to show content */}
                   <Workshop
                     gameState={gameState}
                     craftingTab={craftingTab}
@@ -410,6 +426,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
+// Replace the Inventory section with this:
         {!getCardState('inventory').hidden && [PHASES.CRAFTING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="inventory">
             <Card>
@@ -426,7 +443,7 @@ const MerchantsMorning = () => {
                 badge={inventoryStatus.badge}
               />
               {(getCardState('inventory').semiExpanded || getCardState('inventory').expanded) && (
-                <CardContent expanded={getCardState('inventory').expanded}>
+                <CardContent expanded={true}> {/* Always pass true to show content */}
                   <InventoryPanel
                     gameState={gameState}
                     inventoryTab={inventoryTab}
@@ -442,6 +459,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
+// Replace the Customer Queue section with this:
         {!getCardState('customerQueue').hidden && [PHASES.SHOPPING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="customerQueue">
             <Card>
@@ -451,14 +469,14 @@ const MerchantsMorning = () => {
                 subtitle={customerQueueStatus.subtitle}
                 subtitleClassName={customerQueueStatus.status === 'locked' ? 'text-red-600' : ''}
                 expanded={getCardState('customerQueue').expanded}
-                semiExpanded={getCardState('customerQueue').semiExpanded}
+                semiExpanded={false} // Force no semi-expanded state
                 onToggle={() => handleCardToggle('customerQueue')}
                 isEmpty={customerQueueStatus.badge === 0}
                 status={customerQueueStatus.status}
                 badge={customerQueueStatus.badge}
               />
               {getCardState('customerQueue').expanded && (
-                <CardContent expanded={getCardState('customerQueue').expanded}>
+                <CardContent expanded={true}>
                   <ShopInterface
                     gameState={gameState}
                     selectedCustomer={selectedCustomer}
@@ -477,19 +495,19 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-          {gameState.phase === PHASES.END_DAY && (
-            <EndOfDaySummary gameState={gameState} />
-          )}
-        </GestureHandler>
-        <button
-          onClick={advancePhase}
-          className="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg"
-          aria-label="Advance to next phase"
-        >
-          <ArrowRight className="w-5 h-5" />
-        </button>
-          <UpdateToast />
-      </div>
+        {gameState.phase === PHASES.END_DAY && (
+          <EndOfDaySummary gameState={gameState} />
+        )}
+      </GestureHandler>
+      <button
+        onClick={advancePhase}
+        className="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg"
+        aria-label="Advance to next phase"
+      >
+        <ArrowRight className="w-5 h-5" />
+      </button>
+      <UpdateToast />
+    </div>
   );
 };
 

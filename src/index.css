@@ -566,16 +566,23 @@ textarea:focus {
   opacity: 0.7;
 }
 
+/* Replace the .inventory-item-card styles in src/index.css with this: */
+
 .inventory-item-card {
-  background: white;
-  border-radius: 8px; /* Reduced from 12px */
-  padding: 12px; /* Reduced from 16px */
+  background: #f8f9fa; /* Gray background instead of white */
+  border-radius: 8px;
+  padding: 12px;
   border: 2px solid;
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Reduced from 12px */
-  min-height: 120px; /* Ensure consistent height */
+  gap: 8px;
+  min-height: 120px;
+}
+
+/* Dark mode support for inventory cards */
+.dark .inventory-item-card {
+  background: #374151; /* Dark gray for dark mode */
 }
 
 .item-header {
