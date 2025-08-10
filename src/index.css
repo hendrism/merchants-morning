@@ -119,6 +119,27 @@ button, .transition-colors {
   @apply text-purple-600 bg-purple-100 border-purple-200;
 }
 
+/* Match quality colors */
+.perfect-match {
+  border-color: #16a34a;
+  background: #dcfce7;
+}
+
+.good-match {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.poor-match {
+  border-color: #f59e0b;
+  background: #fef3c7;
+}
+
+.wrong-type {
+  border-color: #6b7280;
+  background: #f3f4f6;
+}
+
 .loading-fallback {
   display: flex;
   align-items: center;
@@ -995,4 +1016,19 @@ textarea:focus {
 .dark .chip-badge {
   background: rgba(255, 255, 255, 0.2);
   color: white;
+}
+
+@media (max-width: 640px) {
+  .prep-tabs {
+    overflow-x: auto;
+  }
+  .supply-boxes {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .materials-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .sale-items-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
