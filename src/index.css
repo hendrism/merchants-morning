@@ -996,3 +996,20 @@ textarea:focus {
   background: rgba(255, 255, 255, 0.2);
   color: white;
 }
+/* Match Quality Colors */
+.perfect-match { border-color: #16a34a; background: #dcfce7; }
+.good-match { border-color: #3b82f6; background: #eff6ff; }
+.poor-match { border-color: #f59e0b; background: #fef3c7; }
+.wrong-type { border-color: #6b7280; background: #f3f4f6; }
+
+/* Rarity Colors */
+.rarity-common { border-color: #6b7280; background: #f3f4f6; }
+.rarity-uncommon { border-color: #16a34a; background: #dcfce7; }
+.rarity-rare { border-color: #9333ea; background: #f3e8ff; }
+
+@media (max-width: 640px) {
+  .prep-tabs { overflow-x: auto; }
+  .supply-boxes { grid-template-columns: repeat(2, 1fr); }
+  .materials-grid { grid-template-columns: repeat(3, 1fr); }
+  .sale-items-grid { grid-template-columns: repeat(2, 1fr); }
+}
