@@ -9,7 +9,6 @@ const InventoryPanel = ({
   inventoryTab,
   setInventoryTab,
   filterInventoryByType,
-  getRarityColor,
   cardState,
   toggleCategory,
 }) => {
@@ -60,7 +59,6 @@ const InventoryPanel = ({
                         key={itemId}
                         recipe={recipe}
                         count={c}
-                        getRarityColor={getRarityColor}
                       />
                     );
                   })}
@@ -96,12 +94,7 @@ const InventoryPanel = ({
         {sortedInventory.map(([itemId, count]) => {
           const recipe = RECIPES.find(r => r.id === itemId);
           return (
-            <InventoryItemCard
-              key={itemId}
-              recipe={recipe}
-              count={count}
-              getRarityColor={getRarityColor}
-            />
+            <InventoryItemCard key={itemId} recipe={recipe} count={count} />
           );
         })}
         {sortedInventory.length === 0 && (
@@ -129,7 +122,6 @@ InventoryPanel.propTypes = {
   inventoryTab: PropTypes.string.isRequired,
   setInventoryTab: PropTypes.func.isRequired,
   filterInventoryByType: PropTypes.func.isRequired,
-  getRarityColor: PropTypes.func.isRequired,
   cardState: PropTypes.shape({
     expanded: PropTypes.bool.isRequired,
     semiExpanded: PropTypes.bool.isRequired,

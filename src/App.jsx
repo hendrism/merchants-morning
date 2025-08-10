@@ -432,7 +432,6 @@ const MerchantsMorning = () => {
                     inventoryTab={inventoryTab}
                     setInventoryTab={setInventoryTab}
                     filterInventoryByType={filterInventoryByType}
-                    getRarityColor={getRarityColor}
                     cardState={getCardState('inventory')}
                     toggleCategory={toggleCategory}
                   />
