@@ -362,18 +362,16 @@ const MerchantsMorning = () => {
                 status={materialsStatus.status}
                 badge={materialsStatus.badge}
               />
-              {(getCardState('materials').semiExpanded || getCardState('materials').expanded) && (
-                <CardContent expanded={getCardState('materials').expanded}>
-                  <MaterialStallsPanel
-                    gameState={gameState}
-                    getRarityColor={getRarityColor}
-                    cardState={getCardState('materials')}
-                    toggleCategory={toggleCategory}
-                  />
-                </CardContent>
-              )}
-            </Card>
-          </div>
+              <CardContent>
+                <MaterialStallsPanel
+                  gameState={gameState}
+                  getRarityColor={getRarityColor}
+                  cardState={getCardState('materials')}
+                  toggleCategory={toggleCategory}
+                />
+              </CardContent>
+              </Card>
+            </div>
         )}
 
         {!getCardState('workshop').hidden && [PHASES.CRAFTING, PHASES.END_DAY].includes(gameState.phase) && (
@@ -390,24 +388,22 @@ const MerchantsMorning = () => {
                 progress={{ current: craftableRecipes, total: totalRecipes }}
                 subtitle={workshopStatus.subtitle}
               />
-              {(getCardState('workshop').semiExpanded || getCardState('workshop').expanded) && (
-                <CardContent expanded={getCardState('workshop').expanded}>
-                  <Workshop
-                    gameState={gameState}
-                    craftingTab={craftingTab}
-                    setCraftingTab={setCraftingTab}
-                    canCraft={canCraft}
-                    craftItem={craftItem}
-                    filterRecipesByType={filterRecipesByType}
-                    sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
-                    getRarityColor={getRarityColor}
-                    cardState={getCardState('workshop')}
-                    toggleCategory={toggleCategory}
-                  />
-                </CardContent>
-              )}
-            </Card>
-          </div>
+              <CardContent>
+                <Workshop
+                  gameState={gameState}
+                  craftingTab={craftingTab}
+                  setCraftingTab={setCraftingTab}
+                  canCraft={canCraft}
+                  craftItem={craftItem}
+                  filterRecipesByType={filterRecipesByType}
+                  sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
+                  getRarityColor={getRarityColor}
+                  cardState={getCardState('workshop')}
+                  toggleCategory={toggleCategory}
+                />
+              </CardContent>
+              </Card>
+            </div>
         )}
 
         {!getCardState('inventory').hidden && [PHASES.CRAFTING, PHASES.END_DAY].includes(gameState.phase) && (
@@ -425,21 +421,19 @@ const MerchantsMorning = () => {
                 status={inventoryStatus.status}
                 badge={inventoryStatus.badge}
               />
-              {(getCardState('inventory').semiExpanded || getCardState('inventory').expanded) && (
-                <CardContent expanded={getCardState('inventory').expanded}>
-                  <InventoryPanel
-                    gameState={gameState}
-                    inventoryTab={inventoryTab}
-                    setInventoryTab={setInventoryTab}
-                    filterInventoryByType={filterInventoryByType}
-                    getRarityColor={getRarityColor}
-                    cardState={getCardState('inventory')}
-                    toggleCategory={toggleCategory}
-                  />
-                </CardContent>
-              )}
-            </Card>
-          </div>
+              <CardContent>
+                <InventoryPanel
+                  gameState={gameState}
+                  inventoryTab={inventoryTab}
+                  setInventoryTab={setInventoryTab}
+                  filterInventoryByType={filterInventoryByType}
+                  getRarityColor={getRarityColor}
+                  cardState={getCardState('inventory')}
+                  toggleCategory={toggleCategory}
+                />
+              </CardContent>
+              </Card>
+            </div>
         )}
 
         {!getCardState('customerQueue').hidden && [PHASES.SHOPPING, PHASES.END_DAY].includes(gameState.phase) && (

@@ -20,6 +20,59 @@ const Workshop = ({
     [craftingTab, gameState.materials, filterRecipesByType, sortRecipesByRarityAndCraftability]
   );
 
+  const craftableRecipes = useMemo(
+    () => RECIPES.filter(canCraft).length,
+    [gameState.materials, canCraft]
+  );
+  const totalRecipes = RECIPES.length;
+
+  if (!cardState.semiExpanded && !cardState.expanded) {
+    return (
+      <div className="text-sm text-gray-600">
+        Craftable: {craftableRecipes} / Recipes: {totalRecipes}
+      </div>
+    );
+  }
+
+  if (cardState.semiExpanded && !cardState.expanded) {
+    return (
+      <div className="space-y-2">
+        {ITEM_TYPES.map(type => {
+          const allRecipes = filterRecipesByType(type);
+          const craftableCount = allRecipes.filter(canCraft).length;
+          const totalCount = allRecipes.length;
+          const isOpen = cardState.categoriesOpen[type];
+          return (
+            <div key={type}>
+              <button
+                type="button"
+                className="w-full flex justify-between items-center font-medium text-left"
+                onClick={() => toggleCategory('workshop', type)}
+              >
+                <span>
+                  {type.charAt(0).toUpperCase() + type.slice(1)} {craftableCount}/{totalCount}
+                </span>
+                <span>{isOpen ? '▲' : '▼'}</span>
+              </button>
+              {isOpen && (
+                <ul className="mt-1 space-y-1">
+                  {allRecipes.map(recipe => (
+                    <li key={recipe.id} className="flex justify-between text-sm">
+                      <span>{recipe.name}</span>
+                      <span className={canCraft(recipe) ? 'text-green-600' : 'text-red-600'}>
+                        {canCraft(recipe) ? '✓' : '✗'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex gap-1 mb-3 overflow-x-auto pb-1">
@@ -53,8 +106,20 @@ const Workshop = ({
           >
             <div className="flex justify-between items-start mb-1">
               <div className="flex-1">
-                <h4 className={`font-bold text-sm sm:text-xs ${canCraft(recipe) ? 'text-black dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>{recipe.name}</h4>
-                <p className={`text-sm px-1 py-0.5 rounded inline-block mb-1 border ${getRarityColor(recipe.rarity)}`}>
+                <h4
+                  className={`font-bold text-sm sm:text-xs ${
+                    canCraft(recipe)
+                      ? 'text-black dark:text-white'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {recipe.name}
+                </h4>
+                <p
+                  className={`text-sm px-1 py-0.5 rounded inline-block mb-1 border ${getRarityColor(
+                    recipe.rarity
+                  )}`}
+                >
                   {recipe.rarity}
                 </p>
               </div>
@@ -108,3 +173,4 @@ Workshop.propTypes = {
 };
 
 export default Workshop;
+
