@@ -119,6 +119,20 @@ button, .transition-colors {
   @apply text-purple-600 bg-purple-100 border-purple-200;
 }
 
+/* Match quality colors */
+.perfect-match {
+  @apply border-green-600 bg-green-100;
+}
+.good-match {
+  @apply border-blue-600 bg-blue-100;
+}
+.poor-match {
+  @apply border-yellow-600 bg-yellow-100;
+}
+.wrong-type {
+  @apply border-gray-400 bg-gray-100;
+}
+
 .loading-fallback {
   display: flex;
   align-items: center;
@@ -133,6 +147,11 @@ button, .transition-colors {
   .mobile-padding { padding: 0.75rem; }
   .mobile-text { font-size: 0.875rem; }
   .mobile-button { padding: 0.75rem 1rem; font-size: 0.875rem; }
+
+  .prep-tabs { overflow-x: auto; }
+  .supply-boxes { @apply grid-cols-2; }
+  .materials-grid { @apply grid-cols-3; }
+  .sale-items-grid { @apply grid-cols-2; }
 }
 
 /* Fix for touch devices */

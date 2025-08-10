@@ -176,38 +176,28 @@ const ShopInterface = ({
               })}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sale-items-grid max-h-96 overflow-y-auto">
               {sortedInventory.map(([itemId, count]) => {
                 const recipe = RECIPES.find(r => r.id === itemId);
 
                 let saleInfo = null;
-                let cardStyle = 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-700';
+                let matchClass = '';
 
                 if (selectedCustomer) {
                   saleInfo = getSaleInfo(recipe, selectedCustomer);
-
-                  if (!saleInfo.canAfford) {
-                    cardStyle = 'border-red-200 bg-red-50 dark:border-red-700 dark:bg-red-900';
-                  } else if (saleInfo.isPreferred) {
-                    cardStyle = 'border-purple-300 bg-purple-50 dark:border-purple-700 dark:bg-purple-900';
+                  if (!saleInfo || saleInfo.status === 'wrong_type' || !saleInfo.canAfford) {
+                    matchClass = 'wrong-type';
                   } else if (saleInfo.exactMatch) {
-                    cardStyle = 'border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-900';
-                  } else if (saleInfo.status === 'upgrade') {
-                    cardStyle = 'border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-900';
-                  } else if (
-                    saleInfo.status === 'downgrade' ||
-                    saleInfo.status === 'wrong_rarity' ||
-                    saleInfo.status === 'over_budget' ||
-                    saleInfo.status === 'wrong_type'
-                  ) {
-                    cardStyle = 'border-yellow-300 bg-yellow-50 dark:border-yellow-700 dark:bg-yellow-900';
+                    matchClass = 'perfect-match';
+                  } else if (saleInfo.status === 'upgrade' || saleInfo.isPreferred) {
+                    matchClass = 'good-match';
                   } else {
-                    cardStyle = 'border-red-200 bg-red-50 dark:border-red-700 dark:bg-red-900';
+                    matchClass = 'poor-match';
                   }
                 }
 
                 return (
-                  <div key={itemId} className={`border rounded-lg p-3 ${cardStyle}`}>
+                  <div key={itemId} className={`border rounded-lg p-3 ${matchClass}`}>
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1">
                         <h4 className="font-bold text-sm">{recipe.name}</h4>
