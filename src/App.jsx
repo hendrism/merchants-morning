@@ -35,10 +35,10 @@ const MerchantsMorning = () => {
   // Smart header toggle - different behavior for different card types
   const handleCardToggle = useCallback((cardId) => {
     const current = getCardState(cardId);
-    
+
     // Cards that only need 2 states (collapsed, expanded)
     const twoStateCards = ['marketNews', 'supplyBoxes', 'customerQueue'];
-    
+
     if (twoStateCards.includes(cardId)) {
       // Toggle between collapsed and expanded only
       if (!current.expanded) {
@@ -47,15 +47,15 @@ const MerchantsMorning = () => {
         updateCardState(cardId, { expanded: false, semiExpanded: false, expandedCategories: [] });
       }
     } else {
-      // Three-state cards with smart behavior (materials, workshop, inventory)
+      // Three-state cards with progressive disclosure (materials, workshop, inventory)
       if (!current.semiExpanded && !current.expanded) {
-        // Collapsed → Categories
-        updateCardState(cardId, { semiExpanded: true });
+        // Collapsed → Semi-expanded (show category headers)
+        updateCardState(cardId, { semiExpanded: true, expanded: false });
       } else if (current.semiExpanded && !current.expanded) {
-        // Categories → Expanded
-        updateCardState(cardId, { expanded: true });
+        // Semi-expanded → Fully expanded (show everything)
+        updateCardState(cardId, { semiExpanded: true, expanded: true });
       } else {
-        // Expanded → Collapsed (skip categories)
+        // Fully expanded → Collapsed (reset everything)
         updateCardState(cardId, { expanded: false, semiExpanded: false, expandedCategories: [] });
       }
     }
@@ -138,16 +138,16 @@ const MerchantsMorning = () => {
       default: return 'text-gray-600 bg-gray-100 border-gray-200';
     }
   };
-    const {
-      openBox,
-      craftItem,
-      canCraft,
-      filterRecipesByType,
-      filterInventoryByType: rawFilterInventoryByType,
-      sortRecipesByRarityAndCraftability,
-      sortByMatchQualityAndRarity,
-      getSaleInfo,
-    } = useCrafting(gameState, setGameState, addEvent, addNotification);
+  const {
+    openBox,
+    craftItem,
+    canCraft,
+    filterRecipesByType,
+    filterInventoryByType: rawFilterInventoryByType,
+    sortRecipesByRarityAndCraftability,
+    sortByMatchQualityAndRarity,
+    getSaleInfo,
+  } = useCrafting(gameState, setGameState, addEvent, addNotification);
 
   const filterInventoryByType = useCallback(
     (type) => rawFilterInventoryByType(type),
@@ -207,7 +207,7 @@ const MerchantsMorning = () => {
       }
     }
   }, [advancePhase, gameState.phase, setGameState, addNotification]);
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-20 pb-safe dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
@@ -234,7 +234,7 @@ const MerchantsMorning = () => {
                 <ArrowRight className="w-4 h-4" />
                 <span className="hidden sm:inline text-sm font-medium">Next Phase</span>
               </button>
-              
+
               {/* Menu button */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
@@ -362,19 +362,17 @@ const MerchantsMorning = () => {
                         key={type}
                         onClick={() => openBox(type)}
                         disabled={gameState.gold < box.cost}
-                        className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl border-2 min-w-[120px] transition-all ${
-                          gameState.gold >= box.cost
+                        className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl border-2 min-w-[120px] transition-all ${gameState.gold >= box.cost
                             ? 'bg-amber-100 border-amber-300 hover:bg-amber-200 text-amber-800'
                             : 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed'
-                        }`}
+                          }`}
                       >
                         <span className="text-sm font-bold">{box.name}</span>
                         <span className="text-xs">{box.materialCount[0]}-{box.materialCount[1]} materials</span>
-                        <span className={`text-xs px-3 py-1 rounded-full font-bold ${
-                          gameState.gold >= box.cost
+                        <span className={`text-xs px-3 py-1 rounded-full font-bold ${gameState.gold >= box.cost
                             ? 'bg-amber-600 text-white'
                             : 'bg-gray-400 text-gray-200'
-                        }`}>
+                          }`}>
                           {box.cost} Gold
                         </span>
                       </button>
@@ -524,7 +522,7 @@ const MerchantsMorning = () => {
           <EndOfDaySummary gameState={gameState} />
         )}
       </GestureHandler>
-      
+
       <UpdateToast />
     </div>
   );

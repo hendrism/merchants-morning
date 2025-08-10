@@ -13,7 +13,8 @@ export const getDefaultCardStatesForPhase = (phase, gameState = {}) => {
 
   switch (phase) {
     case PHASES.MORNING: {
-      states.marketNews.expanded = (gameState.marketReports || []).length > 0;
+      // Market news should always be expanded if there are reports
+      states.marketNews.expanded = true; // Always expand, will show empty state if no reports
       states.supplyBoxes.semiExpanded = true;
       states.materials.semiExpanded = true;
       states.workshop.hidden = true;
@@ -22,7 +23,7 @@ export const getDefaultCardStatesForPhase = (phase, gameState = {}) => {
       break;
     }
     case PHASES.CRAFTING: {
-      states.marketNews.expanded = (gameState.marketReports || []).length > 0;
+      states.marketNews.expanded = true; // Keep expanded in crafting too
       states.supplyBoxes.hidden = true;
       states.materials.semiExpanded = true;
       states.workshop.semiExpanded = true;
@@ -40,8 +41,8 @@ export const getDefaultCardStatesForPhase = (phase, gameState = {}) => {
       break;
     }
     case PHASES.END_DAY: {
-      states.marketNews.hidden = true;
-      states.supplyBoxes.hidden = true;
+      states.marketNews.expanded = true; // Show in end day for reference
+      states.supplyBoxes.expanded = true; // Show for next day planning
       states.materials.hidden = true;
       states.workshop.hidden = true;
       states.inventory.hidden = true;

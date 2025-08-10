@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { MATERIALS, RECIPES, ITEM_TYPES, ITEM_TYPE_ICONS } from '../constants';
 
@@ -14,47 +14,11 @@ const Workshop = ({
   cardState,
   toggleCategory,
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [currentView, setCurrentView] = useState('categories'); // 'categories' or 'items'
-
   const totalCraftable = useMemo(
     () => RECIPES.filter(canCraft).length,
     [gameState.materials, canCraft]
   );
   const totalRecipes = RECIPES.length;
-
-  // Move useMemo to top level - fix for hooks rule violation
-  const sortedRecipes = useMemo(
-    () => {
-      if (currentView !== 'items' || !selectedCategory) {
-        return [];
-      }
-      return sortRecipesByRarityAndCraftability(filterRecipesByType(selectedCategory));
-    },
-    [currentView, selectedCategory, gameState.materials, filterRecipesByType, sortRecipesByRarityAndCraftability]
-  );
-
-  // Reset view when card collapses/expands
-  React.useEffect(() => {
-    if (!cardState.semiExpanded && !cardState.expanded) {
-      setCurrentView('categories');
-      setSelectedCategory(null);
-    } else if (cardState.semiExpanded && !cardState.expanded) {
-      setCurrentView('categories');
-    }
-  }, [cardState.semiExpanded, cardState.expanded]);
-
-  const handleCategoryClick = (type) => {
-    setSelectedCategory(type);
-    setCurrentView('items');
-    // Also set the crafting tab for consistency
-    setCraftingTab(type);
-  };
-
-  const handleBackToCategories = () => {
-    setCurrentView('categories');
-    setSelectedCategory(null);
-  };
 
   const renderRecipeCard = (recipe) => (
     <div
@@ -110,6 +74,7 @@ const Workshop = ({
     </div>
   );
 
+  // Collapsed state
   if (!cardState.semiExpanded && !cardState.expanded) {
     return (
       <div>
@@ -118,80 +83,103 @@ const Workshop = ({
     );
   }
 
-  // Categories view (chip badges)
-  if (currentView === 'categories') {
-    const categories = ITEM_TYPES.map(type => {
-      const allRecipes = filterRecipesByType(type);
-      const craftableCount = allRecipes.filter(canCraft).length;
-      const totalCount = allRecipes.length;
-      return { type, allRecipes, craftableCount, totalCount };
-    }).filter(c => c.totalCount > 0);
+  const categories = ITEM_TYPES.map(type => {
+    const allRecipes = filterRecipesByType(type);
+    const craftableCount = allRecipes.filter(canCraft).length;
+    const totalCount = allRecipes.length;
+    return { type, allRecipes, craftableCount, totalCount };
+  }).filter(c => c.totalCount > 0);
 
-    if (categories.length === 0) {
-      return (
-        <div className="text-center py-8">
-          <div className="text-4xl mb-2">🔨</div>
-          <p className="text-sm text-gray-500 italic dark:text-gray-400">
-            No recipes available
-          </p>
-        </div>
-      );
-    }
+  if (categories.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-4xl mb-2">🔨</div>
+        <p className="text-sm text-gray-500 italic dark:text-gray-400">
+          No recipes available
+        </p>
+      </div>
+    );
+  }
 
+  // Semi-expanded: Show clickable category headers
+  if (cardState.semiExpanded && !cardState.expanded) {
     return (
       <div className="space-y-2">
-        <p className="text-sm text-gray-600 dark:text-gray-400">Select Recipe Type</p>
-        <div className="flex flex-wrap gap-2">
-          {categories.map(({ type, craftableCount, totalCount }) => (
-            <button
-              key={type}
-              onClick={() => handleCategoryClick(type)}
-              className="flex items-center gap-2 bg-amber-100 hover:bg-amber-200 border border-amber-300 px-3 py-2 rounded-full transition-colors dark:bg-amber-900 dark:border-amber-700 dark:text-amber-100 dark:hover:bg-amber-800"
-            >
-              <span>{ITEM_TYPE_ICONS[type]}</span>
-              <span className="text-sm font-medium text-amber-800 dark:text-amber-100">
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </span>
-              <span className="bg-amber-600 text-white text-xs px-2 py-1 rounded-full">
-                {craftableCount}/{totalCount}
-              </span>
-            </button>
-          ))}
+        <p className="text-sm text-gray-600 dark:text-gray-400">Recipe Categories (click to expand)</p>
+        <div className="space-y-1">
+          {categories.map(({ type, craftableCount, totalCount }) => {
+            const isExpanded = cardState.expandedCategories.includes(type);
+            const sortedRecipes = isExpanded ? sortRecipesByRarityAndCraftability(filterRecipesByType(type)) : [];
+
+            return (
+              <div key={type} className="border rounded-lg">
+                {/* Category Header - Always Visible */}
+                <button
+                  onClick={() => toggleCategory('workshop', type)}
+                  className="w-full flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">{ITEM_TYPE_ICONS[type]}</span>
+                    <div className="text-left">
+                      <div className="font-medium">
+                        {type.charAt(0).toUpperCase() + type.slice(1)} Recipes
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {craftableCount}/{totalCount} craftable
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-gray-400">
+                    {isExpanded ? '▼' : '▶'}
+                  </span>
+                </button>
+
+                {/* Expanded Category Content */}
+                {isExpanded && (
+                  <div className="px-3 pb-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 max-h-80 overflow-y-auto">
+                      {sortedRecipes.map(renderRecipeCard)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     );
   }
 
-  // Items view (recipe cards)
-  if (currentView === 'items' && selectedCategory) {
+  // Fully expanded: Show everything at once
+  if (cardState.expanded) {
     return (
       <div className="space-y-4">
-        {/* Header with back button */}
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-lg flex items-center gap-2">
-            {ITEM_TYPE_ICONS[selectedCategory]} {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Recipes
-          </h3>
-          <button 
-            onClick={handleBackToCategories}
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            ← Back to Categories
-          </button>
-        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-400">All Recipes</p>
+        {categories.map(({ type, craftableCount, totalCount }) => {
+          const sortedRecipes = sortRecipesByRarityAndCraftability(filterRecipesByType(type));
 
-        {/* Recipe cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-80 overflow-y-auto">
-          {sortedRecipes.map(renderRecipeCard)}
-        </div>
+          return (
+            <div key={type} className="border rounded-lg p-3">
+              {/* Category Header */}
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-lg">{ITEM_TYPE_ICONS[type]}</span>
+                <div>
+                  <div className="font-medium">
+                    {type.charAt(0).toUpperCase() + type.slice(1)} Recipes
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {craftableCount}/{totalCount} craftable
+                  </div>
+                </div>
+              </div>
 
-        {sortedRecipes.length === 0 && (
-          <div className="text-center py-8">
-            <div className="text-4xl mb-2">🔨</div>
-            <p className="text-sm text-gray-500 italic dark:text-gray-400">
-              No {selectedCategory} recipes available
-            </p>
-          </div>
-        )}
+              {/* Recipes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {sortedRecipes.map(renderRecipeCard)}
+              </div>
+            </div>
+          );
+        })}
       </div>
     );
   }
