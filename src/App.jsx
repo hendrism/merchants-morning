@@ -391,7 +391,6 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-        // Replace the Workshop section with this:
         {!getCardState('workshop').hidden && [PHASES.CRAFTING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="workshop">
             <Card>
@@ -426,7 +425,6 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-// Replace the Inventory section with this:
         {!getCardState('inventory').hidden && [PHASES.CRAFTING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="inventory">
             <Card>
@@ -459,7 +457,6 @@ const MerchantsMorning = () => {
           </div>
         )}
 
-// Replace the Customer Queue section with this:
         {!getCardState('customerQueue').hidden && [PHASES.SHOPPING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="customerQueue">
             <Card>
