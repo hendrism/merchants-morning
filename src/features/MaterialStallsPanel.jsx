@@ -5,7 +5,7 @@ import TabButton from '../components/TabButton';
 import MaterialStallCard from '../components/MaterialStallCard';
 import useMaterialStalls from '../hooks/useMaterialStalls';
 
-const MaterialStallsPanel = ({ gameState, getRarityColor }) => {
+const MaterialStallsPanel = ({ gameState, getRarityColor, cardState, toggleCategory }) => {
   const { materialsByStall, getStallMaterialCount, getActiveStalls } = useMaterialStalls(gameState.materials);
   const activeStalls = getActiveStalls();
   const [activeStall, setActiveStall] = useState(activeStalls[0] || 'blacksmith');
@@ -96,6 +96,12 @@ MaterialStallsPanel.propTypes = {
     materials: PropTypes.object.isRequired,
   }).isRequired,
   getRarityColor: PropTypes.func.isRequired,
+  cardState: PropTypes.shape({
+    expanded: PropTypes.bool.isRequired,
+    semiExpanded: PropTypes.bool.isRequired,
+    categoriesOpen: PropTypes.object.isRequired,
+  }).isRequired,
+  toggleCategory: PropTypes.func.isRequired,
 };
 
 export default MaterialStallsPanel;

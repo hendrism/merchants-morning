@@ -362,11 +362,13 @@ const MerchantsMorning = () => {
                 status={materialsStatus.status}
                 badge={materialsStatus.badge}
               />
-              {getCardState('materials').expanded && (
+              {(getCardState('materials').semiExpanded || getCardState('materials').expanded) && (
                 <CardContent expanded={getCardState('materials').expanded}>
                   <MaterialStallsPanel
                     gameState={gameState}
                     getRarityColor={getRarityColor}
+                    cardState={getCardState('materials')}
+                    toggleCategory={toggleCategory}
                   />
                 </CardContent>
               )}
@@ -388,7 +390,7 @@ const MerchantsMorning = () => {
                 progress={{ current: craftableRecipes, total: totalRecipes }}
                 subtitle={workshopStatus.subtitle}
               />
-              {getCardState('workshop').expanded && (
+              {(getCardState('workshop').semiExpanded || getCardState('workshop').expanded) && (
                 <CardContent expanded={getCardState('workshop').expanded}>
                   <Workshop
                     gameState={gameState}
@@ -399,6 +401,8 @@ const MerchantsMorning = () => {
                     filterRecipesByType={filterRecipesByType}
                     sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
                     getRarityColor={getRarityColor}
+                    cardState={getCardState('workshop')}
+                    toggleCategory={toggleCategory}
                   />
                 </CardContent>
               )}
@@ -421,7 +425,7 @@ const MerchantsMorning = () => {
                 status={inventoryStatus.status}
                 badge={inventoryStatus.badge}
               />
-              {getCardState('inventory').expanded && (
+              {(getCardState('inventory').semiExpanded || getCardState('inventory').expanded) && (
                 <CardContent expanded={getCardState('inventory').expanded}>
                   <InventoryPanel
                     gameState={gameState}
@@ -429,6 +433,8 @@ const MerchantsMorning = () => {
                     setInventoryTab={setInventoryTab}
                     filterInventoryByType={filterInventoryByType}
                     getRarityColor={getRarityColor}
+                    cardState={getCardState('inventory')}
+                    toggleCategory={toggleCategory}
                   />
                 </CardContent>
               )}
