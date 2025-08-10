@@ -34,39 +34,45 @@ const InventoryPanel = ({
   }
 
   if (cardState.semiExpanded && !cardState.expanded) {
+    const categories = ITEM_TYPES.map(type => {
+      const items = filterInventoryByType(type);
+      const count = items.reduce((s, [, c]) => s + c, 0);
+      return { type, items, count };
+    }).filter(c => c.count > 0);
+
+    if (categories.length === 0) {
+      return (
+        <div className="space-y-2">
+          <div className="text-sm italic text-gray-500">No items yet</div>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-2">
-        {ITEM_TYPES.map(type => {
-          const items = filterInventoryByType(type);
-          const count = items.reduce((s, [, c]) => s + c, 0);
-          return (
-            <div key={type} className="mb-1">
-              <div
-                className="flex justify-between items-center cursor-pointer"
-                onClick={() => toggleCategory('inventory', type)}
-              >
-                <span className="font-semibold">
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </span>
-                <span className="text-sm">{count}</span>
-              </div>
-              {cardState.categoriesOpen?.[type] && (
-                <div className="pl-4 mt-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto">
-                  {items.map(([itemId, c]) => {
-                    const recipe = RECIPES.find(r => r.id === itemId);
-                    return (
-                      <InventoryItemCard
-                        key={itemId}
-                        recipe={recipe}
-                        count={c}
-                      />
-                    );
-                  })}
-                </div>
-              )}
+        {categories.map(({ type, items, count }) => (
+          <div key={type} className="mb-1">
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => toggleCategory('inventory', type)}
+            >
+              <span className="font-semibold">
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </span>
+              <span className="text-sm">{count}</span>
             </div>
-          );
-        })}
+            {cardState.categoriesOpen?.[type] && (
+              <div className="pl-4 mt-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto">
+                {items.map(([itemId, c]) => {
+                  const recipe = RECIPES.find(r => r.id === itemId);
+                  return (
+                    <InventoryItemCard key={itemId} recipe={recipe} count={c} />
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     );
   }
