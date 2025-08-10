@@ -89,33 +89,41 @@ const Workshop = ({
   }
 
   if (cardState.semiExpanded && !cardState.expanded) {
+    const cats = ITEM_TYPES.map(type => {
+      const allRecipes = filterRecipesByType(type);
+      return {
+        type,
+        allRecipes,
+        craftableCount: allRecipes.filter(canCraft).length,
+        totalCount: allRecipes.length,
+      };
+    });
+    const hasAny = cats.some(c => c.totalCount > 0);
     return (
       <div className="space-y-2">
-        {ITEM_TYPES.map(type => {
-          const allRecipes = filterRecipesByType(type);
-          const craftableCount = allRecipes.filter(canCraft).length;
-          const totalCount = allRecipes.length;
-          return (
-            <div key={type} className="mb-1">
-              <div
-                className="flex justify-between items-center cursor-pointer"
-                onClick={() => toggleCategory('workshop', type)}
-              >
-                <span className="font-semibold">
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </span>
-                <span className="text-sm">
-                  {craftableCount}/{totalCount}
-                </span>
-              </div>
-              {cardState.categoriesOpen?.[type] && (
-                <div className="pl-4 mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto">
-                  {sortRecipesByRarityAndCraftability(allRecipes).map(renderRecipeCard)}
-                </div>
-              )}
+        {!hasAny && (
+          <div className="text-sm text-gray-500 italic">No items yet</div>
+        )}
+        {cats.map(({ type, allRecipes, craftableCount, totalCount }) => (
+          <div key={type} className="mb-1">
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => toggleCategory('workshop', type)}
+            >
+              <span className="font-semibold">
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </span>
+              <span className="text-sm">
+                {craftableCount}/{totalCount}
+              </span>
             </div>
-          );
-        })}
+            {cardState.categoriesOpen?.[type] && (
+              <div className="pl-4 mt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto">
+                {sortRecipesByRarityAndCraftability(allRecipes).map(renderRecipeCard)}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     );
   }

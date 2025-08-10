@@ -50,38 +50,42 @@ const MaterialStallsPanel = ({ gameState, getRarityColor, cardState, toggleCateg
   }
 
   if (cardState.semiExpanded && !cardState.expanded) {
+    const entries = Object.entries(materialsByType).sort((a, b) =>
+      a[0].localeCompare(b[0])
+    );
     return (
       <div className="material-stalls-panel space-y-2">
-        {Object.entries(materialsByType)
-          .sort((a, b) => a[0].localeCompare(b[0]))
-          .map(([type, mats]) => {
-            const count = mats.reduce((s, m) => s + m.count, 0);
-            return (
-              <div key={type} className="mb-1">
-                <div
-                  className="flex justify-between items-center cursor-pointer"
-                  onClick={() => toggleCategory('materials', type)}
-                >
-                  <span className="font-semibold">
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </span>
-                  <span className="text-sm">{count}</span>
-                </div>
-                {cardState.categoriesOpen?.[type] && (
-                  <div className="pl-4 mt-1 space-y-1">
-                    {mats.map(mat => (
-                      <div key={mat.id} className="flex justify-between text-sm">
-                        <span>
-                          {mat.icon} {mat.name}
-                        </span>
-                        <span>{mat.count}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+        {entries.length === 0 && (
+          <div className="text-sm text-gray-500 italic">No items yet</div>
+        )}
+        {entries.map(([type, mats]) => {
+          const count = mats.reduce((s, m) => s + m.count, 0);
+          return (
+            <div key={type} className="mb-1">
+              <div
+                className="flex justify-between items-center cursor-pointer"
+                onClick={() => toggleCategory('materials', type)}
+              >
+                <span className="font-semibold">
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </span>
+                <span className="text-sm">{count}</span>
               </div>
-            );
-          })}
+              {cardState.categoriesOpen?.[type] && (
+                <div className="pl-4 mt-1 space-y-1">
+                  {mats.map(mat => (
+                    <div key={mat.id} className="flex justify-between text-sm">
+                      <span>
+                        {mat.icon} {mat.name}
+                      </span>
+                      <span>{mat.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     );
   }

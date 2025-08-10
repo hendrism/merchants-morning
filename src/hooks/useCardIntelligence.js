@@ -1,19 +1,29 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getDefaultCardStatesForPhase } from '../utils/cardContext';
 import { BOX_TYPES } from '../constants';
+
+// Reset per-phase defaults while ensuring categoriesOpen is always defined
 const applyPhaseDefaults = (prev, phase) => {
   const defaults = getDefaultCardStatesForPhase(phase);
   const merged = {};
-  Object.keys(defaults).forEach((key) => {
-    merged[key] = { ...(prev[key] || {}), ...defaults[key] };
+  Object.keys(defaults).forEach(key => {
+    merged[key] = {
+      ...(prev[key] || {}),
+      ...defaults[key],
+      categoriesOpen: {},
+    };
   });
   return merged;
 };
 
 const useCardIntelligence = (gameState) => {
-  const [cardStates, setCardStates] = useState(() =>
-    getDefaultCardStatesForPhase(gameState.phase, gameState)
-  );
+  const [cardStates, setCardStates] = useState(() => {
+    const initial = getDefaultCardStatesForPhase(gameState.phase, gameState);
+    Object.keys(initial).forEach(key => {
+      initial[key].categoriesOpen = {};
+    });
+    return initial;
+  });
 
   useEffect(() => {
     setCardStates((prev) => applyPhaseDefaults(prev, gameState.phase));
@@ -41,31 +51,21 @@ const useCardIntelligence = (gameState) => {
     [getCardState]
   );
 
+  // Toggle a specific category within a card, initializing state if missing
   const toggleCategory = useCallback((cardId, category) => {
-    setCardStates((prev) => {
-      const current =
-        prev[cardId] || {
-          expanded: false,
-          semiExpanded: false,
-          hidden: false,
-          expandedCategories: [],
-          categoriesOpen: {},
-        };
-      const setCat = new Set(current.expandedCategories || []);
-      let isOpen;
-      if (setCat.has(category)) {
-        setCat.delete(category);
-        isOpen = false;
-      } else {
-        setCat.add(category);
-        isOpen = true;
-      }
+    setCardStates(prev => {
+      const card = prev[cardId] || {
+        expanded: false,
+        semiExpanded: false,
+        hidden: false,
+        categoriesOpen: {},
+      };
+      const open = card.categoriesOpen?.[category] ?? false;
       return {
         ...prev,
         [cardId]: {
-          ...current,
-          expandedCategories: Array.from(setCat),
-          categoriesOpen: { ...(current.categoriesOpen || {}), [category]: isOpen },
+          ...card,
+          categoriesOpen: { ...card.categoriesOpen, [category]: !open },
         },
       };
     });

@@ -36,6 +36,9 @@ const InventoryPanel = ({
   if (cardState.semiExpanded && !cardState.expanded) {
     return (
       <div className="space-y-2">
+        {totalItems === 0 && (
+          <div className="text-sm text-gray-500 italic">No items yet</div>
+        )}
         {ITEM_TYPES.map(type => {
           const items = filterInventoryByType(type);
           const count = items.reduce((s, [, c]) => s + c, 0);
