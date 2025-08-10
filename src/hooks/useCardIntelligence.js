@@ -1,22 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getDefaultCardStatesForPhase } from '../utils/cardContext';
 import { BOX_TYPES } from '../constants';
-import { CardId, CardState } from '../types/ui';
-
-const applyPhaseDefaults = (
-  prev: Record<string, any>,
-  phase: string
-): Record<string, any> => {
+const applyPhaseDefaults = (prev, phase) => {
   const defaults = getDefaultCardStatesForPhase(phase);
-  const merged: Record<string, any> = {};
+  const merged = {};
   Object.keys(defaults).forEach((key) => {
     merged[key] = { ...(prev[key] || {}), ...defaults[key] };
   });
   return merged;
 };
 
-const useCardIntelligence = (gameState: any) => {
-  const [cardStates, setCardStates] = useState<Record<string, any>>(() =>
+const useCardIntelligence = (gameState) => {
+  const [cardStates, setCardStates] = useState(() =>
     getDefaultCardStatesForPhase(gameState.phase, gameState)
   );
 
@@ -25,59 +20,56 @@ const useCardIntelligence = (gameState: any) => {
   }, [gameState.phase]);
 
   const getCardState = useCallback(
-    (id: CardId): CardState =>
-      (cardStates[id] || {
+    (id) =>
+      cardStates[id] || {
         expanded: false,
         semiExpanded: false,
         hidden: false,
         expandedCategories: [],
         categoriesOpen: {},
-      }) as CardState,
+      },
     [cardStates]
   );
 
   const updateCardState = useCallback(
-    (id: CardId, updates: Record<string, any>) => {
+    (id, updates) => {
       setCardStates((prev) => ({
         ...prev,
-        [id]: { ...(getCardState(id) as any), ...updates },
+        [id]: { ...getCardState(id), ...updates },
       }));
     },
     [getCardState]
   );
 
-  const toggleCategory = useCallback(
-    (cardId: CardId, category: string): void => {
-      setCardStates((prev) => {
-        const current =
-          prev[cardId] || {
-            expanded: false,
-            semiExpanded: false,
-            hidden: false,
-            expandedCategories: [],
-            categoriesOpen: {},
-          };
-        const setCat = new Set(current.expandedCategories || []);
-        let isOpen;
-        if (setCat.has(category)) {
-          setCat.delete(category);
-          isOpen = false;
-        } else {
-          setCat.add(category);
-          isOpen = true;
-        }
-        return {
-          ...prev,
-          [cardId]: {
-            ...current,
-            expandedCategories: Array.from(setCat),
-            categoriesOpen: { ...((current as any).categoriesOpen || {}), [category]: isOpen },
-          },
+  const toggleCategory = useCallback((cardId, category) => {
+    setCardStates((prev) => {
+      const current =
+        prev[cardId] || {
+          expanded: false,
+          semiExpanded: false,
+          hidden: false,
+          expandedCategories: [],
+          categoriesOpen: {},
         };
-      });
-    },
-    []
-  );
+      const setCat = new Set(current.expandedCategories || []);
+      let isOpen;
+      if (setCat.has(category)) {
+        setCat.delete(category);
+        isOpen = false;
+      } else {
+        setCat.add(category);
+        isOpen = true;
+      }
+      return {
+        ...prev,
+        [cardId]: {
+          ...current,
+          expandedCategories: Array.from(setCat),
+          categoriesOpen: { ...(current.categoriesOpen || {}), [category]: isOpen },
+        },
+      };
+    });
+  }, []);
 
   const getCardStatus = useCallback(
     (cardType, gs = gameState) => {
