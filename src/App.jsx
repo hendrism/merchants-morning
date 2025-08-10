@@ -32,13 +32,13 @@ const MerchantsMorning = () => {
 
   const { getCardState, updateCardState, toggleCategory, getCardStatus } = cardIntelligence;
 
-  // Helper function to handle card toggles for three states
+  // Smart header toggle - different behavior for different card types
   const handleCardToggle = useCallback((cardId) => {
     const current = getCardState(cardId);
-
+    
     // Cards that only need 2 states (collapsed, expanded)
     const twoStateCards = ['marketNews', 'supplyBoxes', 'customerQueue'];
-
+    
     if (twoStateCards.includes(cardId)) {
       // Toggle between collapsed and expanded only
       if (!current.expanded) {
@@ -47,17 +47,19 @@ const MerchantsMorning = () => {
         updateCardState(cardId, { expanded: false, semiExpanded: false, expandedCategories: [] });
       }
     } else {
-      // Three-state cards (materials, workshop, inventory)
+      // Three-state cards with smart behavior (materials, workshop, inventory)
       if (!current.semiExpanded && !current.expanded) {
+        // Collapsed → Categories
         updateCardState(cardId, { semiExpanded: true });
       } else if (current.semiExpanded && !current.expanded) {
+        // Categories → Expanded
         updateCardState(cardId, { expanded: true });
       } else {
+        // Expanded → Collapsed (skip categories)
         updateCardState(cardId, { expanded: false, semiExpanded: false, expandedCategories: [] });
       }
     }
   }, [getCardState, updateCardState]);
-
 
   const [eventLog, setEventLog] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -136,16 +138,16 @@ const MerchantsMorning = () => {
       default: return 'text-gray-600 bg-gray-100 border-gray-200';
     }
   };
-  const {
-    openBox,
-    craftItem,
-    canCraft,
-    filterRecipesByType,
-    filterInventoryByType: rawFilterInventoryByType,
-    sortRecipesByRarityAndCraftability,
-    sortByMatchQualityAndRarity,
-    getSaleInfo,
-  } = useCrafting(gameState, setGameState, addEvent, addNotification);
+    const {
+      openBox,
+      craftItem,
+      canCraft,
+      filterRecipesByType,
+      filterInventoryByType: rawFilterInventoryByType,
+      sortRecipesByRarityAndCraftability,
+      sortByMatchQualityAndRarity,
+      getSaleInfo,
+    } = useCrafting(gameState, setGameState, addEvent, addNotification);
 
   const filterInventoryByType = useCallback(
     (type) => rawFilterInventoryByType(type),
@@ -185,7 +187,7 @@ const MerchantsMorning = () => {
     }
   }, [gameState.phase, setGameState, addNotification, openShop, endDay, startNewDay]);
 
-  // NEW: Gesture handlers
+  // Gesture handlers
   const handleSwipeGesture = useCallback((direction) => {
     if (direction === 'left') {
       advancePhase();
@@ -205,6 +207,7 @@ const MerchantsMorning = () => {
       }
     }
   }, [advancePhase, gameState.phase, setGameState, addNotification]);
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 pb-20 pb-safe dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
       <Notifications notifications={notifications} />
@@ -221,60 +224,71 @@ const MerchantsMorning = () => {
                 {gameState.phase.charAt(0).toUpperCase() + gameState.phase.slice(1)}
               </p>
             </div>
-            <div className="relative">
+            <div className="flex items-center gap-2">
+              {/* Advance Phase Button - Integrated into header */}
+              <button
+                onClick={advancePhase}
+                className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg shadow flex items-center gap-2"
+                aria-label="Advance to next phase"
+              >
+                <ArrowRight className="w-4 h-4" />
+                <span className="hidden sm:inline text-sm font-medium">Next Phase</span>
+              </button>
+              
+              {/* Menu button */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="w-12 h-12 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
+                className="w-12 h-12 flex items-center justify-center rounded bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 relative"
                 aria-label="Open menu"
               >
                 <Menu className="w-5 h-5" />
+                {menuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white border rounded shadow-lg dark:bg-gray-700 dark:border-gray-600 z-50">
+                    <button
+                      onClick={() => {
+                        setDarkMode(!darkMode);
+                        setMenuOpen(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
+                    >
+                      {darkMode ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4" />}
+                      {darkMode ? 'Light Mode' : 'Dark Mode'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowEventLog(!showEventLog);
+                        setMenuOpen(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      {showEventLog ? 'Hide Events' : 'Show Events'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Reset game progress?')) {
+                          resetGame();
+                          addEvent('Game reset', 'info');
+                          addNotification('Game reset', 'success');
+                        }
+                        setMenuOpen(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
+                    >
+                      <AlertCircle className="w-4 h-4" />
+                      Reset Game
+                    </button>
+                    <button disabled className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-400 cursor-not-allowed">
+                      <Settings className="w-4 h-4" />
+                      Settings
+                    </button>
+                    <button disabled className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-400 cursor-not-allowed">
+                      <HelpCircle className="w-4 h-4" />
+                      Help / About
+                    </button>
+                  </div>
+                )}
               </button>
-              {menuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg dark:bg-gray-700 dark:border-gray-600 z-50">
-                  <button
-                    onClick={() => {
-                      setDarkMode(!darkMode);
-                      setMenuOpen(false);
-                    }}
-                    className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
-                  >
-                    {darkMode ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4" />}
-                    {darkMode ? 'Light Mode' : 'Dark Mode'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowEventLog(!showEventLog);
-                      setMenuOpen(false);
-                    }}
-                    className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    {showEventLog ? 'Hide Events' : 'Show Events'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (window.confirm('Reset game progress?')) {
-                        resetGame();
-                        addEvent('Game reset', 'info');
-                        addNotification('Game reset', 'success');
-                      }
-                      setMenuOpen(false);
-                    }}
-                    className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
-                  >
-                    <AlertCircle className="w-4 h-4" />
-                    Reset Game
-                  </button>
-                  <button disabled className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-400 cursor-not-allowed">
-                    <Settings className="w-4 h-4" />
-                    Settings
-                  </button>
-                  <button disabled className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-400 cursor-not-allowed">
-                    <HelpCircle className="w-4 h-4" />
-                    Help / About
-                  </button>
-                </div>
-              )}
             </div>
           </div>
           <div className="mt-2 flex items-center gap-2 text-2xl font-bold text-yellow-600">
@@ -289,6 +303,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
+        {/* Market News - 2 states only */}
         {!getCardState('marketNews').hidden && [PHASES.MORNING, PHASES.CRAFTING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="marketNews">
             <Card>
@@ -323,6 +338,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
+        {/* Supply Boxes - 2 states only */}
         {[PHASES.MORNING, PHASES.END_DAY].includes(gameState.phase) && !getCardState('supplyBoxes').hidden && (
           <div data-card-id="supplyBoxes">
             <Card>
@@ -339,21 +355,29 @@ const MerchantsMorning = () => {
               />
               {getCardState('supplyBoxes').expanded && (
                 <CardContent expanded={true}>
-                  <div className="grid grid-cols-3 gap-3">
+                  {/* Large Chips Style for Supply Boxes */}
+                  <div className="flex flex-wrap gap-3">
                     {Object.entries(BOX_TYPES).map(([type, box]) => (
-                      <div key={type} className="border rounded-lg p-3 text-center hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
-                        <h3 className="font-bold capitalize text-sm mb-1 h-10 flex items-center justify-center">{box.name}</h3>
-                        <p className="text-sm sm:text-xs text-gray-600 mb-2 dark:text-gray-300">
-                          {box.materialCount[0]}-{box.materialCount[1]} materials
-                        </p>
-                        <button
-                          onClick={() => openBox(type)}
-                          disabled={gameState.gold < box.cost}
-                          className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 text-white px-3 py-2 rounded font-bold text-sm"
-                        >
+                      <button
+                        key={type}
+                        onClick={() => openBox(type)}
+                        disabled={gameState.gold < box.cost}
+                        className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl border-2 min-w-[120px] transition-all ${
+                          gameState.gold >= box.cost
+                            ? 'bg-amber-100 border-amber-300 hover:bg-amber-200 text-amber-800'
+                            : 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
+                      >
+                        <span className="text-sm font-bold">{box.name}</span>
+                        <span className="text-xs">{box.materialCount[0]}-{box.materialCount[1]} materials</span>
+                        <span className={`text-xs px-3 py-1 rounded-full font-bold ${
+                          gameState.gold >= box.cost
+                            ? 'bg-amber-600 text-white'
+                            : 'bg-gray-400 text-gray-200'
+                        }`}>
                           {box.cost} Gold
-                        </button>
-                      </div>
+                        </span>
+                      </button>
                     ))}
                   </div>
                 </CardContent>
@@ -362,6 +386,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
+        {/* Materials - 3 states with smart behavior */}
         {!getCardState('materials').hidden && [PHASES.MORNING, PHASES.CRAFTING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="materials">
             <Card>
@@ -378,7 +403,7 @@ const MerchantsMorning = () => {
                 badge={materialsStatus.badge}
               />
               {(getCardState('materials').semiExpanded || getCardState('materials').expanded) && (
-                <CardContent expanded={true}> {/* Always pass true to show content */}
+                <CardContent expanded={true}>
                   <MaterialStallsPanel
                     gameState={gameState}
                     getRarityColor={getRarityColor}
@@ -391,6 +416,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
+        {/* Workshop - 3 states with smart behavior */}
         {!getCardState('workshop').hidden && [PHASES.CRAFTING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="workshop">
             <Card>
@@ -406,7 +432,7 @@ const MerchantsMorning = () => {
                 subtitle={workshopStatus.subtitle}
               />
               {(getCardState('workshop').semiExpanded || getCardState('workshop').expanded) && (
-                <CardContent expanded={true}> {/* Always pass true to show content */}
+                <CardContent expanded={true}>
                   <Workshop
                     gameState={gameState}
                     craftingTab={craftingTab}
@@ -425,6 +451,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
+        {/* Inventory - 3 states with smart behavior */}
         {!getCardState('inventory').hidden && [PHASES.CRAFTING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="inventory">
             <Card>
@@ -441,7 +468,7 @@ const MerchantsMorning = () => {
                 badge={inventoryStatus.badge}
               />
               {(getCardState('inventory').semiExpanded || getCardState('inventory').expanded) && (
-                <CardContent expanded={true}> {/* Always pass true to show content */}
+                <CardContent expanded={true}>
                   <InventoryPanel
                     gameState={gameState}
                     inventoryTab={inventoryTab}
@@ -457,6 +484,7 @@ const MerchantsMorning = () => {
           </div>
         )}
 
+        {/* Customer Queue - 2 states only */}
         {!getCardState('customerQueue').hidden && [PHASES.SHOPPING, PHASES.END_DAY].includes(gameState.phase) && (
           <div data-card-id="customerQueue">
             <Card>
@@ -496,13 +524,7 @@ const MerchantsMorning = () => {
           <EndOfDaySummary gameState={gameState} />
         )}
       </GestureHandler>
-      <button
-        onClick={advancePhase}
-        className="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg"
-        aria-label="Advance to next phase"
-      >
-        <ArrowRight className="w-5 h-5" />
-      </button>
+      
       <UpdateToast />
     </div>
   );

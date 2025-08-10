@@ -664,3 +664,335 @@ textarea:focus {
     font-size: 20px;
   }
 }
+
+/* Add these styles to your src/index.css file */
+
+/* ===== CHIP STYLING ===== */
+
+/* Base chip styles */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+  border: 2px solid;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Amber theme chips (for categories) */
+.chip-amber {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+.chip-amber:hover {
+  background-color: #fde68a;
+}
+
+.dark .chip-amber {
+  background-color: #78350f;
+  border-color: #b45309;
+  color: #fbbf24;
+}
+
+.dark .chip-amber:hover {
+  background-color: #92400e;
+}
+
+/* Rarity colored chips */
+.chip-rarity-common {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.chip-rarity-uncommon {
+  background-color: #dcfce7;
+  border-color: #16a34a;
+  color: #166534;
+}
+
+.chip-rarity-rare {
+  background-color: #f3e8ff;
+  border-color: #9333ea;
+  color: #6b21a8;
+}
+
+.chip-rarity-legendary {
+  background-color: #fefce8;
+  border-color: #eab308;
+  color: #a16207;
+}
+
+/* Dark mode rarity chips */
+.dark .chip-rarity-common {
+  background-color: #4b5563;
+  border-color: #6b7280;
+  color: #e5e7eb;
+}
+
+.dark .chip-rarity-uncommon {
+  background-color: #14532d;
+  border-color: #166534;
+  color: #bbf7d0;
+}
+
+.dark .chip-rarity-rare {
+  background-color: #581c87;
+  border-color: #7c3aed;
+  color: #ddd6fe;
+}
+
+.dark .chip-rarity-legendary {
+  background-color: #78350f;
+  border-color: #d97706;
+  color: #fde047;
+}
+
+/* ===== INVENTORY ITEM CARD UPDATES ===== */
+
+.inventory-item-card {
+  background: #f8f9fa; /* Gray background instead of white */
+  border-radius: 8px;
+  padding: 12px;
+  border: 2px solid #e9ecef;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 120px;
+}
+
+.inventory-item-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode support for inventory cards */
+.dark .inventory-item-card {
+  background: #374151; /* Dark gray for dark mode */
+  border-color: #4b5563;
+}
+
+/* ===== LARGE ACTION CHIPS (Option C) ===== */
+
+.large-action-chip {
+  background: #f3f4f6;
+  border: 2px solid #d1d5db;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-width: 160px;
+}
+
+.large-action-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #9ca3af;
+}
+
+.dark .large-action-chip {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.dark .large-action-chip:hover {
+  border-color: #6b7280;
+}
+
+/* ===== SUPPLY BOX CHIPS ===== */
+
+.supply-box-chip {
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  color: #92400e;
+}
+
+.supply-box-chip:hover {
+  background: #fde68a;
+}
+
+.supply-box-chip:disabled {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.supply-box-chip:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===== CUSTOMER SELECTION CHIPS ===== */
+
+.customer-chip {
+  background: #f3f4f6;
+  border: 2px solid #d1d5db;
+  color: #374151;
+}
+
+.customer-chip:hover {
+  background: #e5e7eb;
+}
+
+.customer-chip.selected {
+  background: #dbeafe;
+  border-color: #3b82f6;
+  color: #1e40af;
+}
+
+.dark .customer-chip {
+  background: #374151;
+  border-color: #4b5563;
+  color: #e5e7eb;
+}
+
+.dark .customer-chip:hover {
+  background: #4b5563;
+}
+
+.dark .customer-chip.selected {
+  background: #1e3a8a;
+  border-color: #3b82f6;
+  color: #bfdbfe;
+}
+
+/* ===== PROFESSION SPECIFIC COLORS ===== */
+
+.profession-knight { background: #f3f4f6; border-color: #6b7280; color: #374151; }
+.profession-ranger { background: #dcfce7; border-color: #16a34a; color: #166534; }
+.profession-mage { background: #f3e8ff; border-color: #9333ea; color: #6b21a8; }
+.profession-merchant { background: #fefce8; border-color: #eab308; color: #a16207; }
+.profession-noble { background: #fce7f3; border-color: #ec4899; color: #be185d; }
+.profession-guard { background: #dbeafe; border-color: #3b82f6; color: #1e40af; }
+
+/* ===== BUDGET INDICATORS ===== */
+
+.budget-wealthy { background: #16a34a; }
+.budget-middle { background: #eab308; }
+.budget-budget { background: #dc2626; }
+
+/* ===== HEADER ADVANCE BUTTON ===== */
+
+.header-advance-button {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-advance-button:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== BACK BUTTONS ===== */
+
+.back-button {
+  color: #3b82f6;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.back-button:hover {
+  color: #1d4ed8;
+}
+
+.dark .back-button {
+  color: #60a5fa;
+}
+
+.dark .back-button:hover {
+  color: #93c5fd;
+}
+
+/* ===== CARD TRANSITIONS ===== */
+
+.card-content-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.card-content-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.card-content-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card-content-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* ===== RESPONSIVE IMPROVEMENTS ===== */
+
+@media (max-width: 640px) {
+  .chip {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+  }
+  
+  .large-action-chip {
+    min-width: 140px;
+    padding: 0.5rem;
+  }
+  
+  .header-advance-button {
+    padding: 0.5rem;
+  }
+  
+  .header-advance-button span {
+    display: none; /* Hide text on mobile, keep icon */
+  }
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+
+.chip:focus,
+.large-action-chip:focus,
+.customer-chip:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+.chip-badge {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+.dark .chip-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
