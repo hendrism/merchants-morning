@@ -23,6 +23,17 @@ const Workshop = ({
   );
   const totalRecipes = RECIPES.length;
 
+  // Move useMemo to top level - fix for hooks rule violation
+  const sortedRecipes = useMemo(
+    () => {
+      if (currentView !== 'items' || !selectedCategory) {
+        return [];
+      }
+      return sortRecipesByRarityAndCraftability(filterRecipesByType(selectedCategory));
+    },
+    [currentView, selectedCategory, gameState.materials, filterRecipesByType, sortRecipesByRarityAndCraftability]
+  );
+
   // Reset view when card collapses/expands
   React.useEffect(() => {
     if (!cardState.semiExpanded && !cardState.expanded) {
@@ -153,11 +164,6 @@ const Workshop = ({
 
   // Items view (recipe cards)
   if (currentView === 'items' && selectedCategory) {
-    const sortedRecipes = useMemo(
-      () => sortRecipesByRarityAndCraftability(filterRecipesByType(selectedCategory)),
-      [selectedCategory, gameState.materials, filterRecipesByType, sortRecipesByRarityAndCraftability]
-    );
-
     return (
       <div className="space-y-4">
         {/* Header with back button */}
