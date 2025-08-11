@@ -1343,3 +1343,218 @@ textarea:focus {
     right: 16px;
   }
 }
+
+/* Add these styles to the END of your src/index.css file */
+
+/* ===== NOTIFICATION IMPROVEMENTS ===== */
+
+.notification-container {
+  max-height: 200px;
+  overflow: hidden;
+}
+
+.notification-toast {
+  transform: translateY(20px);
+  opacity: 0;
+  animation: slideUpFadeIn 0.3s ease-out forwards;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+@keyframes slideUpFadeIn {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUpFadeIn 0.3s ease-out;
+}
+
+/* Ensure notifications don't interfere with bottom nav */
+@media (max-width: 640px) {
+  .notification-container {
+    bottom: 100px; /* Above bottom navigation */
+    left: 12px;
+    right: 12px;
+  }
+}
+
+/* ===== PHASE TRANSITION BUTTONS ===== */
+
+.phase-button {
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.phase-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.phase-button:active {
+  transform: translateY(0);
+}
+
+/* ===== EXPANDABLE CATEGORIES ===== */
+
+.category-group {
+  transition: all 0.3s ease;
+}
+
+.category-group button {
+  transition: all 0.2s ease;
+}
+
+.category-group button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Category content animation */
+.category-content-enter {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.category-content-enter-active {
+  opacity: 1;
+  max-height: 500px;
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+.category-content-exit {
+  opacity: 1;
+  max-height: 500px;
+}
+
+.category-content-exit-active {
+  opacity: 0;
+  max-height: 0;
+  transition: opacity 0.2s ease, max-height 0.2s ease;
+  overflow: hidden;
+}
+
+/* ===== MOBILE IMPROVEMENTS ===== */
+
+/* Better touch feedback for category toggles */
+@media (hover: none) and (pointer: coarse) {
+  .category-group button:active {
+    background-color: #f3f4f6;
+    transform: scale(0.98);
+  }
+}
+
+/* Improved spacing for mobile */
+@media (max-width: 640px) {
+  .prep-tabs-container {
+    padding-bottom: 20px;
+  }
+  
+  .category-group {
+    margin-bottom: 12px;
+  }
+  
+  .category-group button {
+    padding: 12px;
+  }
+  
+  .notification-toast {
+    font-size: 0.875rem;
+    padding: 8px 12px;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* Focus styles for category buttons */
+.category-group button:focus {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .notification-toast {
+    border: 2px solid white;
+  }
+  
+  .category-group button {
+    border-width: 2px;
+  }
+  
+  .phase-button {
+    border: 2px solid white;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .notification-toast,
+  .category-group button,
+  .phase-button {
+    animation: none;
+    transition: none;
+  }
+  
+  .category-group button:hover,
+  .phase-button:hover {
+    transform: none;
+  }
+}
+
+/* ===== LOADING STATES ===== */
+
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ===== SAFE AREAS FOR MOBILE ===== */
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* ===== SCROLLBAR STYLING FOR CATEGORIES ===== */
+
+.category-content {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.category-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-content::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 3px;
+}
+
+.category-content::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.category-content::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}

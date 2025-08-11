@@ -15,7 +15,6 @@ const PrepTabs = ({
   filterRecipesByType,
   sortRecipesByRarityAndCraftability,
   filterInventoryByType,
-  onReadyToSell,
 }) => {
   const renderMarket = () => (
     <div className="space-y-4">
@@ -74,25 +73,8 @@ const PrepTabs = ({
   );
 
   const renderItems = () => (
-    <div className="space-y-4">
-      <InventoryPanel gameState={gameState} filterInventoryByType={filterInventoryByType} />
-      <div className="text-center pt-4">
-        <button
-          onClick={onReadyToSell}
-          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold text-base min-h-[48px] hover:from-blue-700 hover:to-blue-800 transition-all"
-        >
-          🛒 Ready to Sell Items
-        </button>
-      </div>
-    </div>
+    <InventoryPanel gameState={gameState} filterInventoryByType={filterInventoryByType} />
   );
-
-  const tabs = [
-    { id: 'market', label: 'Market', icon: '📰', description: 'News & Supply Boxes' },
-    { id: 'materials', label: 'Materials', icon: '📦', description: 'Your Materials' },
-    { id: 'workshop', label: 'Workshop', icon: '⚒️', description: 'Craft Items' },
-    { id: 'items', label: 'Items', icon: '🎒', description: 'Your Inventory' },
-  ];
 
   const renderContent = () => {
     switch (currentTab) {
@@ -111,24 +93,6 @@ const PrepTabs = ({
 
   return (
     <div className="prep-tabs-container">
-      {/* Top Tab Navigation - Mobile Optimized */}
-      <div className="flex gap-2 prep-tabs mb-4 overflow-x-auto pb-2">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`flex flex-col items-center flex-none px-4 py-3 rounded-lg border-2 min-w-[90px] transition-all ${
-              currentTab === tab.id 
-                ? 'bg-gradient-to-tr from-blue-500 to-blue-700 text-white border-blue-500' 
-                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            <div className="text-xl mb-1">{tab.icon}</div>
-            <div className="text-xs font-medium text-center leading-tight">{tab.label}</div>
-          </button>
-        ))}
-      </div>
-
       {/* Content Area */}
       <div className="tab-content">{renderContent()}</div>
     </div>
@@ -145,7 +109,6 @@ PrepTabs.propTypes = {
   filterRecipesByType: PropTypes.func.isRequired,
   sortRecipesByRarityAndCraftability: PropTypes.func.isRequired,
   filterInventoryByType: PropTypes.func.isRequired,
-  onReadyToSell: PropTypes.func.isRequired,
 };
 
 export default PrepTabs;
