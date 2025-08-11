@@ -98,6 +98,19 @@ const MerchantsMorning = () => {
   // Check if we're in development mode (more reliable check)
   const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
+  // Add keyboard shortcut for debug console (Ctrl+D or Cmd+D)
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd' && isDevelopment) {
+        e.preventDefault();
+        setShowDebug(prev => !prev);
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [isDevelopment]);
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-amber-50 to-orange-200">
       <Header 
@@ -165,29 +178,70 @@ const MerchantsMorning = () => {
 
       <UpdateToast />
 
-      {/* Debug Tools - Always show in development, or when manually enabled */}
-      {(isDevelopment || showDebug) && (
+      {/* Debug Tools - Fixed visibility and positioning */}
+      {isDevelopment && (
         <>
+          {/* Debug Toggle Button - Always visible in development */}
           <button
-            className="fixed top-20 right-4 bg-gray-700 text-white px-3 py-1 rounded z-50 hover:bg-gray-600 transition-colors shadow-lg"
+            className="fixed top-20 right-4 bg-gray-800 text-white px-3 py-2 rounded-lg z-[60] hover:bg-gray-700 transition-colors shadow-lg border border-gray-600"
             onClick={() => setShowDebug(prev => !prev)}
-            title="Toggle Debug Console"
+            title="Toggle Debug Console (Ctrl+D)"
           >
-            {showDebug ? '🔧 Close' : '🔧 Debug'}
+            <span className="flex items-center gap-2">
+              <span>🔧</span>
+              <span className="hidden sm:inline">
+                {showDebug ? 'Close' : 'Debug'}
+              </span>
+            </span>
           </button>
+
+          {/* Debug Console - Better positioning to avoid conflicts */}
           {showDebug && (
-            <DebugConsole
-              gameState={gameState}
-              setGameState={setGameState}
-              resetGame={resetGame}
-              openShop={openShop}
-              serveCustomer={serveCustomer}
-            />
+            <>
+              {/* Backdrop for mobile */}
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-25 z-[55] md:hidden"
+                onClick={() => setShowDebug(false)}
+              />
+              
+              {/* Debug Console */}
+              <div className="fixed top-28 right-4 bottom-4 w-80 max-w-[calc(100vw-2rem)] bg-white/95 backdrop-blur-sm border border-gray-300 rounded-lg shadow-xl z-[65] flex flex-col">
+                {/* Console Header */}
+                <div className="flex items-center justify-between p-3 border-b bg-gray-50 rounded-t-lg">
+                  <h2 className="font-bold text-gray-800 flex items-center gap-2">
+                    🔧 Debug Console
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs bg-gray-100 px-2 py-1 rounded">
+                      Day {gameState.day} • {gameState.gold}g
+                    </div>
+                    <button 
+                      className="text-gray-600 hover:text-gray-800 text-xl leading-none"
+                      onClick={() => setShowDebug(false)}
+                      title="Close Debug Console"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Console Content - Scrollable */}
+                <div className="flex-1 overflow-y-auto">
+                  <DebugConsole
+                    gameState={gameState}
+                    setGameState={setGameState}
+                    resetGame={resetGame}
+                    openShop={openShop}
+                    serveCustomer={serveCustomer}
+                  />
+                </div>
+              </div>
+            </>
           )}
         </>
       )}
 
-      {/* Development mode indicator */}
+      {/* Development mode indicator - Updated positioning */}
       {isDevelopment && (
         <div className="fixed top-20 left-4 bg-yellow-500 text-black px-2 py-1 rounded text-xs z-40">
           DEV
