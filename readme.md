@@ -8,7 +8,7 @@ A fantasy shopkeeping Progressive Web App where you craft items from materials a
 - **Progressive Difficulty**: Customers want more valuable items as days progress
 - **Smart Crafting System**: Tabbed interface with rarity-based sorting
 - **Expanded Crafting**: Weapons, armor, trinkets, potions, and tools
-- **Strategic Selling**: Match customer requests and earn bonuses for upgrades
+- **Strategic Selling**: Match customer requests, earn bonuses for upgrades, and even collect tips
 - **PWA Ready**: Install on mobile/desktop, works offline
 
 ## 🚀 Quick Setup
@@ -55,7 +55,7 @@ A fantasy shopkeeping Progressive Web App where you craft items from materials a
 ### Shopping Phase
 - Select customers from horizontal tabs
 - Auto-switches to relevant product category
-- Perfect matches = full payment
+- Perfect matches = full payment (plus a generous tip!)
 - Wrong item types cannot be sold
 
 ### End of Day

@@ -109,9 +109,10 @@ describe('core game logic', () => {
     serveCustomer('c1', 'iron_dagger');
 
     expect(state.inventory.iron_dagger).toBe(0);
-    expect(state.gold).toBe(11);
+    expect(state.gold).toBe(12);
     expect(state.customers[0].satisfied).toBe(true);
-    expect(state.customers[0].payment).toBe(11);
+    expect(state.customers[0].payment).toBe(12);
+    expect(state.customers[0].tip).toBe(1);
   });
 
   test('serveCustomer rewards higher rarity upgrades', () => {
@@ -141,8 +142,9 @@ describe('core game logic', () => {
 
     serveCustomer('c1', 'iron_sword');
 
-    expect(state.gold).toBe(135);
-    expect(state.customers[0].payment).toBe(135);
+    expect(state.gold).toBe(142);
+    expect(state.customers[0].payment).toBe(142);
+    expect(state.customers[0].tip).toBe(7);
     expect(state.customers[0].satisfaction).toBe('delighted upgrade');
   });
 
