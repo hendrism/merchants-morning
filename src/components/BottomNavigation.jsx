@@ -10,7 +10,7 @@ const BottomNavigation = ({ currentTab, onTabChange }) => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 grid grid-cols-4 shadow-lg z-50 safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 grid grid-cols-4 shadow-lg z-30 safe-area-bottom">
       {tabs.map(tab => (
         <button
           key={tab.id}
