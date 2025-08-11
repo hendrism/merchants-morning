@@ -54,7 +54,7 @@ const DebugConsole = ({ gameState, setGameState, resetGame, openShop, serveCusto
   };
 
   return (
-    <div className="fixed bottom-16 right-4 bg-white border border-gray-300 rounded-lg shadow-lg p-4 w-72 z-50 text-sm space-y-3">
+    <div className="fixed bottom-24 right-4 bg-white border border-gray-300 rounded-lg shadow-lg p-4 w-72 z-50 text-sm space-y-3">
       <h2 className="font-bold mb-2">Debug Console</h2>
       <button className="w-full bg-red-500 hover:bg-red-600 text-white rounded p-1" onClick={resetGame}>
         Reset Game

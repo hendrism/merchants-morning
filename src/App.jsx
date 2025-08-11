@@ -152,7 +152,7 @@ const MerchantsMorning = () => {
       {process.env.NODE_ENV !== 'production' && (
         <>
           <button
-            className="fixed bottom-4 right-4 bg-gray-700 text-white px-3 py-1 rounded z-50"
+            className="fixed bottom-20 right-4 bg-gray-700 text-white px-3 py-1 rounded z-50"
             onClick={() => setShowDebug(prev => !prev)}
           >
             {showDebug ? 'Close Debug' : 'Debug'}
