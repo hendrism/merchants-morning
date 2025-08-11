@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const EventLog = ({ events }) => (
-  <div className="bg-gray-50 border rounded p-2 max-h-40 overflow-y-auto">
+  <div className="fixed bottom-24 left-4 right-4 bg-gray-50 border rounded p-2 max-h-40 overflow-y-auto shadow-lg z-50 safe-area-bottom">
     {events.length === 0 ? (
       <p className="text-gray-500 italic text-center py-8 text-sm sm:text-xs">No events yet...</p>
     ) : (
