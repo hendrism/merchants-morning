@@ -92,44 +92,17 @@ const MerchantsMorning = () => {
     addEvent(`🌅 Started Day ${gameState.day + 1}`, 'success');
   };
 
-  // Render floating action button - MOVED TO BOTTOM RIGHT
-  const renderPhaseButton = () => {
-    switch (gamePhase) {
-      case 'prep':
-        return (
-          <button
-            onClick={handleOpenShop}
-            className="fixed bottom-32 right-4 z-40 bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3 rounded-full font-semibold shadow-lg hover:from-green-700 hover:to-green-800 transition-all flex items-center gap-2 min-h-[56px]"
-          >
-            🛒 Open Shop
-          </button>
-        );
-      case 'shop':
-        return (
-          <button
-            onClick={handleCloseShop}
-            className="fixed bottom-32 right-4 z-40 bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-3 rounded-full font-semibold shadow-lg hover:from-red-700 hover:to-red-800 transition-all flex items-center gap-2 min-h-[56px]"
-          >
-            🏁 Close Shop
-          </button>
-        );
-      case 'end_day':
-        return (
-          <button
-            onClick={handleStartNewDay}
-            className="fixed bottom-32 right-4 z-40 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-3 rounded-full font-semibold shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all flex items-center gap-2 min-h-[56px]"
-          >
-            🌅 New Day
-          </button>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-amber-50 to-orange-200">
-      <Header currentPhase={gamePhase} day={gameState.day} gold={gameState.gold} />
+      <Header 
+        currentPhase={gamePhase} 
+        day={gameState.day} 
+        gold={gameState.gold}
+        onOpenShop={handleOpenShop}
+        onCloseShop={handleCloseShop}
+        onStartNewDay={handleStartNewDay}
+        gameState={gameState}
+      />
       
       <main className="flex-1 max-w-md w-full mx-auto p-4 pb-24">
         {gamePhase === 'prep' && (
@@ -169,8 +142,6 @@ const MerchantsMorning = () => {
           onTabChange={setCurrentPrepTab}
         />
       )}
-
-      {renderPhaseButton()}
 
       <Notifications notifications={notifications} />
       <EventLog events={eventLog} />

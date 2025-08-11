@@ -114,20 +114,20 @@ const MaterialStallsPanel = ({ gameState }) => {
         </div>
       </div>
 
-      {/* Material categories - CONDENSED */}
-      <div className="space-y-2">
+      {/* Material categories - ENHANCED CATEGORY HEADERS */}
+      <div className="space-y-3">
         {Object.entries(materialCategories).map(([categoryType, category]) => {
           const isExpanded = expandedCategories.includes(categoryType);
           
           return (
             <div key={categoryType} className="category-group">
-              {/* Category header - MORE COMPACT */}
+              {/* ENHANCED Category header - MORE PROMINENT */}
               <button
                 onClick={() => toggleCategory(categoryType)}
-                className="w-full flex items-center justify-between p-2 bg-white border border-gray-200 rounded hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md border-2 border-blue-400"
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl bg-white bg-opacity-20 p-2 rounded-lg">
                     {categoryType === 'metal' && '⚙️'}
                     {categoryType === 'wood' && '🌳'}
                     {categoryType === 'fabric' && '🧵'}
@@ -139,38 +139,47 @@ const MaterialStallsPanel = ({ gameState }) => {
                     {categoryType === 'container' && '🧪'}
                     {categoryType === 'utility' && '🪢'}
                   </span>
-                  <div>
-                    <div className="font-medium text-sm text-left">{category.name}</div>
-                    <div className="text-xs text-gray-500">{category.totalCount} total</div>
+                  <div className="text-left">
+                    <div className="font-bold text-lg text-white">{category.name}</div>
+                    <div className="text-sm text-blue-100">{category.totalCount} total materials</div>
                   </div>
                 </div>
-                <div className="text-gray-400 text-sm">
-                  {isExpanded ? '▼' : '▶'}
+                <div className="flex items-center gap-2">
+                  <div className="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-semibold">
+                    {category.materials.length} types
+                  </div>
+                  <div className="text-white text-lg">
+                    {isExpanded ? '▼' : '▶'}
+                  </div>
                 </div>
               </button>
 
-              {/* Category materials - VERY CONDENSED */}
+              {/* Category materials - CONDENSED */}
               {isExpanded && (
-                <div className="bg-gray-50 p-2 rounded space-y-1">
-                  {category.materials.map(material => (
-                    <div
-                      key={material.id}
-                      className="flex items-center justify-between p-2 bg-white rounded border text-sm"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{material.icon}</span>
-                        <span className="font-medium">{material.name}</span>
-                        <span className={`text-xs px-1 rounded ${
-                          material.rarity === 'rare' ? 'bg-purple-100 text-purple-700' :
-                          material.rarity === 'uncommon' ? 'bg-green-100 text-green-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>
-                          {material.rarity.charAt(0).toUpperCase()}
-                        </span>
+                <div className="bg-gray-50 p-3 rounded-lg mt-2 border-2 border-gray-200">
+                  <div className="grid grid-cols-1 gap-2">
+                    {category.materials.map(material => (
+                      <div
+                        key={material.id}
+                        className="flex items-center justify-between p-3 bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{material.icon}</span>
+                          <div>
+                            <span className="font-semibold text-gray-800">{material.name}</span>
+                            <span className={`ml-2 text-xs px-2 py-1 rounded-full font-medium ${
+                              material.rarity === 'rare' ? 'bg-purple-100 text-purple-700' :
+                              material.rarity === 'uncommon' ? 'bg-green-100 text-green-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {material.rarity}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="font-bold text-lg text-gray-800">×{material.count}</div>
                       </div>
-                      <div className="font-bold">×{material.count}</div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

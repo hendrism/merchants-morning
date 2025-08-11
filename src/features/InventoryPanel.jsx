@@ -68,64 +68,77 @@ const InventoryPanel = ({ gameState, filterInventoryByType }) => {
   return (
     <div className="inventory-panel">
       {/* Compact summary */}
-      <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-3">
-        <div className="flex justify-between text-sm">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+        <div className="flex justify-between text-sm font-semibold">
           <span><strong>{getTotalInventoryCount()}</strong> items</span>
           <span><strong>{getTotalInventoryValue()}g</strong> total value</span>
         </div>
       </div>
 
-      {/* Item categories - CONDENSED */}
-      <div className="space-y-2">
+      {/* Item categories - ENHANCED CATEGORY HEADERS */}
+      <div className="space-y-3">
         {Object.entries(inventoryCategories).map(([categoryType, category]) => {
           const isExpanded = expandedCategories.includes(categoryType);
           
           return (
             <div key={categoryType} className="category-group">
-              {/* Category header - COMPACT */}
+              {/* ENHANCED Category header - MORE PROMINENT */}
               <button
                 onClick={() => toggleCategory(categoryType)}
-                className="w-full flex items-center justify-between p-2 bg-white border border-gray-200 rounded hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md border-2 border-green-400"
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{category.icon}</span>
-                  <div>
-                    <div className="font-medium text-sm text-left">{category.name}</div>
-                    <div className="text-xs text-gray-500">{category.totalCount} items • {category.totalValue}g</div>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl bg-white bg-opacity-20 p-2 rounded-lg">
+                    {category.icon}
+                  </span>
+                  <div className="text-left">
+                    <div className="font-bold text-lg text-white">{category.name}</div>
+                    <div className="text-sm text-green-100">{category.totalCount} items • {category.totalValue}g value</div>
                   </div>
                 </div>
-                <div className="text-gray-400 text-sm">
-                  {isExpanded ? '▼' : '▶'}
+                <div className="flex items-center gap-2">
+                  <div className="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-semibold">
+                    {category.items.length} types
+                  </div>
+                  <div className="text-white text-lg">
+                    {isExpanded ? '▼' : '▶'}
+                  </div>
                 </div>
               </button>
 
-              {/* Category items - VERY CONDENSED */}
+              {/* Category items - ENHANCED */}
               {isExpanded && (
-                <div className="bg-gray-50 p-2 rounded space-y-1">
-                  {category.items.map(item => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between p-2 bg-white rounded border text-sm"
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium">{item.name}</div>
-                        <div className="text-xs text-gray-600 flex gap-2">
-                          <span className={`px-1 rounded ${
-                            item.rarity === 'rare' ? 'bg-purple-100 text-purple-700' :
-                            item.rarity === 'uncommon' ? 'bg-green-100 text-green-700' :
-                            'bg-gray-100 text-gray-700'
-                          }`}>
-                            {item.rarity.charAt(0).toUpperCase()}
-                          </span>
-                          <span>{item.sellPrice}g each</span>
+                <div className="bg-gray-50 p-3 rounded-lg mt-2 border-2 border-gray-200">
+                  <div className="grid grid-cols-1 gap-2">
+                    {category.items.map(item => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between p-3 bg-white rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="text-lg">{ITEM_TYPE_ICONS[item.type]}</span>
+                            <span className="font-semibold text-gray-800">{item.name}</span>
+                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                              item.rarity === 'legendary' ? 'bg-yellow-100 text-yellow-700' :
+                              item.rarity === 'rare' ? 'bg-purple-100 text-purple-700' :
+                              item.rarity === 'uncommon' ? 'bg-green-100 text-green-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {item.rarity}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {item.sellPrice}g each
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-lg text-gray-800">×{item.count}</div>
+                          <div className="text-sm text-green-600 font-medium">{(item.sellPrice * item.count)}g</div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-bold">×{item.count}</div>
-                        <div className="text-xs text-green-600">{(item.sellPrice * item.count)}g</div>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
