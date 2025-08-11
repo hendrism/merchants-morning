@@ -205,6 +205,15 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
       satisfaction = action === 'barter' ? 'barter trade' : 'accepted lower offer';
     }
 
+    let tip = 0;
+    if (['perfect match', 'perfect style match', 'delighted upgrade'].includes(satisfaction)) {
+      tip = Math.max(1, Math.round(finalPayment * 0.05));
+      if (action === 'sell' && finalPayment + tip > customer.maxBudget) {
+        tip = Math.max(0, customer.maxBudget - finalPayment);
+      }
+      finalPayment += tip;
+    }
+
     const newInventory = { ...gameState.inventory };
     newInventory[itemId] -= 1;
 
@@ -218,7 +227,7 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
 
     const newCustomers = gameState.customers.map(c =>
       c.id === customerId
-        ? { ...c, satisfied: true, payment: finalPayment, satisfaction }
+        ? { ...c, satisfied: true, payment: finalPayment, satisfaction, tip }
         : c
     );
 
@@ -243,12 +252,13 @@ const useCustomers = (gameState, setGameState, addEvent, addNotification, setSel
             .map(m => MATERIALS[m.id].name)
             .join(', ')})`
         : '';
+    const tipText = tip ? ` including ${tip} gold tip` : '';
     addEvent(
-      `Sold ${recipe.name} to ${customer.name} for ${finalPayment} gold${matText} ${matchText}`,
+      `Sold ${recipe.name} to ${customer.name} for ${finalPayment} gold${tipText}${matText} ${matchText}`,
       'success'
     );
     addNotification(
-      `💰 Sold ${recipe.name} for ${finalPayment} gold${action === 'barter' ? ' + materials' : ''}!`,
+      `💰 Sold ${recipe.name} for ${finalPayment} gold${tip ? ' including tip' : ''}${action === 'barter' ? ' + materials' : ''}!`,
       'success'
     );
     setSelectedCustomer(null);
