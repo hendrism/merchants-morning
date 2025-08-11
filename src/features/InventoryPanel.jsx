@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import { ITEM_TYPES, ITEM_TYPE_ICONS, RECIPES } from '../constants';
 
 const InventoryPanel = ({ gameState, filterInventoryByType }) => {
-  const [expandedCategories, setExpandedCategories] = useState(['weapon', 'armor']); // Start with some expanded
+  const [expandedCategories, setExpandedCategories] = useState(['weapon', 'armor']);
 
-  // Group inventory by item type
   const inventoryCategories = useMemo(() => {
     const categories = {};
     
@@ -19,7 +18,6 @@ const InventoryPanel = ({ gameState, filterInventoryByType }) => {
         return sum + (recipe?.sellPrice || 0) * count;
       }, 0);
       
-      // Sort items by rarity (rare first) then by name
       const sortedItems = items.map(([id, count]) => {
         const recipe = RECIPES.find(r => r.id === id);
         return { ...recipe, count };
@@ -50,16 +48,6 @@ const InventoryPanel = ({ gameState, filterInventoryByType }) => {
     );
   };
 
-  const getRarityColor = (rarity) => {
-    const colors = {
-      common: 'border-gray-300 bg-gray-50',
-      uncommon: 'border-green-300 bg-green-50',
-      rare: 'border-purple-300 bg-purple-50',
-      legendary: 'border-yellow-300 bg-yellow-50'
-    };
-    return colors[rarity] || colors.common;
-  };
-
   const getTotalInventoryValue = () => {
     return Object.values(inventoryCategories).reduce((sum, cat) => sum + cat.totalValue, 0);
   };
@@ -70,78 +58,71 @@ const InventoryPanel = ({ gameState, filterInventoryByType }) => {
 
   if (Object.keys(inventoryCategories).length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">🎒</div>
-        <h3 className="text-lg font-semibold text-gray-700 mb-2">No items crafted yet</h3>
-        <p className="text-gray-600">Visit the Workshop to craft some items to sell!</p>
+      <div className="text-center py-8">
+        <div className="text-4xl mb-2">🎒</div>
+        <p className="text-gray-600">Craft items in the Workshop!</p>
       </div>
     );
   }
 
   return (
     <div className="inventory-panel">
-      {/* Summary stats */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-        <h3 className="font-semibold text-blue-900 mb-2">📊 Inventory Summary</h3>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <div className="text-blue-700">Total Items:</div>
-            <div className="font-bold text-blue-900">{getTotalInventoryCount()}</div>
-          </div>
-          <div>
-            <div className="text-blue-700">Total Value:</div>
-            <div className="font-bold text-blue-900">{getTotalInventoryValue()}g</div>
-          </div>
+      {/* Compact summary */}
+      <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-3">
+        <div className="flex justify-between text-sm">
+          <span><strong>{getTotalInventoryCount()}</strong> items</span>
+          <span><strong>{getTotalInventoryValue()}g</strong> total value</span>
         </div>
       </div>
 
-      {/* Item categories */}
-      <div className="space-y-3">
+      {/* Item categories - CONDENSED */}
+      <div className="space-y-2">
         {Object.entries(inventoryCategories).map(([categoryType, category]) => {
           const isExpanded = expandedCategories.includes(categoryType);
           
           return (
             <div key={categoryType} className="category-group">
-              {/* Category header */}
+              {/* Category header - COMPACT */}
               <button
                 onClick={() => toggleCategory(categoryType)}
-                className="w-full flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between p-2 bg-white border border-gray-200 rounded hover:bg-gray-50 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{category.icon}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{category.icon}</span>
                   <div>
-                    <div className="font-semibold text-left">{category.name}</div>
-                    <div className="text-sm text-gray-600">
-                      {category.totalCount} items • {category.totalValue}g value
-                    </div>
+                    <div className="font-medium text-sm text-left">{category.name}</div>
+                    <div className="text-xs text-gray-500">{category.totalCount} items • {category.totalValue}g</div>
                   </div>
                 </div>
-                <div className="text-gray-400">
+                <div className="text-gray-400 text-sm">
                   {isExpanded ? '▼' : '▶'}
                 </div>
               </button>
 
-              {/* Category items */}
+              {/* Category items - VERY CONDENSED */}
               {isExpanded && (
-                <div className="space-y-2 mt-2 p-2">
+                <div className="bg-gray-50 p-2 rounded space-y-1">
                   {category.items.map(item => (
                     <div
                       key={item.id}
-                      className={`p-3 rounded-lg border-2 ${getRarityColor(item.rarity)}`}
+                      className="flex items-center justify-between p-2 bg-white rounded border text-sm"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="font-semibold">{item.name}</div>
-                          <div className="text-sm text-gray-600 capitalize">
-                            {item.rarity} • {item.sellPrice}g each
-                          </div>
+                      <div className="flex-1">
+                        <div className="font-medium">{item.name}</div>
+                        <div className="text-xs text-gray-600 flex gap-2">
+                          <span className={`px-1 rounded ${
+                            item.rarity === 'rare' ? 'bg-purple-100 text-purple-700' :
+                            item.rarity === 'uncommon' ? 'bg-green-100 text-green-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {item.rarity.charAt(0).toUpperCase()}
+                          </span>
+                          <span>{item.sellPrice}g each</span>
                         </div>
-                        <div className="text-right">
-                          <div className="font-bold text-lg">×{item.count}</div>
-                          <div className="text-sm text-green-600 font-medium">
-                            {(item.sellPrice * item.count)}g total
-                          </div>
-                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold">×{item.count}</div>
+                        <div className="text-xs text-green-600">{(item.sellPrice * item.count)}g</div>
                       </div>
                     </div>
                   ))}
