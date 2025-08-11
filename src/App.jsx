@@ -60,29 +60,52 @@ const MerchantsMorning = () => {
     setSelectedCustomer
   );
 
+  // Auto-switch to shopping phase when opening shop
   useEffect(() => {
     if (currentPhase === 'shop' && gameState.phase !== PHASES.SHOPPING) {
       openShop();
     }
   }, [currentPhase, gameState.phase, openShop]);
 
+  // Clean up notification timers on unmount
   useEffect(() => () => {
     notificationTimers.current.forEach(clearTimeout);
   }, []);
 
+  // Calculate customer count for bottom navigation
   const customerCount = gameState.customers.filter(c => !c.satisfied).length;
 
+  // Handle phase transitions
   const handlePhaseChange = (phase) => {
     setCurrentPhase(phase);
     if (phase === 'prep') {
       setSelectedCustomer(null);
+      // Smart tab selection based on current state
+      if (Object.values(gameState.inventory).some(count => count > 0)) {
+        setCurrentPrepTab('items'); // If they have items, show inventory
+      } else if (Object.values(gameState.materials).some(count => count > 0)) {
+        setCurrentPrepTab('workshop'); // If they have materials, show workshop
+      } else {
+        setCurrentPrepTab('market'); // Otherwise, start with market
+      }
     }
+  };
+
+  // Handle ready to sell transition
+  const handleReadyToSell = () => {
+    const hasInventory = Object.values(gameState.inventory).some(count => count > 0);
+    if (!hasInventory) {
+      addNotification('Craft some items first before opening your shop!', 'error');
+      return;
+    }
+    handlePhaseChange('shop');
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-amber-50 to-orange-200">
       <Header currentPhase={currentPhase} day={gameState.day} gold={gameState.gold} />
-      <main className="flex-1 max-w-md w-full mx-auto p-4 pb-24">
+      
+      <main className="flex-1 max-w-md w-full mx-auto p-4 pb-32">
         {currentPhase === 'prep' ? (
           <PrepTabs
             currentTab={currentPrepTab}
@@ -94,7 +117,7 @@ const MerchantsMorning = () => {
             filterRecipesByType={filterRecipesByType}
             sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
             filterInventoryByType={filterInventoryByType}
-            onReadyToSell={() => handlePhaseChange('shop')}
+            onReadyToSell={handleReadyToSell}
           />
         ) : (
           <ShopInterface
@@ -108,11 +131,13 @@ const MerchantsMorning = () => {
           />
         )}
       </main>
+
       <BottomNavigation
         currentPhase={currentPhase}
         onPhaseChange={handlePhaseChange}
         customerCount={customerCount}
       />
+
       <Notifications notifications={notifications} />
       <EventLog events={eventLog} />
       <UpdateToast />

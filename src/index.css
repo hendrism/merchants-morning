@@ -1013,3 +1013,333 @@ textarea:focus {
   .materials-grid { grid-template-columns: repeat(3, 1fr); }
   .sale-items-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Add these styles to src/index.css */
+
+/* ===== MOBILE-FIRST PREP TABS ===== */
+.prep-tabs-container {
+  min-height: calc(100vh - 200px);
+}
+
+.prep-tabs {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.prep-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Supply boxes mobile grid */
+.supply-boxes {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .supply-boxes {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .supply-boxes {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* ===== SHOP INTERFACE MOBILE STYLES ===== */
+.shop-interface {
+  padding-bottom: 100px; /* Space for bottom nav */
+}
+
+.customer-cards {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.customer-cards::-webkit-scrollbar {
+  display: none;
+}
+
+.customer-cards button {
+  min-width: 180px;
+  max-width: 200px;
+}
+
+/* ===== COLOR-CODED ITEM MATCHING SYSTEM ===== */
+
+/* Perfect Match - Green gradient */
+.item-perfect-match {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-color: #10b981;
+  color: #047857;
+}
+
+.item-perfect-match .match-indicator {
+  color: #065f46;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Exact Match - Light green */
+.item-exact-match {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  border-color: #16a34a;
+  color: #166534;
+}
+
+.item-exact-match .match-indicator {
+  color: #14532d;
+  background: rgba(22, 163, 74, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Preferred Style - Blue */
+.item-preferred {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-color: #3b82f6;
+  color: #1e40af;
+}
+
+.item-preferred .match-indicator {
+  color: #1e3a8a;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Quality Upgrade - Purple */
+.item-upgrade {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  border-color: #9333ea;
+  color: #7c3aed;
+}
+
+.item-upgrade .match-indicator {
+  color: #6b21a8;
+  background: rgba(147, 51, 234, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Basic Match - Yellow/Orange */
+.item-basic-match {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #f59e0b;
+  color: #d97706;
+}
+
+.item-basic-match .match-indicator {
+  color: #92400e;
+  background: rgba(245, 158, 11, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Can't Afford - Red/Gray */
+.item-cant-afford {
+  background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+.item-cant-afford .match-indicator {
+  color: #7f1d1d;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Hover states for touchable items */
+.item-perfect-match:not(:disabled):hover,
+.item-exact-match:not(:disabled):hover,
+.item-preferred:not(:disabled):hover,
+.item-upgrade:not(:disabled):hover,
+.item-basic-match:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Active states for touch feedback */
+.active\:scale-98:active {
+  transform: scale(0.98);
+}
+
+/* ===== BUDGET INDICATORS ===== */
+.budget-wealthy {
+  background-color: #10b981;
+}
+
+.budget-middle {
+  background-color: #f59e0b;
+}
+
+.budget-budget {
+  background-color: #ef4444;
+}
+
+/* ===== RESPONSIVE IMPROVEMENTS ===== */
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .prep-tabs button {
+    min-width: 80px;
+    padding: 12px 8px;
+  }
+  
+  .prep-tabs button .text-xl {
+    font-size: 1.125rem;
+  }
+  
+  .customer-cards button {
+    min-width: 160px;
+    padding: 12px;
+  }
+  
+  .sale-items-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .supply-boxes button {
+    min-height: 90px;
+    padding: 12px;
+  }
+  
+  .supply-boxes button .font-bold {
+    font-size: 0.875rem;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .sale-items-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .customer-cards button {
+    min-width: 200px;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1024px) {
+  .sale-items-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .customer-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    overflow: visible;
+    padding: 0;
+  }
+  
+  .customer-cards button {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+/* ===== TOUCH OPTIMIZATIONS ===== */
+
+/* Ensure all interactive elements meet 44px minimum */
+.prep-tabs button,
+.customer-cards button,
+.sale-items-grid button,
+.supply-boxes button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Improve touch feedback */
+@media (hover: none) and (pointer: coarse) {
+  button:active {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .prep-tabs button:active {
+    transform: scale(0.95);
+  }
+  
+  .customer-cards button:active {
+    transform: scale(0.98);
+  }
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .item-perfect-match,
+  .item-exact-match,
+  .item-preferred,
+  .item-upgrade,
+  .item-basic-match,
+  .item-cant-afford {
+    border-width: 3px;
+  }
+  
+  .match-indicator {
+    font-weight: bold;
+  }
+}
+
+/* Focus states for keyboard navigation */
+.prep-tabs button:focus,
+.customer-cards button:focus,
+.sale-items-grid button:focus,
+.supply-boxes button:focus {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .prep-tabs button,
+  .customer-cards button,
+  .sale-items-grid button,
+  .supply-boxes button {
+    transition: none;
+  }
+  
+  .item-perfect-match:hover,
+  .item-exact-match:hover,
+  .item-preferred:hover,
+  .item-upgrade:hover,
+  .item-basic-match:hover {
+    transform: none;
+  }
+}
+
+/* ===== LOADING AND EMPTY STATES ===== */
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 2px dashed #d1d5db;
+}
+
+.empty-state .text-4xl {
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+/* ===== NOTIFICATION POSITIONING ===== */
+@media (max-width: 640px) {
+  .fixed.top-4.right-4 {
+    top: 80px; /* Account for header */
+    right: 16px;
+    left: 16px;
+    right: 16px;
+  }
+}
