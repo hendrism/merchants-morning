@@ -23,6 +23,7 @@ const MerchantsMorning = () => {
   const [notifications, setNotifications] = useState([]);
   const notificationTimers = useRef([]);
   const [showDebug, setShowDebug] = useState(false);
+  const [showEventLog, setShowEventLog] = useState(true);
 
   const addEvent = (message, type = 'info') => {
     const event = {
@@ -94,6 +95,9 @@ const MerchantsMorning = () => {
     addEvent(`🌅 Started Day ${gameState.day + 1}`, 'success');
   };
 
+  // Check if we're in development mode (more reliable check)
+  const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-amber-50 to-orange-200">
       <Header 
@@ -146,16 +150,30 @@ const MerchantsMorning = () => {
       )}
 
       <Notifications notifications={notifications} />
-      <EventLog events={eventLog} />
+      
+      {/* Collapsible Event Log */}
+      {showEventLog && <EventLog events={eventLog} />}
+      
+      {/* Event Log Toggle Button */}
+      <button
+        className="fixed bottom-4 left-4 bg-blue-500 text-white p-2 rounded-full shadow-lg z-50 hover:bg-blue-600 transition-colors"
+        onClick={() => setShowEventLog(prev => !prev)}
+        title={showEventLog ? 'Hide Events' : 'Show Events'}
+      >
+        {showEventLog ? '📋' : '📝'}
+      </button>
+
       <UpdateToast />
 
-      {process.env.NODE_ENV !== 'production' && (
+      {/* Debug Tools - Always show in development, or when manually enabled */}
+      {(isDevelopment || showDebug) && (
         <>
           <button
-            className="fixed bottom-32 right-4 bg-gray-700 text-white px-3 py-1 rounded z-50"
+            className="fixed top-20 right-4 bg-gray-700 text-white px-3 py-1 rounded z-50 hover:bg-gray-600 transition-colors shadow-lg"
             onClick={() => setShowDebug(prev => !prev)}
+            title="Toggle Debug Console"
           >
-            {showDebug ? 'Close Debug' : 'Debug'}
+            {showDebug ? '🔧 Close' : '🔧 Debug'}
           </button>
           {showDebug && (
             <DebugConsole
@@ -167,6 +185,13 @@ const MerchantsMorning = () => {
             />
           )}
         </>
+      )}
+
+      {/* Development mode indicator */}
+      {isDevelopment && (
+        <div className="fixed top-20 left-4 bg-yellow-500 text-black px-2 py-1 rounded text-xs z-40">
+          DEV
+        </div>
       )}
     </div>
   );
