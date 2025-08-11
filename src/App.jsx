@@ -3,6 +3,7 @@ import { PHASES } from './constants';
 import PrepTabs from './features/PrepTabs';
 import ShopInterface from './features/ShopInterface';
 import BottomNavigation from './components/BottomNavigation';
+import Header from './components/Header';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
 import UpdateToast from './components/UpdateToast';
@@ -79,39 +80,42 @@ const MerchantsMorning = () => {
   };
 
   return (
-    <div className="pb-16 space-y-4">
-      {currentPhase === 'prep' ? (
-        <PrepTabs
-          currentTab={currentPrepTab}
-          onTabChange={setCurrentPrepTab}
-          gameState={gameState}
-          openBox={openBox}
-          canCraft={canCraft}
-          craftItem={craftItem}
-          filterRecipesByType={filterRecipesByType}
-          sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
-          filterInventoryByType={filterInventoryByType}
-          onReadyToSell={() => handlePhaseChange('shop')}
+    <div className="pb-16">
+      <Header currentPhase={currentPhase} gold={gameState.gold} day={gameState.day} />
+      <div className="space-y-4">
+        {currentPhase === 'prep' ? (
+          <PrepTabs
+            currentTab={currentPrepTab}
+            onTabChange={setCurrentPrepTab}
+            gameState={gameState}
+            openBox={openBox}
+            canCraft={canCraft}
+            craftItem={craftItem}
+            filterRecipesByType={filterRecipesByType}
+            sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
+            filterInventoryByType={filterInventoryByType}
+            onReadyToSell={() => handlePhaseChange('shop')}
+          />
+        ) : (
+          <ShopInterface
+            gameState={gameState}
+            selectedCustomer={selectedCustomer}
+            setSelectedCustomer={setSelectedCustomer}
+            filterInventoryByType={filterInventoryByType}
+            sortByMatchQualityAndRarity={sortByMatchQualityAndRarity}
+            serveCustomer={serveCustomer}
+            getSaleInfo={getSaleInfo}
+          />
+        )}
+        <BottomNavigation
+          currentPhase={currentPhase}
+          onPhaseChange={handlePhaseChange}
+          customerCount={customerCount}
         />
-      ) : (
-        <ShopInterface
-          gameState={gameState}
-          selectedCustomer={selectedCustomer}
-          setSelectedCustomer={setSelectedCustomer}
-          filterInventoryByType={filterInventoryByType}
-          sortByMatchQualityAndRarity={sortByMatchQualityAndRarity}
-          serveCustomer={serveCustomer}
-          getSaleInfo={getSaleInfo}
-        />
-      )}
-      <BottomNavigation
-        currentPhase={currentPhase}
-        onPhaseChange={handlePhaseChange}
-        customerCount={customerCount}
-      />
-      <Notifications notifications={notifications} />
-      <EventLog events={eventLog} />
-      <UpdateToast />
+        <Notifications notifications={notifications} />
+        <EventLog events={eventLog} />
+        <UpdateToast />
+      </div>
     </div>
   );
 };
