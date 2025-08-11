@@ -27,7 +27,7 @@ const PrepTabs = ({
         ))}
       </div>
       <div className="grid gap-3 supply-boxes">
-        {['bronze','silver','gold','platinum'].map(key => {
+        {['bronze', 'silver', 'gold', 'platinum'].map(key => {
           const box = BOX_TYPES[key];
           const affordable = gameState.gold >= box.cost;
           return (
@@ -35,11 +35,11 @@ const PrepTabs = ({
               key={key}
               onClick={() => openBox(key)}
               disabled={!affordable}
-              className={`border rounded p-3 flex flex-col items-center justify-center text-sm ${affordable ? 'bg-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+              className={`rounded-xl p-4 text-center transition transform active:scale-95 border-2 flex flex-col items-center text-sm ${affordable ? 'bg-gradient-to-tr from-amber-50 to-amber-200 border-amber-500' : 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'}`}
             >
-              <span className="font-semibold">{box.name}</span>
-              <span className="text-xs">{box.cost}g</span>
-              <span className="text-xs">{box.materialCount[0]}-{box.materialCount[1]} mats</span>
+              <span className="font-bold">{box.name}</span>
+              <span className="text-xs text-amber-700 mb-1">{box.cost}g</span>
+              <span className="text-[0.65rem] opacity-80">{box.materialCount[0]}-{box.materialCount[1]} mats</span>
             </button>
           );
         })}
@@ -97,19 +97,19 @@ const PrepTabs = ({
 
   return (
     <div>
-      <div className="flex prep-tabs border-b mb-4">
+      <div className="flex gap-2 prep-tabs mb-4 overflow-x-auto pb-2">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`flex-1 py-2 text-center ${currentTab === tab.id ? 'border-b-2 border-blue-500 font-semibold' : 'text-gray-500'}`}
+            className={`flex flex-col items-center flex-none px-3 py-2 rounded-lg border-2 min-w-[80px] transition-colors ${currentTab === tab.id ? 'bg-gradient-to-tr from-blue-500 to-blue-700 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
           >
-            <div className="text-lg">{tab.icon}</div>
-            <div className="text-xs">{tab.label}</div>
+            <div className="text-lg mb-0.5">{tab.icon}</div>
+            <div className="text-xs font-medium">{tab.label}</div>
           </button>
         ))}
       </div>
-      <div className="p-4">{renderContent()}</div>
+      <div className="space-y-4">{renderContent()}</div>
     </div>
   );
 };
