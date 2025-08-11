@@ -18,7 +18,7 @@ const PrepTabs = ({
   onReadyToSell,
 }) => {
   const renderMarket = () => (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-white rounded-xl shadow p-4">
       <div className="space-y-2">
         {gameState.marketReports.map(r => (
           <div key={r.id} className="p-3 bg-blue-50 border border-blue-200 rounded">
@@ -47,21 +47,29 @@ const PrepTabs = ({
     </div>
   );
 
-  const renderMaterials = () => <MaterialStallsPanel gameState={gameState} />;
+  const renderMaterials = () => (
+    <div className="bg-white rounded-xl shadow p-4">
+      <MaterialStallsPanel gameState={gameState} />
+    </div>
+  );
 
   const renderWorkshop = () => (
-    <Workshop
-      gameState={gameState}
-      canCraft={canCraft}
-      craftItem={craftItem}
-      filterRecipesByType={filterRecipesByType}
-      sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
-    />
+    <div className="bg-white rounded-xl shadow p-4">
+      <Workshop
+        gameState={gameState}
+        canCraft={canCraft}
+        craftItem={craftItem}
+        filterRecipesByType={filterRecipesByType}
+        sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
+      />
+    </div>
   );
 
   const renderItems = () => (
     <div className="space-y-4">
-      <InventoryPanel gameState={gameState} filterInventoryByType={filterInventoryByType} />
+      <div className="bg-white rounded-xl shadow p-4">
+        <InventoryPanel gameState={gameState} filterInventoryByType={filterInventoryByType} />
+      </div>
       <div className="text-center">
         <button
           onClick={onReadyToSell}
@@ -97,19 +105,19 @@ const PrepTabs = ({
 
   return (
     <div>
-      <div className="flex prep-tabs border-b mb-4">
+      <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`flex-1 py-2 text-center ${currentTab === tab.id ? 'border-b-2 border-blue-500 font-semibold' : 'text-gray-500'}`}
+            className={`min-w-[80px] px-3 py-2 rounded-lg border-2 flex flex-col items-center text-xs transition-colors ${currentTab === tab.id ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white border-blue-500' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
           >
-            <div className="text-lg">{tab.icon}</div>
-            <div className="text-xs">{tab.label}</div>
+            <div className="text-lg mb-1">{tab.icon}</div>
+            <div className="font-medium">{tab.label}</div>
           </button>
         ))}
       </div>
-      <div className="p-4">{renderContent()}</div>
+      {renderContent()}
     </div>
   );
 };

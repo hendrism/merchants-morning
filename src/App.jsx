@@ -3,6 +3,7 @@ import { PHASES } from './constants';
 import PrepTabs from './features/PrepTabs';
 import ShopInterface from './features/ShopInterface';
 import BottomNavigation from './components/BottomNavigation';
+import GameHeader from './components/GameHeader';
 import EventLog from './components/EventLog';
 import Notifications from './components/Notifications';
 import UpdateToast from './components/UpdateToast';
@@ -79,31 +80,34 @@ const MerchantsMorning = () => {
   };
 
   return (
-    <div className="pb-16 space-y-4">
-      {currentPhase === 'prep' ? (
-        <PrepTabs
-          currentTab={currentPrepTab}
-          onTabChange={setCurrentPrepTab}
-          gameState={gameState}
-          openBox={openBox}
-          canCraft={canCraft}
-          craftItem={craftItem}
-          filterRecipesByType={filterRecipesByType}
-          sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
-          filterInventoryByType={filterInventoryByType}
-          onReadyToSell={() => handlePhaseChange('shop')}
-        />
-      ) : (
-        <ShopInterface
-          gameState={gameState}
-          selectedCustomer={selectedCustomer}
-          setSelectedCustomer={setSelectedCustomer}
-          filterInventoryByType={filterInventoryByType}
-          sortByMatchQualityAndRarity={sortByMatchQualityAndRarity}
-          serveCustomer={serveCustomer}
-          getSaleInfo={getSaleInfo}
-        />
-      )}
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-200 flex flex-col">
+      <GameHeader currentPhase={currentPhase} day={gameState.day} gold={gameState.gold} />
+      <main className="flex-1 pb-24 px-4 space-y-4">
+        {currentPhase === 'prep' ? (
+          <PrepTabs
+            currentTab={currentPrepTab}
+            onTabChange={setCurrentPrepTab}
+            gameState={gameState}
+            openBox={openBox}
+            canCraft={canCraft}
+            craftItem={craftItem}
+            filterRecipesByType={filterRecipesByType}
+            sortRecipesByRarityAndCraftability={sortRecipesByRarityAndCraftability}
+            filterInventoryByType={filterInventoryByType}
+            onReadyToSell={() => handlePhaseChange('shop')}
+          />
+        ) : (
+          <ShopInterface
+            gameState={gameState}
+            selectedCustomer={selectedCustomer}
+            setSelectedCustomer={setSelectedCustomer}
+            filterInventoryByType={filterInventoryByType}
+            sortByMatchQualityAndRarity={sortByMatchQualityAndRarity}
+            serveCustomer={serveCustomer}
+            getSaleInfo={getSaleInfo}
+          />
+        )}
+      </main>
       <BottomNavigation
         currentPhase={currentPhase}
         onPhaseChange={handlePhaseChange}

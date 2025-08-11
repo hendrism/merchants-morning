@@ -11,12 +11,12 @@ describe('useCardIntelligence', () => {
     act(() => {
       result.current.toggleCategory('materials', 'wood');
     });
-    expect(result.current.getCardState('materials').categoriesOpen.wood).toBe(true);
+    expect(result.current.getCardState('materials').expandedCategories).toContain('wood');
 
     rerender({ gs: { ...initial, materials: { wood: 2 } } });
-    expect(result.current.getCardState('materials').categoriesOpen.wood).toBe(true);
+    expect(result.current.getCardState('materials').expandedCategories).toContain('wood');
 
     rerender({ gs: { ...initial, phase: 'crafting' } });
-    expect(result.current.getCardState('materials').categoriesOpen.wood).toBeUndefined();
+    expect(result.current.getCardState('materials').expandedCategories).not.toContain('wood');
   });
 });
