@@ -12,15 +12,17 @@ import useGameState from './hooks/useGameState';
 import useCrafting from './hooks/useCrafting';
 import useCustomers from './hooks/useCustomers';
 import generateId from './utils/id';
+import DebugConsole from './components/DebugConsole';
 
 const MerchantsMorning = () => {
-  const [gameState, setGameState] = useGameState();
+  const [gameState, setGameState, resetGame] = useGameState();
   const [gamePhase, setGamePhase] = useState('prep');
   const [currentPrepTab, setCurrentPrepTab] = useState('market');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [eventLog, setEventLog] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const notificationTimers = useRef([]);
+  const [showDebug, setShowDebug] = useState(false);
 
   const addEvent = (message, type = 'info') => {
     const event = {
@@ -146,6 +148,26 @@ const MerchantsMorning = () => {
       <Notifications notifications={notifications} />
       <EventLog events={eventLog} />
       <UpdateToast />
+
+      {process.env.NODE_ENV !== 'production' && (
+        <>
+          <button
+            className="fixed bottom-4 right-4 bg-gray-700 text-white px-3 py-1 rounded z-50"
+            onClick={() => setShowDebug(prev => !prev)}
+          >
+            {showDebug ? 'Close Debug' : 'Debug'}
+          </button>
+          {showDebug && (
+            <DebugConsole
+              gameState={gameState}
+              setGameState={setGameState}
+              resetGame={resetGame}
+              openShop={openShop}
+              serveCustomer={serveCustomer}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 };
